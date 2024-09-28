@@ -1,6 +1,7 @@
 import { Typography, Box, Stack, Button, Divider } from "@mui/joy";
 import { useState } from "react";
 import FormItem from "./FormItem";
+import supabase from "../config/supabaseClient";
 
 const SignInUp = () => {
 	const uflEmailPattern = /^[a-zA-Z0-9._%+-]+@([a-zA-Z0-9.-]+\.)*ufl\.edu/;
@@ -13,41 +14,77 @@ const SignInUp = () => {
 	const [signInActive, setSignInActive] = useState(true);
 	const [formData, setFormData] = useState({ ...formDataTemplate });
 	const [formErrors, setFormErrors] = useState({ ...formDataTemplate });
+	const [loading, setLoading] = useState(false);
+	const [generalError, setGeneralError] = useState("");
 
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault();
+		if (loading) return;
 
-		if (!signInActive) {
-			if (!validateSignUp()) return;
+		if (signInActive) {
+			await handleSignIn();
+		} else {
+			await handleSignUp();
 		}
+	};
+
+	const handleSignUp = async () => {
+		if (!validateSignUp()) return;
+		setLoading(true);
+		const { error } = await supabase.auth.signUp({
+			email: formData.email,
+			password: formData.password,
+		});
+		if (error) setGeneralError(error.message);
+		setLoading(false);
+	};
+
+	const handleSignIn = async () => {
+		if (!validateSignIn()) return;
+		setLoading(true);
+		const { error } = await supabase.auth.signInWithPassword({
+			email: formData.email,
+			password: formData.password,
+		});
+		if (error) setGeneralError(error.message);
+		setLoading(false);
 	};
 
 	const validateSignUp = () => {
 		let newFormErrors = { ...formDataTemplate };
 		if (!uflEmailPattern.test(formData.email))
 			newFormErrors = { ...newFormErrors, email: "Email must be a valid UFL email." };
-
-		if (!formData.password) newFormErrors = { ...newFormErrors, password: "Password cannot be empty" };
-
+		if (formData.password.length < 6)
+			newFormErrors = { ...newFormErrors, password: "Password must be at least 6 characters." };
 		if (formData.password !== formData.confirmPassword)
 			newFormErrors = { ...newFormErrors, confirmPassword: "Passwords must match." };
+		setFormErrors(newFormErrors);
+		return Object.values(newFormErrors).every((value) => value === "");
+	};
 
+	const validateSignIn = () => {
+		let newFormErrors = { ...formDataTemplate };
+		if (formData.email.length === 0) newFormErrors = { ...newFormErrors, email: "Email cannot be empty." };
+		if (formData.password.length === 0) newFormErrors = { ...newFormErrors, password: "Password cannot be empty." };
 		setFormErrors(newFormErrors);
 		return Object.values(newFormErrors).every((value) => value === "");
 	};
 
 	const switchActiveForm = () => {
+		if (loading) return;
 		resetForm();
 		setSignInActive(!signInActive);
 	};
 
 	const resetForm = () => {
 		setFormData({ ...formDataTemplate });
+		setGeneralError("");
 		setFormErrors({ ...formDataTemplate });
 	};
 
 	const handleFormChange = (e) => {
 		const { name, value } = e.target;
+		setGeneralError("");
 		setFormErrors({ ...formErrors, [name]: "" });
 		setFormData({
 			...formData,
@@ -95,6 +132,7 @@ const SignInUp = () => {
 							sx={{
 								justifyContent: "center",
 								alignItems: "flex-start",
+								marginBottom: "0.5rem",
 							}}
 						>
 							{/* Email Form Group */}
@@ -130,9 +168,21 @@ const SignInUp = () => {
 							)}
 						</Stack>
 
+						{generalError && (
+							<Typography sx={{ fontWeight: 400 }} level="body-xs" color="danger">
+								Error: {generalError}
+							</Typography>
+						)}
+
 						{/* Sign In/Sign Up Button */}
-						<Button sx={{ marginTop: "1.5rem" }} color="primary" type="submit" fullWidth>
-							{signInActive ? "Sign In" : "Sign Up"}
+						<Button
+							sx={{ marginTop: generalError ? "0.5rem" : "1rem" }}
+							color="primary"
+							type="submit"
+							fullWidth
+						>
+							{loading && <>{signInActive ? "Signing In..." : "Signing Up..."}</>}
+							{!loading && <>{signInActive ? "Sign In" : "Sign Up"}</>}
 						</Button>
 					</form>
 
