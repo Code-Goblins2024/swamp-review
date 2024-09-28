@@ -22,10 +22,13 @@ const SignInUp = () => {
 		if (loading) return;
 
 		if (signInActive) {
-			await handleSignIn();
+			if (!(await handleSignIn())) return;
 		} else {
-			await handleSignUp();
+			if (!(await handleSignUp())) return;
 		}
+
+		// TODO: Add logic for redirect after successful sign in/up
+		resetForm();
 	};
 
 	const handleSignUp = async () => {
@@ -37,6 +40,7 @@ const SignInUp = () => {
 		});
 		if (error) setGeneralError(error.message);
 		setLoading(false);
+		return error === null;
 	};
 
 	const handleSignIn = async () => {
@@ -48,6 +52,7 @@ const SignInUp = () => {
 		});
 		if (error) setGeneralError(error.message);
 		setLoading(false);
+		return error === null;
 	};
 
 	const validateSignUp = () => {
