@@ -9,57 +9,57 @@ import LandingPage from "./pages/LandingPage";
 import SignInUp from "./pages/SignInUp";
 
 const App = () => {
-	const { session, setSession } = useAuth();
-	const [loading, setLoading] = useState(true);
+  const { session, setSession } = useAuth();
+  const [loading, setLoading] = useState(true);
 
-	// All logic for loading the application
-	const loadApp = async () => {
-		const { data, error } = await supabase.auth.getSession();
-		if (!error) setSession(data.session);
+  // All logic for loading the application
+  const loadApp = async () => {
+    const { data, error } = await supabase.auth.getSession();
+    if (!error) setSession(data.session);
 
-		setLoading(false);
-	};
+    setLoading(false);
+  };
 
-	useEffect(() => {
-		loadApp();
-	}, []);
+  useEffect(() => {
+    loadApp();
+  }, []);
 
-	// Auth state change listener
-	useEffect(() => {
-		const {
-			data: { subscription },
-		} = supabase.auth.onAuthStateChange((_event, session) => {
-			setSession(session);
-		});
+  // Auth state change listener
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
 
-		return () => subscription.unsubscribe();
-	}, []);
+    return () => subscription.unsubscribe();
+  }, []);
 
-	if (loading) return null;
+  if (loading) return null;
 
-	return (
-		<Router>
-		  <div className="app-container">
-			<Navbar />
-			<main>
-			  <Routes>
-				<Route 
-				  path="/" 
-				  element={session ? <Navigate to="/dashboard" /> : <LandingPage />} 
-				/>
-				<Route 
-				  path="/signin" 
-				  element={session ? <Navigate to="/dashboard" /> : <SignInUp />} 
-				/>
-				<Route 
-				  path="/dashboard" 
-				  element={session ? <div>Dashboard Placeholder</div> : <Navigate to="/signin" />} 
-				/>
-			  </Routes>
-			</main>
-		  </div>
-		</Router>
-	  );
+  return (
+    <Router>
+      <div className="app-container">
+        <Navbar />
+        <main>
+          <Routes>
+            <Route
+              path="/"
+              element={session ? <Navigate to="/dashboard" /> : <LandingPage />}
+            />
+            <Route
+              path="/signin"
+              element={session ? <Navigate to="/dashboard" /> : <SignInUp />}
+            />
+            <Route
+              path="/dashboard"
+              element={session ? <div>Dashboard Placeholder</div> : <Navigate to="/signin" />}
+            />
+          </Routes>
+        </main>
+      </div>
+    </Router>
+  );
 };
 
 export default App;
