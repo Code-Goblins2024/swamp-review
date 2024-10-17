@@ -8,6 +8,12 @@ export const getAllHousing = async () => {
         name
       ),
       averageRating
+    ),
+    attributes (
+      attributeName
+    ),
+    roomType (
+      name
     )
   `);
   if (error) {
@@ -17,7 +23,25 @@ export const getAllHousing = async () => {
 }
 
 export const getHousing = async (id) => {
-  const { data, error } = await supabase.from("housing").select().eq("id", id)
+  const { data, error } = await supabase.from("housing").select(`
+    name,
+    address,
+    averageRating (
+      categories (
+        name
+      ),
+      averageRating
+    ),
+    attributes (
+      attributeName
+    ),
+    roomType (
+      name,
+      fallSpringPrice,
+      summerABPrice,
+      summerCPrice
+    )
+  `).eq("id", id)
   if (error) {
     console.log(`Error retrieving housing ${id}:`, error)
   }
@@ -31,7 +55,7 @@ export const getInterestPoints = async (id) => {
     interestPoints (
       name,
       address
-    )
+    ),
   `).eq("id", id)
   if (error) {
     console.log("Error retrieving pois:", error)
