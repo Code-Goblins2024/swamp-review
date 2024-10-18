@@ -3,21 +3,45 @@ import supabase from "../config/supabaseClient";
 export const getAllHousing = async () => {
   const { data, error } = await supabase.from("housing").select(`
     name,
-    averageRating (
+    address,
+    average_rating (
       categories (
         name
       ),
-      averageRating
+      average_rating
     ),
     attributes (
-      attributeName
+      attribute_name
     ),
-    roomType (
-      name
+    room_type (
+      name,
+      fall_spring_price,
+      summer_AB_price,
+      summer_C_price
+    ),
+    reviews (
+      content,
+      created_at,
+      tags (
+        name
+      ),
+      reviews_to_categories (
+        rating_value,
+        categories (
+          name
+        )
+      )
+    ),
+    interest_points (
+      name,
+      address,
+      lat,
+      lng
     )
-  `);
+`);
   if (error) {
-    console.log("Error retrieving housing:", error)
+    console.log("Error retrieving housing")
+    throw error
   }
   return data;
 }
@@ -26,51 +50,62 @@ export const getHousing = async (id) => {
   const { data, error } = await supabase.from("housing").select(`
     name,
     address,
-    averageRating (
+    average_rating (
       categories (
         name
       ),
-      averageRating
+      average_rating
     ),
     attributes (
-      attributeName
+      attribute_name
     ),
-    roomType (
+    room_type (
       name,
-      fallSpringPrice,
-      summerABPrice,
-      summerCPrice
+      fall_spring_price,
+      summer_AB_price,
+      summer_C_price
+    ),
+    reviews (
+      content,
+      created_at,
+      tags (
+        name
+      ),
+      reviews_to_categories (
+        rating_value,
+        categories (
+          name
+        )
+      )
+    ),
+    interest_points (
+      name,
+      address,
+      lat,
+      lng
     )
   `).eq("id", id)
   if (error) {
-    console.log(`Error retrieving housing ${id}:`, error)
+    console.log(`Error retrieving housing ${id}`)
+    throw error
   }
   return data;
 }
 
 export const getInterestPoints = async (id) => {
-  const { data, error } = await supabase.from("housing").select(
-    `id,
-    name,
-    interestPoints (
+  const { data, error } = await supabase.from("housing").select(`
+    interest_points (
+      id,
       name,
-      address
-    ),
+      address,
+      lat,
+      lng
+    )
   `).eq("id", id)
   if (error) {
-    console.log("Error retrieving pois:", error)
+    console.log("Error retrieving interest points")
+    throw error
   }
-  return data;
-}
-
-export const getReviewTags = async () => {
-  const { data, error } = await supabase.from("reviews").select(`
-    created_at,
-    content,
-    tags (
-      name
-    )
-  `)
   return data;
 }
 
@@ -81,20 +116,32 @@ export const getHousingReviews = async (id) => {
     address,
     reviews (
       rating,
-      content
-    )
-  `).eq("id", id)
-  return data;
-}
-
-export const getUserFavorites = async (id) => {
-  const { data, error } = await supabase.from("users").select(`
-    housing (
-      name,
-      averageRating (
-        averageRating
+      content,
+      created_at,
+      tags (
+        name
       )
     )
   `).eq("id", id)
+  if (error) {
+    console.log(`Error retrieving reviews for housing ${id}`)
+    throw error
+  }
+  return data;
+}
+
+export const getUserFavorites = async (uuid) => {
+  const { data, error } = await supabase.from("users").select(`
+    housing (
+      name,
+      average_rating (
+        average_rating
+      )
+    )
+  `).eq("id", uuid)
+  if (error) {
+    console.log(`Error retrieving favorites`)
+    throw error
+  }
   return data;
 }
