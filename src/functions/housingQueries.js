@@ -130,18 +130,4 @@ export const getHousingReviews = async (id) => {
   return data;
 }
 
-export const getUserFavorites = async (uuid) => {
-  const { data, error } = await supabase.from("users").select(`
-    housing (
-      name,
-      average_rating (
-        average_rating
-      )
-    )
-  `).eq("id", uuid)
-  if (error) {
-    console.log(`Error retrieving favorites`)
-    throw error
-  }
-  return data;
-}
+
