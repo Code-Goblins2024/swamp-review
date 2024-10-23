@@ -89,7 +89,7 @@ export const getHousing = async (id) => {
     console.log(`Error retrieving housing ${id}`)
     throw error
   }
-  return data;
+  return data[0];
 }
 
 export const getInterestPoints = async (id) => {

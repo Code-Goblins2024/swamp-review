@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import useAuth from "./store/authStore";
 import supabase from "./config/supabaseClient";
@@ -7,6 +7,7 @@ import supabase from "./config/supabaseClient";
 import Navbar from "./components/Navbar";
 import LandingPage from "./pages/LandingPage";
 import SignInUp from "./pages/SignInUp";
+import HousingPage from "./pages/HousingPage";
 
 const App = () => {
   const { session, setSession } = useAuth();
@@ -55,6 +56,7 @@ const App = () => {
               path="/dashboard"
               element={session ? <div>Dashboard Placeholder</div> : <Navigate to="/signin" />}
             />
+            <Route path="/housing/:housingId" element={<HousingPage />} />
           </Routes>
         </main>
       </div>

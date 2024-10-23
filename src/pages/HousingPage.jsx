@@ -1,11 +1,32 @@
 import { Box, Typography, Stack, Card } from "@mui/joy";
 import { Grid2 } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { getHousing } from "../functions/housingQueries";
 import Rating from "../components/Rating";
 import PricingChip from "../components/PricingChip";
 import Review from "../components/Review";
 
-const DormPage = () => {
+const HousingPage = () => {
+  const { housingId } = useParams();
+  const [housingData, setHousingData] = useState({});
+
+  useEffect(() => {
+    const loadHousingData = async () => {
+      console.log(housingId);
+
+      try {
+        const response = await getHousing(housingId);
+        setHousingData(response);
+      } catch (error) {
+        // TODO: Redirect on failure
+        console.err(error);
+      }
+    }
+
+    loadHousingData();
+  }, []);
+
 	const tempCategories = [
 		{
 			name: "Location",
@@ -51,7 +72,7 @@ const DormPage = () => {
 						src="./beaty.jpg"
 						style={{ borderRadius: "0.75rem", height: "20rem", width: "100%", objectFit: "cover" }}
 					></img>
-					<Typography level="h1">Beaty Towers</Typography>
+					<Typography level="h1">{housingData.name}</Typography>
 				</Stack>
 
 				{/* Average Ratings */}
@@ -174,4 +195,4 @@ const DormPage = () => {
 	);
 };
 
-export default DormPage;
+export default HousingPage;
