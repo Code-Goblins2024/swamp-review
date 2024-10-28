@@ -1,6 +1,10 @@
-import { Typography, Box, Stack, Button, Divider } from "@mui/joy";
+import { Typography, Box, Stack, Button, Divider, FormLabel } from "@mui/joy";
 import { useState } from "react";
-import FormItem from "./FormItem";
+import { years } from "../constants/Years";
+import { createPublicUser } from "../functions/userQueries";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import FormItem from "../components/FormItem";
+import FormSelect from "../components/FormSelect";
 import supabase from "../config/supabaseClient";
 
 const SignInUp = () => {
@@ -9,9 +13,13 @@ const SignInUp = () => {
 		email: "",
 		password: "",
 		confirmPassword: "",
+		firstname: "",
+		lastname: "",
+		major: "",
+		year: "",
 	};
 
-	const [signInActive, setSignInActive] = useState(true);
+	const [formState, setFormState] = useState("SIGNIN");
 	const [formData, setFormData] = useState({ ...formDataTemplate });
 	const [formErrors, setFormErrors] = useState({ ...formDataTemplate });
 	const [loading, setLoading] = useState(false);
@@ -21,10 +29,13 @@ const SignInUp = () => {
 		e.preventDefault();
 		if (loading) return;
 
-		if (signInActive) {
+		if (formState === "SIGNIN") {
 			if (!(await handleSignIn())) return;
-		} else {
-			if (!(await handleSignUp())) return;
+		} else if (formState === "SIGNUP") {
+			await handleSignUp();
+			return; // Avoid the reset at the end of the function
+		} else if (formState === "SIGNUP_CONFIRM") {
+			if (!(await handleConfirmSignUp())) return;
 		}
 
 		// TODO: Add logic for redirect after successful sign in/up
@@ -34,11 +45,44 @@ const SignInUp = () => {
 	const handleSignUp = async () => {
 		if (!validateSignUp()) return;
 		setLoading(true);
-		const { error } = await supabase.auth.signUp({
+
+		// TODO: Encapsulate this in a query function
+		const { data, error } = await supabase.from("users").select("id").eq("email", formData.email).limit(1);
+
+		if (error) {
+			setGeneralError("Error: Unknown error while trying to sign up. Please try again later.");
+			return;
+		}
+
+		if (data.length > 0) {
+			setFormErrors({ ...formErrors, email: "Email already exists." });
+			setLoading(false);
+			return;
+		}
+
+		setFormState("SIGNUP_CONFIRM"); // Move the user onto the next page
+		setLoading(false);
+	};
+
+	const handleConfirmSignUp = async () => {
+		if (!validateConfirmSignUp()) return;
+		setLoading(true);
+		let { data, error } = await supabase.auth.signUp({
 			email: formData.email,
 			password: formData.password,
 		});
 		if (error) setGeneralError(error.message);
+
+		const newUser = {
+			id: data.user.id,
+			email: formData.email,
+			first_name: formData.firstname,
+			last_name: formData.lastname,
+			major: formData.major,
+			year: formData.year,
+		};
+		await createPublicUser(newUser);
+
 		setLoading(false);
 		return error === null;
 	};
@@ -59,6 +103,17 @@ const SignInUp = () => {
 		let newFormErrors = { ...formDataTemplate };
 		if (!uflEmailPattern.test(formData.email))
 			newFormErrors = { ...newFormErrors, email: "Email must be a valid UFL email." };
+		setFormErrors(newFormErrors);
+		return Object.values(newFormErrors).every((value) => value === "");
+	};
+
+	const validateConfirmSignUp = () => {
+		let newFormErrors = { ...formDataTemplate };
+		if (formData.firstname.length === 0)
+			newFormErrors = { ...newFormErrors, firstname: "Firstname cannot be empty." };
+		if (formData.lastname.length === 0) newFormErrors = { ...newFormErrors, lastname: "Lastname cannot be empty." };
+		if (formData.major.length === 0) newFormErrors = { ...newFormErrors, major: "Major cannot be empty." };
+		if (!formData.year) newFormErrors = { ...newFormErrors, year: "Year cannot be empty." };
 		if (formData.password.length < 6)
 			newFormErrors = { ...newFormErrors, password: "Password must be at least 6 characters." };
 		if (formData.password !== formData.confirmPassword)
@@ -78,7 +133,7 @@ const SignInUp = () => {
 	const switchActiveForm = () => {
 		if (loading) return;
 		resetForm();
-		setSignInActive(!signInActive);
+		setFormState(formState === "SIGNIN" ? "SIGNUP" : "SIGNIN");
 	};
 
 	const resetForm = () => {
@@ -95,6 +150,12 @@ const SignInUp = () => {
 			...formData,
 			[name]: value,
 		});
+	};
+
+	const cancelConfirmSignup = () => {
+		if (loading) return;
+		resetForm();
+		setFormState("SIGNUP");
 	};
 
 	return (
@@ -124,10 +185,46 @@ const SignInUp = () => {
 						alignItems: "flex-start",
 					}}
 				>
-					{/* Header */}
-					<Typography level="h3" fontWeight="xl">
-						{signInActive ? "Sign In" : "Sign Up"}
-					</Typography>
+					{/* Return Button */}
+					{formState === "SIGNUP_CONFIRM" && (
+						<Box
+							sx={{
+								display: "flex",
+								justifyContent: "start",
+								alignItems: "center",
+								gap: "0.1rem",
+								"&:hover": {
+									cursor: "pointer",
+									"& .MuiTypography-root": {
+										textDecoration: "underline",
+									},
+								},
+							}}
+							onClick={cancelConfirmSignup}
+						>
+							<ArrowBackIcon fontSize="small" color="primary" />
+							<Typography color="primary" level="body-sm" fontWeight="lg">
+								Return
+							</Typography>
+						</Box>
+					)}
+
+					{/* Header/Header Message Stack */}
+					<Stack direction="column" spacing={0.5}>
+						{/* Header */}
+						<Typography level="h3" fontWeight="xl">
+							{formState === "SIGNIN" ? "Sign In" : "Sign Up"}
+						</Typography>
+
+						<Typography level="body-sm" fontWeight="md">
+							{/* {formState === "SIGNIN" &&
+								"Welcome back to SwampReview, please enter your email and password to sign in."} */}
+							{formState === "SIGNUP" &&
+								"Welcome to SwampReview! Please enter your email to get started."}
+							{formState === "SIGNUP_CONFIRM" &&
+								"We'll need some additional details to confirm your sign up."}
+						</Typography>
+					</Stack>
 
 					{/* Sign In/Up Form */}
 					<form onSubmit={handleSubmit} noValidate style={{ width: "100%" }}>
@@ -141,27 +238,78 @@ const SignInUp = () => {
 							}}
 						>
 							{/* Email Form Group */}
-							<FormItem
-								label="Email"
-								name="email"
-								type="email"
-								value={formData.email}
-								onChange={handleFormChange}
-								error={formErrors.email}
-							/>
+							{(formState === "SIGNIN" || formState === "SIGNUP") && (
+								<FormItem
+									label="Email"
+									name="email"
+									type="email"
+									value={formData.email}
+									onChange={handleFormChange}
+									error={formErrors.email}
+								/>
+							)}
+
+							{formState === "SIGNUP_CONFIRM" && (
+								<>
+									<Box sx={{ width: "100%" }}>
+										<FormLabel>Email</FormLabel>
+										<Typography level="body-sm" fontWeight="xl">
+											{formData.email}
+										</Typography>
+									</Box>
+
+									<FormItem
+										label="Firstname"
+										name="firstname"
+										type="text"
+										value={formData.firstname}
+										onChange={handleFormChange}
+										error={formErrors.firstname}
+									/>
+
+									<FormItem
+										label="Lastname"
+										name="lastname"
+										type="text"
+										value={formData.lastname}
+										onChange={handleFormChange}
+										error={formErrors.lastname}
+									/>
+
+									<FormItem
+										label="Major"
+										name="major"
+										type="text"
+										value={formData.major}
+										onChange={handleFormChange}
+										error={formErrors.major}
+									/>
+
+									<FormSelect
+										label="Year"
+										name="year"
+										value={formData.year}
+										onChange={handleFormChange}
+										error={formErrors.year}
+										options={years}
+									/>
+								</>
+							)}
 
 							{/* Password Form Group */}
-							<FormItem
-								label="Password"
-								name="password"
-								type="password"
-								value={formData.password}
-								onChange={handleFormChange}
-								error={formErrors.password}
-							/>
+							{(formState === "SIGNIN" || formState === "SIGNUP_CONFIRM") && (
+								<FormItem
+									label="Password"
+									name="password"
+									type="password"
+									value={formData.password}
+									onChange={handleFormChange}
+									error={formErrors.password}
+								/>
+							)}
 
 							{/* Confirm Password Group */}
-							{!signInActive && (
+							{formState === "SIGNUP_CONFIRM" && (
 								<FormItem
 									label="Confirm Password"
 									name="confirmPassword"
@@ -186,31 +334,36 @@ const SignInUp = () => {
 							type="submit"
 							fullWidth
 						>
-							{loading && <>{signInActive ? "Signing In..." : "Signing Up..."}</>}
-							{!loading && <>{signInActive ? "Sign In" : "Sign Up"}</>}
+							{formState === "SIGNIN" && <>{loading ? "Signing In..." : "Sign In"}</>}
+							{formState === "SIGNUP" && <>{loading ? "Loading..." : "Get Started"}</>}
+							{formState === "SIGNUP_CONFIRM" && <>{loading ? "Signing Up..." : "Confirm Sign Up"}</>}
 						</Button>
 					</form>
 
-					<Divider />
+					{(formState === "SIGNIN" || formState === "SIGNUP") && <Divider />}
 
 					{/* Sign up here/Sign in here message */}
-					<Box sx={{ width: "100%", display: "flex", justifyContent: "center" }}>
-						<Typography level="body-sm" fontWeight="md">
-							{signInActive ? "Don't have an account? " : "Already have an account? "}
-							<Typography
-								sx={{
-									"&:hover": {
-										cursor: "pointer",
-									},
-								}}
-								fontWeight="lg"
-								color="primary"
-								onClick={switchActiveForm}
-							>
-								{signInActive ? "Sign up here" : "Sign in here"}
+					{(formState === "SIGNIN" || formState === "SIGNUP") && (
+						<Box sx={{ width: "100%", display: "flex", justifyContent: "center" }}>
+							<Typography level="body-sm" fontWeight="md">
+								{formState === "SIGNIN" && "Don't have an account? "}
+								{formState === "SIGNUP" && "Already have an account? "}
+								<Typography
+									sx={{
+										"&:hover": {
+											cursor: "pointer",
+										},
+									}}
+									fontWeight="lg"
+									color="primary"
+									onClick={switchActiveForm}
+								>
+									{formState === "SIGNIN" && "Sign up here"}
+									{formState === "SIGNUP" && "Sign in here"}
+								</Typography>
 							</Typography>
-						</Typography>
-					</Box>
+						</Box>
+					)}
 				</Stack>
 			</Box>
 		</Box>
