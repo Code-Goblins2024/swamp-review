@@ -1,67 +1,35 @@
-import { Box, Typography, Stack, Card } from "@mui/joy";
+import { Box, Button, Typography, Stack, Card } from "@mui/joy";
 import { Grid2 } from "@mui/material";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { getHousing } from "../functions/housingQueries";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import Rating from "../components/Rating";
 import PricingChip from "../components/PricingChip";
 import Review from "../components/Review";
+import NoReviewsCard from "../components/NoReviewsCard";
 
 const HousingPage = () => {
-  const { housingId } = useParams();
-  const [housingData, setHousingData] = useState({});
+	const { housingId } = useParams();
+	const [housingData, setHousingData] = useState(null);
 
-  useEffect(() => {
-    const loadHousingData = async () => {
-      console.log(housingId);
+	useEffect(() => {
+		const loadHousingData = async () => {
+			try {
+				const response = await getHousing(housingId);
+				setHousingData(response);
+			} catch (error) {
+				// TODO: Redirect on failure
+				console.error(error);
+			}
+		};
 
-      try {
-        const response = await getHousing(housingId);
-        setHousingData(response);
-      } catch (error) {
-        // TODO: Redirect on failure
-        console.err(error);
-      }
-    }
+		loadHousingData();
+	}, [housingId]);
 
-    loadHousingData();
-  }, []);
-
-	const tempCategories = [
-		{
-			name: "Location",
-			rating: 4.0,
-		},
-		{
-			name: "Rooms",
-			rating: 3.9,
-		},
-		{
-			name: "Bathrooms",
-			rating: 2.4,
-		},
-		{
-			name: "Amenities",
-			rating: 5.0,
-		},
-	];
-	const tempPricing = [
-		{
-			name: "Traditional Single",
-			fallSpringPrice: 3200,
-			summerABPrice: 1564,
-			summerCPrice: 2345,
-		},
-		{
-			name: "Traditional Double",
-			fallSpringPrice: 6400,
-			summerABPrice: 3264,
-			summerCPrice: 4423,
-		},
-	];
-
-	const features = ["Twin XL Beds", "Game Room", "Study Longue", "Pool", "Laundry Facilities"];
 	const [activePricingSemester, setActivePricingSemester] = useState("Fall/Spring");
+
+	if (!housingData) return null;
 
 	return (
 		<Box sx={{ display: "flex", justifyContent: "center", padding: { xs: "1rem", sm: "2rem", md: "3rem" } }}>
@@ -69,28 +37,57 @@ const HousingPage = () => {
 				{/* Header (Image/Title) */}
 				<Stack spacing={2}>
 					<img
-						src="./beaty.jpg"
+						src="/beaty.jpg"
 						style={{ borderRadius: "0.75rem", height: "20rem", width: "100%", objectFit: "cover" }}
 					></img>
-					<Typography level="h1">{housingData.name}</Typography>
+					<Stack
+						sx={{
+							display: "flex",
+							flexDirection: { xs: "column", sm: "row" },
+							gap: "0.75rem",
+							justifyContent: "space-between",
+							alignItems: "center",
+						}}
+					>
+						<Typography level="h1">{housingData.name}</Typography>
+						<Button
+							color="primary"
+							size="lg"
+							sx={{
+								display: "flex",
+								flexDirection: "row",
+								alignItems: "center",
+								gap: "0.2rem",
+							}}
+						>
+							<Typography color="white" level="body-md">
+								Review
+							</Typography>
+							<ArrowForwardIcon color="white" fontSize="small" />
+						</Button>
+					</Stack>
 				</Stack>
 
 				{/* Average Ratings */}
 				<Card>
 					<Grid2 container spacing={2} sx={{ flexGrow: 1 }}>
-						{tempCategories.map((category) => (
-							<Grid2 key={category.name} size={{ xs: 6, md: 3 }}>
-								<Rating type={"average"} title={category.name} rating={category.rating} />
+						{housingData.average_ratings.map((average_rating) => (
+							<Grid2 key={average_rating.category.name} size={{ xs: 6, md: 3 }}>
+								<Rating
+									type={"average"}
+									title={average_rating.category.name}
+									rating={average_rating.value}
+								/>
 							</Grid2>
 						))}
 					</Grid2>
 				</Card>
 
 				{/* Pricing/Features/POI */}
-				<Stack direction={{ xs: "column", md: "row" }} spacing={2} sx={{ display: "flex" }}>
+				<Stack direction={{ xs: "column", md: "row" }} spacing={2}>
 					{/* Pricing/Features */}
 					<Stack spacing={2} sx={{ flex: 1 }}>
-						<Card sx={{ flexGrow: 1, padding: "1.25rem" }}>
+						<Card>
 							<Box
 								sx={{
 									display: "flex",
@@ -125,9 +122,9 @@ const HousingPage = () => {
 									<Typography level="body-md" fontWeight="xl">
 										Room
 									</Typography>
-									{tempPricing.map((pricing, index) => (
+									{housingData.room_types.map((room_type, index) => (
 										<Typography key={index} level="body-md">
-											{pricing.name}
+											{room_type.name}
 										</Typography>
 									))}
 								</Stack>
@@ -135,7 +132,7 @@ const HousingPage = () => {
 									<Typography level="body-md" fontWeight="xl" sx={{ marginRight: "1rem" }}>
 										Price
 									</Typography>
-									{tempPricing.map((pricing, index) => (
+									{housingData.room_types.map((room_type, index) => (
 										<Typography key={index} level="body-md">
 											{new Intl.NumberFormat("en-US", {
 												style: "currency",
@@ -144,10 +141,10 @@ const HousingPage = () => {
 												maximumFractionDigits: 0,
 											}).format(
 												activePricingSemester === "Fall/Spring"
-													? pricing.fallSpringPrice
+													? room_type.fall_spring_price
 													: activePricingSemester === "Summer A/B"
-													? pricing.summerABPrice
-													: pricing.summerCPrice
+													? room_type.summer_AB_price
+													: room_type.summer_C_price
 											)}
 										</Typography>
 									))}
@@ -156,13 +153,13 @@ const HousingPage = () => {
 						</Card>
 
 						{/* Features */}
-						<Card sx={{ flexGrow: 1, padding: "1.25rem" }}>
+						<Card sx={{ padding: "1.25rem" }}>
 							<Typography level="h4" fontWeight="xl">
 								Features
 							</Typography>
-							{features.map((feature, index) => (
+							{housingData.attributes.map((attribute, index) => (
 								<Typography key={index} level="body-md">
-									{feature}
+									{attribute.attribute_name}
 								</Typography>
 							))}
 						</Card>
@@ -170,24 +167,41 @@ const HousingPage = () => {
 
 					{/* POI (Right) Side */}
 					<Box sx={{ flex: 1 }}>
-						<Card sx={{ height: "100%" }}>
-							<div style={{ height: "100%", overflow: "hidden", backgroundColor: "red" }}>
-								<img
-									src="./map_placeholder.png"
-									style={{ height: "100%", width: "100%", objectFit: "cover" }}
-								/>
-							</div>
-						</Card>
-					</Box>
+            <Card sx={{ height: "100%" }}>
+              <Box sx={{ height: "100%", position: "relative" }}>
+                <Box
+                  component="img"
+                  src="/map_placeholder.png"
+                  alt="Map placeholder"
+                  sx={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+              </Box>
+            </Card>
+          </Box>
 				</Stack>
 
 				{/* Reviews */}
 				<Stack spacing={2}>
-					<Typography level="h4">Read #### reviews</Typography>
+					{housingData.reviews.length === 1 && <Typography level="h4">No reviews yet</Typography>}
+					{housingData.reviews.length > 1 && (
+						<Typography level="h4">
+							Read {housingData.reviews.length} review{housingData.reviews.length !== 1 && "0"}
+						</Typography>
+					)}
 					<Stack spacing={4}>
-						<Review />
-						<Review />
-						<Review />
+						{housingData.reviews.map((review, index) => (
+							<Review key={index} review={review} />
+						))}
+						{housingData.reviews.length === 0 && <NoReviewsCard housingName={housingData.name} />}
 					</Stack>
 				</Stack>
 			</Stack>
