@@ -167,32 +167,32 @@ const HousingPage = () => {
 
 					{/* POI (Right) Side */}
 					<Box sx={{ flex: 1 }}>
-            <Card sx={{ height: "100%" }}>
-              <Box sx={{ height: "100%", position: "relative" }}>
-                <Box
-                  component="img"
-                  src="/map_placeholder.png"
-                  alt="Map placeholder"
-                  sx={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                  }}
-                />
-              </Box>
-            </Card>
-          </Box>
+						<Card sx={{ height: "100%" }}>
+							<Box sx={{ height: "100%", position: "relative" }}>
+								<Box
+									component="img"
+									src="/map_placeholder.png"
+									alt="Map placeholder"
+									sx={{
+										position: "absolute",
+										top: 0,
+										left: 0,
+										right: 0,
+										bottom: 0,
+										width: "100%",
+										height: "100%",
+										objectFit: "cover",
+									}}
+								/>
+							</Box>
+						</Card>
+					</Box>
 				</Stack>
 
 				{/* Reviews */}
 				<Stack spacing={2}>
-					{housingData.reviews.length === 1 && <Typography level="h4">No reviews yet</Typography>}
-					{housingData.reviews.length > 1 && (
+					{housingData.reviews.length === 0 && <Typography level="h4">No reviews yet</Typography>}
+					{housingData.reviews.length > 0 && (
 						<Typography level="h4">
 							Read {housingData.reviews.length} review{housingData.reviews.length !== 1 && "0"}
 						</Typography>
