@@ -56,6 +56,20 @@ export const addUserFavorite = async (housing_id, uuid) => {
 };
 
 /**
+ * Remove a favorite for a user
+ * @param {number} housing_id - Housing selected
+ * @param {string} uuid - User id
+ */
+
+export const removeUserFavorite = async (housing_id, uuid) => {
+	const { error } = await supabase.from("favorites").delete().eq("housing_id", housing_id).eq("user_id", uuid);
+	if (error) {
+		console.log("Error deleting favorite");
+		throw error;
+	}
+}
+
+/**
  * Update a user's username
  * @param {string} uuid - User id
  * @param {string} new_username - New username

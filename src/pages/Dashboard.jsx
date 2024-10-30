@@ -25,6 +25,22 @@ const Dashboard = () => {
     navigate(`/housing/${dormId}`);
   };
 
+  const onFavoriteRemoved = async (housingId) => {
+    try {
+      const { data } = await supabase
+        .from('favorites')
+        .select()
+        .eq('user_id', session.user.id)
+        .eq('housing_id', housingId);
+
+      if (data.length === 0) {
+        setFavorites(favorites.filter(fav => fav.housing.id !== housingId));
+      }
+    } catch (error) {
+      console.error('Error verifying favorite removal:', error);
+    }
+  };
+
   const fetchData = async () => {
     await Promise.all([
       fetchFavorites(),
@@ -99,7 +115,14 @@ const Dashboard = () => {
         <Box sx={{ display: 'flex', overflowX: 'auto', pb: 2 }}>
           {favorites.length > 0 ? (
             favorites.map((dorm) => (
-              <DormCard key={dorm?.housing?.id} name={dorm?.housing?.name} onClick={() => handleDormClick(dorm?.housing?.id)} />
+              <DormCard
+                key={dorm?.housing?.id}
+                name={dorm?.housing?.name}
+                isFavorited={true}
+                housingId={dorm?.housing?.id}
+                onClick={() => handleDormClick(dorm?.housing?.id)}
+                onFavoriteRemoved={onFavoriteRemoved}
+              />
             ))
           ) : (
             <Typography level="body-md">No favorites found. Start exploring dorms to add some!</Typography>
