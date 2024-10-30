@@ -70,7 +70,8 @@ import {
             backgroundPosition: 'center',
           }}
         >
-          <SchoolIcon sx={{ fontSize: 60, mb: 2 }} />
+          {/* <SchoolIcon sx={{ fontSize: 60, mb: 2 }} /> */}
+          <img src="/swamp_review_logo.png" style={{ height: "8rem", marginBottom: "2px" }} alt="Swamp Review Logo" />
           <Typography
             level="h1"
             sx={{
@@ -92,7 +93,7 @@ import {
           </Typography>
           <Button 
             size="lg" 
-            onClick={() => navigate('/signin')}
+            onClick={() => navigate('/search')}
             startDecorator={<SearchIcon />}
           >
             Start Your Search
