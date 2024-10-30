@@ -1,5 +1,5 @@
 import { Typography, Box, Stack, Button, Divider, FormLabel } from "@mui/joy";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { years } from "../constants/Years";
 import { createPublicUser } from "../functions/userQueries";
 import { useLocation, useNavigate } from "react-router-dom";

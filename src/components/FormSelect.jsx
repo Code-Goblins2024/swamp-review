@@ -1,6 +1,5 @@
 import { FormControl, FormLabel, Select, Typography, Option } from "@mui/joy";
 import PropTypes from "prop-types";
-import { useEffect } from "react";
 
 const FormSelect = ({ label, name, value, error, onChange, options }) => {
 	return (
