@@ -1,7 +1,8 @@
 import { Typography, Box, Stack, Button, Divider, FormLabel } from "@mui/joy";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { years } from "../constants/Years";
 import { createPublicUser } from "../functions/userQueries";
+import { useLocation, useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import FormItem from "../components/FormItem";
 import FormSelect from "../components/FormSelect";
@@ -18,7 +19,8 @@ const SignInUp = () => {
 		major: "",
 		year: "",
 	};
-
+	const location = useLocation();
+	const navigate = useNavigate();
 	const [formState, setFormState] = useState("SIGNIN");
 	const [formData, setFormData] = useState({ ...formDataTemplate });
 	const [formErrors, setFormErrors] = useState({ ...formDataTemplate });
@@ -39,6 +41,11 @@ const SignInUp = () => {
 		}
 
 		// TODO: Add logic for redirect after successful sign in/up
+		const housingRedirect = new URLSearchParams(location.search).get("housingRedirect");
+		if (housingRedirect) {
+			navigate(`/housing/${housingRedirect}?showReviewModal=true`);
+		}
+
 		resetForm();
 	};
 
