@@ -1,35 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Card, CardContent, Grid, Button, Chip, CircularProgress } from '@mui/joy';
-import { Favorite as FavoriteIcon, Apartment as ApartmentIcon, StarRateRounded as RatingIcon } from '@mui/icons-material';
+import { Apartment as ApartmentIcon } from '@mui/icons-material';
 import supabase from '../config/supabaseClient';
 import useAuth from '../store/authStore';
-
-const DormCard = ({ name, rating, image }) => (
-  <Card variant="outlined" sx={{
-    width: 200,
-    mr: 2,
-    cursor: 'pointer',
-    transition: 'all 0.3s',
-    '&:hover': {
-      boxShadow: '0 4px 20px 0 rgba(0,0,0,0.12)',
-    },
-  }}>
-    <CardContent>
-      {/* <img src={image} alt={name} style={{ width: '100%', height: 100, objectFit: 'cover' }} /> */}
-      <Box sx={{ display: 'flex', alignItems: 'top', mt: 0 }}>
-        <ApartmentIcon sx={{ fontSize: 50 }} />
-        <FavoriteIcon color="error" sx={{ ml: 'auto' }} />
-      </Box>
-      <Typography level="title-md">{name}</Typography>
-      <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
-        {/* <Typography level="body-sm">{rating}/5</Typography> */}
-        <RatingIcon sx={{ color: '#FFD700', mr: 0.5 }} />
-        <Typography level="body-sm">5.0</Typography>
-      </Box>
-    </CardContent>
-  </Card>
-);
+import { getUserFavorites } from "../functions/userQueries";
+import DormCard from '../components/DormCard.jsx';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -45,33 +21,22 @@ const Dashboard = () => {
     }
   }, [session]);
 
+  const handleDormClick = (dormId) => {
+    navigate(`/housing/${dormId}`);
+  };
+
   const fetchData = async () => {
     await Promise.all([
       fetchFavorites(),
       fetchRecommendations(),
-      fetchRecentReviews()
+      // fetchRecentReviews()
     ]);
     setLoading(false);
   };
 
   const fetchFavorites = async () => {
     try {
-      // const { data, error } = await supabase
-      //   .from('favorites')
-      //   .select(`
-      //     housingId,
-      //     housing:housingId(id, name, rating, image)
-      //   `)
-      //   .eq('userId', session.user.id)
-      //   .limit(5);
-      const { data, error } = await supabase
-        .from('housing')
-        .select('*')
-        .limit(3);
-      console.log(data);
-
-      if (error) throw error;
-      // setFavorites(data.map(item => item.housing));
+      const data = await getUserFavorites(session.user.id);
       setFavorites(data);
     } catch (error) {
       console.error('Error fetching favorites:', error);
@@ -134,7 +99,7 @@ const Dashboard = () => {
         <Box sx={{ display: 'flex', overflowX: 'auto', pb: 2 }}>
           {favorites.length > 0 ? (
             favorites.map((dorm) => (
-              <DormCard key={dorm.id} name={dorm.name} />
+              <DormCard key={dorm?.housing?.id} name={dorm?.housing?.name} onClick={() => handleDormClick(dorm?.housing?.id)} />
             ))
           ) : (
             <Typography level="body-md">No favorites found. Start exploring dorms to add some!</Typography>

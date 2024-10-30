@@ -23,8 +23,6 @@ const About = () => {
                     </Typography>
                     <Typography level="body1" textAlign="center" mt={2}>
                         We are dedicated to helping <span style={{ fontWeight: 'bold' }}>University of Florida</span> students find the perfect home on campus.
-                    </Typography>
-                    <Typography level="body1" textAlign="center" mt={2}>
                         Our goal is to simplify finding on-campus housing while allowing users to view and share reviews easily.
                     </Typography>
                     <Typography level="body1" textAlign="center" mt={2}>

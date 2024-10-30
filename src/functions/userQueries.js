@@ -26,18 +26,14 @@ export const createPublicUser = async (user) => {
 
 export const getUserFavorites = async (uuid) => {
 	const { data, error } = await supabase
-		.from("users")
-		.select(
-			`
-    housing (
-      name,
-      average_rating (
-        average_rating
-      )
-    )
-  `
-		)
-		.eq("id", uuid);
+		.from('favorites')
+		.select(`
+			housing (
+				id,
+				name
+			)
+		`)
+		.eq('user_id', uuid);
 	if (error) {
 		console.log(`Error retrieving favorites`);
 		throw error;
