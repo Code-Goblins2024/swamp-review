@@ -1,12 +1,13 @@
 import { FormControl, FormLabel, Select, Typography, Option } from "@mui/joy";
 import PropTypes from "prop-types";
+import { useEffect } from "react";
 
 const FormSelect = ({ label, name, value, error, onChange, options }) => {
 	return (
 		<FormControl sx={{ width: "100%" }}>
-			<FormLabel>{label}</FormLabel>
+			{label && <FormLabel>{label}</FormLabel>}
 			<Select
-				value={value}
+				value={value || ""}
 				name={name}
 				onChange={(e, newValue) => {
 					// Select handles events slightly different, so we construct
@@ -23,6 +24,7 @@ const FormSelect = ({ label, name, value, error, onChange, options }) => {
 				color={error ? "danger" : "neutral"}
 				size="sm"
 				sx={{ fontWeight: 500 }}
+				slotProps={{ listbox: { disablePortal: true } }}
 			>
 				{/* <Option value=""></Option> */}
 				{options?.map((option) => (
@@ -41,7 +43,7 @@ const FormSelect = ({ label, name, value, error, onChange, options }) => {
 };
 
 FormSelect.propTypes = {
-	label: PropTypes.string.isRequired,
+	label: PropTypes.string,
 	name: PropTypes.string.isRequired,
 	value: PropTypes.string,
 	error: PropTypes.string,
