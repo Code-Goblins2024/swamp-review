@@ -2,6 +2,7 @@ import supabase from "../config/supabaseClient";
 
 export const getAllHousing = async () => {
   const { data, error } = await supabase.from("housing").select(`
+    id,
     name,
     address,
     average_ratings: average_rating (

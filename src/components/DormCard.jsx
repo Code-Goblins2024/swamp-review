@@ -1,10 +1,10 @@
 import { Box, Typography, Card, CardContent, IconButton } from '@mui/joy';
-import { Favorite as FavoriteIcon, FavoriteBorder as FavoriteBorderIcon, Apartment as ApartmentIcon, StarRateRounded as RatingIcon } from '@mui/icons-material';
+import { Favorite as FavoriteIcon, FavoriteBorder as FavoriteBorderIcon, Apartment as ApartmentIcon, StarRateRounded as RatingIcon, CommentRounded as ReviewIcon } from '@mui/icons-material';
 import { addUserFavorite, removeUserFavorite } from '../functions/userQueries';
 import useAuth from '../store/authStore';
 import { useState } from 'react';
 
-const DormCard = ({ name, rating, image, onClick, isFavorited = false, housingId, onFavoriteRemoved }) => {
+const DormCard = ({ name, rating, reviews, onClick, isFavorited = false, housingId, onFavoriteRemoved }) => {
   const { session } = useAuth();
   const [favorited, setFavorited] = useState(isFavorited);
 
@@ -48,9 +48,34 @@ const DormCard = ({ name, rating, image, onClick, isFavorited = false, housingId
           </IconButton>
         </Box>
         <Typography level="title-md">{name}</Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
-          <RatingIcon sx={{ color: '#FFD700', mr: 0.5 }} />
-          <Typography level="body-sm">5.0</Typography>
+        <Box sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          mt: 1.5
+        }}>
+          <Box sx={{
+            display: 'flex',
+            alignItems: 'center',
+            backgroundColor: 'neutral.softBg',
+            borderRadius: 'sm',
+            px: 1,
+            py: 0.5
+          }}>
+            <RatingIcon sx={{ color: '#e6c200', mr: 0.5, fontSize: '1.1rem' }} />
+            <Typography level="body-sm" sx={{ fontWeight: 600 }}>{rating.toFixed(1)}</Typography>
+          </Box>
+          <Box sx={{
+            display: 'flex',
+            alignItems: 'center',
+            backgroundColor: 'neutral.softBg',
+            borderRadius: 'sm',
+            px: 1,
+            py: 0.5
+          }}>
+            <ReviewIcon sx={{ color: 'neutral.500', mr: 0.5, fontSize: '1.1rem' }} />
+            <Typography level="body-sm" sx={{ fontWeight: 600 }}>{reviews}</Typography>
+          </Box>
         </Box>
       </CardContent>
     </Card>
