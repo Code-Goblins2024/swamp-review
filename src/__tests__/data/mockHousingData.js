@@ -8,16 +8,16 @@ export const mockHousingData = {
 			category: {
 				name: "Test Avg Rating 1",
 			},
-			value: 1.0,
+			value: 1.1,
 		},
 		{
 			category: {
 				name: "Test Avg Rating 2",
 			},
-			value: 2.0,
+			value: 2.2,
 		},
 	],
-	attributes: [{ attribute_name: "Test Attr 1" }, { attribute_name: "Test Attr2" }],
+	attributes: [{ attribute_name: "Test Attr 1" }, { attribute_name: "Test Attr 2" }],
 	room_types: [
 		{
 			name: "Test Room 1",

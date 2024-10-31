@@ -26,18 +26,14 @@ export const createPublicUser = async (user) => {
 
 export const getUserFavorites = async (uuid) => {
 	const { data, error } = await supabase
-		.from("users")
-		.select(
-			`
-    housing (
-      name,
-      average_rating (
-        average_rating
-      )
-    )
-  `
-		)
-		.eq("id", uuid);
+		.from('favorites')
+		.select(`
+			housing (
+				id,
+				name
+			)
+		`)
+		.eq('user_id', uuid);
 	if (error) {
 		console.log(`Error retrieving favorites`);
 		throw error;
@@ -58,6 +54,20 @@ export const addUserFavorite = async (housing_id, uuid) => {
 		throw error;
 	}
 };
+
+/**
+ * Remove a favorite for a user
+ * @param {number} housing_id - Housing selected
+ * @param {string} uuid - User id
+ */
+
+export const removeUserFavorite = async (housing_id, uuid) => {
+	const { error } = await supabase.from("favorites").delete().eq("housing_id", housing_id).eq("user_id", uuid);
+	if (error) {
+		console.log("Error deleting favorite");
+		throw error;
+	}
+}
 
 /**
  * Update a user's username

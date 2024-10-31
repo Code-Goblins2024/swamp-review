@@ -168,8 +168,11 @@ const SignInUp = () => {
 	return (
 		<Box
 			sx={{
-				width: "100vw",
-				height: "100vh",
+				position: 'absolute',
+				top: 64,
+				bottom: 0,
+				left: 0,
+				right: 0,
 				display: "flex",
 				justifyContent: "center",
 				alignItems: "center",
@@ -178,7 +181,11 @@ const SignInUp = () => {
 			{/* Sign In/Up Form Container */}
 			<Box
 				sx={{
-					width: { xs: "95%", md: "50%", lg: "40%", xl: "25%" },
+					width: {
+						xs: "95%",
+						sm: "400px",
+					},
+					maxWidth: "95%",
 					border: "0.5px solid #cdcdcd",
 					padding: "2rem",
 					borderRadius: "0.5rem",

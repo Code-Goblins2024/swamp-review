@@ -1,26 +1,28 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { describe, it, beforeEach, expect } from "vitest";
 import { mockHousingData } from "./data/mockHousingData";
-import * as housingQueries from "../functions/housingQueries";
+import { MemoryRouter, Routes, Route } from "react-router-dom";
+import userEvent from "@testing-library/user-event";
 import HousingPage from "../pages/HousingPage";
 
 describe("Housing page tests", () => {
 	beforeEach(() => {
-		vi.spyOn(housingQueries, "getHousing").mockResolvedValue(mockHousingData);
-	});
-	afterEach(() => {
-		vi.restoreAllMocks();
+		render(
+			<MemoryRouter initialEntries={["/housing/-1"]}>
+				<Routes>
+					<Route path="/housing/:housingId" element={<HousingPage />} />
+				</Routes>
+			</MemoryRouter>
+		);
 	});
 
 	it("should render housing name", async () => {
-		render(<HousingPage />);
 		await waitFor(() => {
 			expect(screen.getByText(mockHousingData.name)).toBeInTheDocument();
 		});
 	});
 
 	it("should render all average ratings", async () => {
-		render(<HousingPage />);
 		await waitFor(() => {
 			mockHousingData.average_ratings.forEach((rating) => {
 				const category = screen.getByText(rating.category.name);
@@ -33,8 +35,6 @@ describe("Housing page tests", () => {
 	});
 
 	it("should render all room types", async () => {
-		render(<HousingPage />);
-
 		const testPrice = async (roomTypeObj, priceInfo) => {
 			// Find and click button for appropraite price type (fall/spring, summer a/b, or summer c)
 			const button = screen.getByText(priceInfo.buttonText).previousElementSibling;
@@ -76,7 +76,6 @@ describe("Housing page tests", () => {
 	});
 
 	it("should render all attributes", async () => {
-		render(<HousingPage />);
 		await waitFor(() => {
 			mockHousingData.attributes.forEach((attribute) => {
 				expect(screen.getByText(attribute.attribute_name)).toBeInTheDocument();
@@ -86,7 +85,6 @@ describe("Housing page tests", () => {
 
 	// Just check that the review appears, details of the review component are tested elsewhere
 	it("should render all reviews", async () => {
-		render(<HousingPage />);
 		await waitFor(() => {
 			mockHousingData.reviews.forEach((review) => {
 				expect(screen.getByText(review.content)).toBeInTheDocument();
