@@ -1,7 +1,8 @@
 import supabase from "../config/supabaseClient";
 
 export const getAllHousing = async () => {
-	let { data, error } = await supabase.from("housing").select(`
+  let { data, error } = await supabase.from("housing").select(`
+    id,
     name,
     address,
     average_ratings: average_rating (
