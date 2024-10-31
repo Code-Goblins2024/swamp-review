@@ -1,12 +1,17 @@
 import { Box, Typography, Card, CardContent, IconButton } from '@mui/joy';
-import { Favorite as FavoriteIcon, FavoriteBorder as FavoriteBorderIcon, Apartment as ApartmentIcon, StarRateRounded as RatingIcon, CommentRounded as ReviewIcon } from '@mui/icons-material';
+import { Favorite as FavoriteIcon, FavoriteBorder as FavoriteBorderIcon, StarRateRounded as RatingIcon, CommentRounded as ReviewIcon } from '@mui/icons-material';
 import { addUserFavorite, removeUserFavorite } from '../functions/userQueries';
 import useAuth from '../store/authStore';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const DormCard = ({ name, rating, reviews, onClick, isFavorited = false, housingId, onFavoriteRemoved }) => {
   const { session } = useAuth();
   const [favorited, setFavorited] = useState(isFavorited);
+  const [imageError, setImageError] = useState(false);
+
+  const handleImageError = () => {
+    setImageError(true);
+  };
 
   const handleFavoriteClick = async (e) => {
     e.stopPropagation();
@@ -29,16 +34,22 @@ const DormCard = ({ name, rating, reviews, onClick, isFavorited = false, housing
       mr: 2,
       cursor: 'pointer',
       transition: 'all 0.3s',
+      padding: 0,
+      overflow: 'hidden',
       '&:hover': {
         boxShadow: '0 4px 20px 0 rgba(0,0,0,0.12)',
       },
     }}>
-      <CardContent>
+      <img
+        src={imageError ? '/img-not-found.png' : `/housingImages/${name}.jpg`}
+        style={{ width: '100%', height: "120px", objectFit: 'cover', display: 'block' }}
+        alt={`${name} Housing`}
+        onError={handleImageError}
+      />
+      <CardContent sx={{ px: 1.5, pb: 1.5 }}>
         <Box sx={{ display: 'flex', alignItems: 'top', mt: 0 }}>
-          <ApartmentIcon sx={{ fontSize: 50 }} />
           <IconButton
             onClick={handleFavoriteClick}
-            sx={{ ml: 'auto' }}
           >
             {favorited ? (
               <FavoriteIcon sx={{ color: 'error.main' }} />
@@ -46,8 +57,8 @@ const DormCard = ({ name, rating, reviews, onClick, isFavorited = false, housing
               <FavoriteBorderIcon sx={{ color: 'error.main' }} />
             )}
           </IconButton>
+          <Typography sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }} level="title-md">{name}</Typography>
         </Box>
-        <Typography level="title-md">{name}</Typography>
         <Box sx={{
           display: 'flex',
           alignItems: 'center',
