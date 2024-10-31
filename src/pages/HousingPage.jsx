@@ -233,7 +233,7 @@ const HousingPage = () => {
 				housingData={{
 					id: housingId,
 					name: housingData?.name,
-					roomTypes: housingData?.room_types?.map((room_type) => room_type.name),
+					roomTypes: housingData?.room_types,
 				}}
 				setHousingData={setHousingData}
 			/>

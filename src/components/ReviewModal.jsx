@@ -152,7 +152,8 @@ const ReviewModal = ({ reviewModalOpen, setReviewModalOpen, housingData, setHous
 
 		try {
 			// TODO: Add tags later
-			await addReview(content, housingData.id, session.user.id, [], formattedRatings);
+			const roomId = housingData.roomTypes.filter((rt) => rt.name === roomType)[0].id;
+			await addReview(content, housingData.id, roomId, session.user.id, [], formattedRatings);
 		} catch {
 			setGeneralError("Sorry, we unexpectedly couldn't submit your review. Please try again later.");
 			setSubmitting(false);
@@ -237,7 +238,7 @@ const ReviewModal = ({ reviewModalOpen, setReviewModalOpen, housingData, setHous
 											value={roomType}
 											error={roomTypeError}
 											onChange={handleRoomTypeChange}
-											options={housingData.roomTypes}
+											options={housingData.roomTypes.map((roomType) => roomType.name)}
 										/>
 									</Box>
 								</Box>
