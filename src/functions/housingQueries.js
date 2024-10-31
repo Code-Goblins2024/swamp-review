@@ -1,7 +1,7 @@
 import supabase from "../config/supabaseClient";
 
 export const getAllHousing = async () => {
-  let { data, error } = await supabase.from("housing").select(`
+	let { data, error } = await supabase.from("housing").select(`
     id,
     name,
     address,
@@ -16,6 +16,7 @@ export const getAllHousing = async () => {
       attribute_name
     ),
     room_types: room_type (
+      id,
       name,
       fall_spring_price,
       summer_AB_price,
@@ -36,6 +37,10 @@ export const getAllHousing = async () => {
       ),
       user: users (
         *
+      ),
+      roomType: room_type (
+        id,
+        name
       )
     ),
     interest_points (
@@ -81,6 +86,7 @@ export const getHousing = async (id) => {
       attribute_name
     ),
     room_types: room_type (
+      id,
       name,
       fall_spring_price,
       summer_AB_price,
@@ -101,6 +107,10 @@ export const getHousing = async (id) => {
       ),
       user: users (
         *
+      ),
+      roomType: room_type (
+        id,
+        name
       )
     ),
     interest_points (
