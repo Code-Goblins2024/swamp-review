@@ -64,7 +64,6 @@ const Search = () => {
     } else if (sortBy === 'reviews') {
       filtered.sort((a, b) => (b.reviews?.length || 0) - (a.reviews?.length || 0));
     }
-    console.log(filtered);
     setFilteredHousing(filtered);
   };
 
