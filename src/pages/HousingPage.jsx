@@ -50,7 +50,7 @@ const HousingPage = () => {
 				{/* Header (Image/Title) */}
 				<Stack spacing={2}>
 					<img
-						src="/beaty.jpg"
+						src={`/housingImages/${housingData.name}.jpg`}
 						style={{ borderRadius: "0.75rem", height: "20rem", width: "100%", objectFit: "cover" }}
 					></img>
 					<Stack
