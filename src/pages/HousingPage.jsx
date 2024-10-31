@@ -3,31 +3,44 @@ import { Grid2 } from "@mui/material";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { getHousing } from "../functions/housingQueries";
+import { getAllCategories } from "../functions/categoryQueries";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import Rating from "../components/Rating";
 import PricingChip from "../components/PricingChip";
 import Review from "../components/Review";
 import NoReviewsCard from "../components/NoReviewsCard";
+import ReviewModal from "../components/ReviewModal";
 
 const HousingPage = () => {
 	const { housingId } = useParams();
 	const [housingData, setHousingData] = useState(null);
+	const [categories, setCategories] = useState(null); // For passing into the review modal
+	const [reviewModalOpen, setReviewModalOpen] = useState(false);
+	const [loading, setLoading] = useState(true);
+	const [activePricingSemester, setActivePricingSemester] = useState("Fall/Spring");
 
 	useEffect(() => {
 		const loadHousingData = async () => {
 			try {
-				const response = await getHousing(housingId);
-				setHousingData(response);
+				const housingRes = await getHousing(housingId);
+				setHousingData(housingRes);
+
+				const categoriesRes = await getAllCategories();
+				setCategories(categoriesRes);
 			} catch (error) {
 				// TODO: Redirect on failure
 				console.error(error);
+			} finally {
+				setLoading(false);
 			}
 		};
 
 		loadHousingData();
 	}, [housingId]);
 
-	const [activePricingSemester, setActivePricingSemester] = useState("Fall/Spring");
+	const handleClickReviewButton = () => {
+		setReviewModalOpen(true);
+	};
 
 	if (!housingData) return null;
 
@@ -37,7 +50,7 @@ const HousingPage = () => {
 				{/* Header (Image/Title) */}
 				<Stack spacing={2}>
 					<img
-						src="/beaty.jpg"
+						src={`/housingImages/${housingData.name}.jpg`}
 						style={{ borderRadius: "0.75rem", height: "20rem", width: "100%", objectFit: "cover" }}
 					></img>
 					<Stack
@@ -53,6 +66,7 @@ const HousingPage = () => {
 						<Button
 							color="primary"
 							size="lg"
+							onClick={handleClickReviewButton}
 							sx={{
 								display: "flex",
 								flexDirection: "row",
@@ -194,17 +208,35 @@ const HousingPage = () => {
 					{housingData.reviews.length === 0 && <Typography level="h4">No reviews yet</Typography>}
 					{housingData.reviews.length > 0 && (
 						<Typography level="h4">
-							Read {housingData.reviews.length} review{housingData.reviews.length !== 1 && "0"}
+							Read {housingData.reviews.length} review{housingData.reviews.length !== 1 && "s"}
 						</Typography>
 					)}
 					<Stack spacing={4}>
 						{housingData.reviews.map((review, index) => (
 							<Review key={index} review={review} />
 						))}
-						{housingData.reviews.length === 0 && <NoReviewsCard housingName={housingData.name} />}
+						{housingData.reviews.length === 0 && (
+							<NoReviewsCard
+								housingName={housingData.name}
+								handleClickReviewButton={handleClickReviewButton}
+							/>
+						)}
 					</Stack>
 				</Stack>
 			</Stack>
+
+			<ReviewModal
+				reviewModalOpen={reviewModalOpen}
+				setReviewModalOpen={setReviewModalOpen}
+				loading={loading}
+				categories={categories}
+				housingData={{
+					id: housingId,
+					name: housingData?.name,
+					roomTypes: housingData?.room_types?.map((room_type) => room_type.name),
+				}}
+				setHousingData={setHousingData}
+			/>
 		</Box>
 	);
 };

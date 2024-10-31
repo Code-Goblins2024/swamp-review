@@ -14,7 +14,7 @@ const Review = ({ review }) => {
 						</Grid2>
 					))}
 				</Grid2>
-				<Typography level="body-md">{review.content}</Typography>
+				{review.content && <Typography level="body-md">{review.content}</Typography>}
 				<Stack direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap" }}>
 					<Box>
 						<Typography level="body-sm" fontWeight="lg">

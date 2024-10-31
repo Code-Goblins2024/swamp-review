@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { Card, Typography, Button } from "@mui/joy";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
-const NoReviewsCard = ({ housingName }) => {
+const NoReviewsCard = ({ housingName, handleClickReviewButton }) => {
 	return (
 		<Card
 			sx={{
@@ -16,11 +16,12 @@ const NoReviewsCard = ({ housingName }) => {
 			<Typography sx={{ textAlign: { xs: "center", sm: "start" } }} level="body-md">
 				Be the first to write a review for {housingName}!
 			</Typography>
-      
-      {/* TODO: Link this button to open the review form */}
+
+			{/* TODO: Link this button to open the review form */}
 			<Button
 				color="primary"
 				size="md"
+				onClick={handleClickReviewButton}
 				sx={{
 					display: "flex",
 					flexDirection: "row",
@@ -39,6 +40,7 @@ const NoReviewsCard = ({ housingName }) => {
 
 NoReviewsCard.propTypes = {
 	housingName: PropTypes.string,
+	handleClickReviewButton: PropTypes.func,
 };
 
 export default NoReviewsCard;
