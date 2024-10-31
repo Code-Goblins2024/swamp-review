@@ -1,0 +1,3 @@
+room_id,user_id,created_at,id,housing_id,content
+-2,1cafc25f-01bb-4a88-98f5-d7cb418bcb47,2001-01-02 05:00:00+00,-2,-1,Test Content 2
+-1,705d5f66-e9b3-4fe8-b0e0-5ad83f0167a9,2000-01-02 05:00:00+00,-1,-1,Test Content 1

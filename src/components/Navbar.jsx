@@ -1,24 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import useAuth from '../store/authStore';
-import {
-  Sheet,
-  IconButton,
-  Box,
-  Typography,
-  Dropdown,
-  Menu,
-  MenuButton,
-  MenuItem,
-  Button,
-  Stack,
-  Avatar,
-} from '@mui/joy';
-import { 
-  Menu as MenuIcon,
-  Person as PersonIcon,
-  RateReview as LogoIcon,
-} from '@mui/icons-material';
+import { Sheet, IconButton, Box, Typography, Dropdown, Menu, MenuButton, MenuItem, Button, Stack, Avatar } from '@mui/joy';
+import { Menu as MenuIcon, Person as PersonIcon } from '@mui/icons-material';
 import supabase from '../config/supabaseClient';
 
 const Navbar = () => {
@@ -36,8 +20,8 @@ const Navbar = () => {
 
   const navItems = [
     { label: 'Home', path: '/' },
+    { label: 'Search', path: '/search' },
     { label: 'About', path: '/about' },
-    { label: 'Contact', path: '/contact' },
   ];
 
   return (
@@ -46,18 +30,20 @@ const Navbar = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        py: 2,
+        py: 1.5,
         px: { xs: 2, md: 4 },
         borderBottom: '1px solid',
         borderColor: 'divider',
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-        <LogoIcon sx={{ fontSize: 30 }} />
-        <Typography level="h4" component="h1">
-          SwampReview
-        </Typography>
-      </Box>
+      <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, cursor: 'pointer' }}>
+          <img src="/swamp_review_logo.png" style={{ height: "2.5rem" }} alt="Swamp Review Logo" />
+          <Typography level="h4" component="h1">
+            SwampReview
+          </Typography>
+        </Box>
+      </Link>
 
       <Stack
         direction="row"
@@ -95,8 +81,8 @@ const Navbar = () => {
             </Menu>
           </Dropdown>
         ) : (
-          <Button 
-            variant="solid" 
+          <Button
+            variant="solid"
             color="primary"
             onClick={() => navigate('/signin')}
           >
@@ -128,7 +114,7 @@ const Navbar = () => {
             display: { xs: 'block', md: 'none' },
           }}
         >
-          <IconButton 
+          <IconButton
             onClick={() => setMenuOpen(false)}
             sx={{ position: 'absolute', right: 2, top: 2 }}
           >
