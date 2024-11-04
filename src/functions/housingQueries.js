@@ -2,6 +2,7 @@ import supabase from "../config/supabaseClient";
 
 export const getAllHousing = async () => {
 	let { data, error } = await supabase.from("housing").select(`
+    id,
     name,
     address,
     average_ratings: average_rating (
@@ -15,6 +16,7 @@ export const getAllHousing = async () => {
       attribute_name
     ),
     room_types: room_type (
+      id,
       name,
       fall_spring_price,
       summer_AB_price,
@@ -35,6 +37,10 @@ export const getAllHousing = async () => {
       ),
       user: users (
         *
+      ),
+      roomType: room_type (
+        id,
+        name
       )
     ),
     interest_points (
@@ -51,9 +57,9 @@ export const getAllHousing = async () => {
 
 	// Sort the categories so they are displayed consistently
 	data = data.map((housing) => {
-		housing.average_ratings = housing.average_ratings.sort((a, b) => a.category.id > b.category.id);
+		housing.average_ratings = housing.average_ratings.sort((a, b) => a.category.id - b.category.id);
 		housing.reviews = housing.reviews.map((review) => {
-			review.ratings = review.ratings.sort((a, b) => a.category.id > b.category.id);
+			review.ratings = review.ratings.sort((a, b) => a.category.id - b.category.id);
 			return review;
 		});
 		return housing;
@@ -80,6 +86,7 @@ export const getHousing = async (id) => {
       attribute_name
     ),
     room_types: room_type (
+      id,
       name,
       fall_spring_price,
       summer_AB_price,
@@ -100,6 +107,10 @@ export const getHousing = async (id) => {
       ),
       user: users (
         *
+      ),
+      roomType: room_type (
+        id,
+        name
       )
     ),
     interest_points (
@@ -118,9 +129,9 @@ export const getHousing = async (id) => {
 
 	// Sort the categories so they are displayed consistently
 	const housing = data[0];
-	housing.average_ratings = housing.average_ratings.sort((a, b) => a.category.id > b.category.id);
+	housing.average_ratings = housing.average_ratings.sort((a, b) => a.category.id - b.category.id);
 	housing.reviews = housing.reviews.map((review) => {
-		review.ratings = review.ratings.sort((a, b) => a.category.id > b.category.id);
+		review.ratings = review.ratings.sort((a, b) => a.category.id - b.category.id);
 		return review;
 	});
 

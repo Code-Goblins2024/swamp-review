@@ -6,6 +6,7 @@ import supabase from '../config/supabaseClient';
 import useAuth from '../store/authStore';
 import { getUserFavorites } from "../functions/userQueries";
 import DormCard from '../components/DormCard.jsx';
+import { calculateAverageRating } from '../functions/util';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -107,7 +108,7 @@ const Dashboard = () => {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 4 }}>
       <Typography level="h2" sx={{ mb: 3 }}>Dashboard</Typography>
 
       <Box sx={{ mb: 4 }}>
@@ -120,6 +121,8 @@ const Dashboard = () => {
                 name={dorm?.housing?.name}
                 isFavorited={true}
                 housingId={dorm?.housing?.id}
+                rating={calculateAverageRating(dorm?.housing?.average_ratings)}
+                reviews={dorm?.housing?.reviews?.length}
                 onClick={() => handleDormClick(dorm?.housing?.id)}
                 onFavoriteRemoved={onFavoriteRemoved}
               />
