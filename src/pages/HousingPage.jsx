@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { getHousing } from "../functions/housingQueries";
 import { getAllCategories } from "../functions/categoryQueries";
+import { getAvgRatingByCategoryForHousing } from "../functions/housingQueries";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import Rating from "../components/Rating";
 import PricingChip from "../components/PricingChip";
@@ -15,6 +16,7 @@ const HousingPage = () => {
     const { housingId } = useParams();
     const [housingData, setHousingData] = useState(null);
     const [categories, setCategories] = useState(null); // For passing into the review modal
+    const [avgRatings, setAvgRatings] = useState(null);
     const [reviewModalOpen, setReviewModalOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [activePricingSemester, setActivePricingSemester] = useState("Fall/Spring");
@@ -27,6 +29,9 @@ const HousingPage = () => {
 
                 const categoriesRes = await getAllCategories();
                 setCategories(categoriesRes);
+
+                const avgRes = await getAvgRatingByCategoryForHousing(housingId);
+                setAvgRatings(avgRes);
             } catch (error) {
                 // TODO: Redirect on failure
                 console.error(error);
@@ -43,6 +48,7 @@ const HousingPage = () => {
     };
 
     if (!housingData) return null;
+    if (!avgRatings) return null;
 
     return (
         <Box sx={{ display: "flex", justifyContent: "center", padding: { xs: "1rem", sm: "2rem", md: "3rem" } }}>
@@ -85,11 +91,11 @@ const HousingPage = () => {
                 {/* Average Ratings */}
                 <Card>
                     <Grid2 container spacing={2} sx={{ flexGrow: 1 }}>
-                        {housingData.average_ratings.map((average_rating) => (
-                            <Grid2 key={average_rating.category.name} size={{ xs: 6, md: 3 }}>
+                        {avgRatings.map((average_rating) => (
+                            <Grid2 key={average_rating.category} size={{ xs: 6, md: 3 }}>
                                 <Rating
                                     type={"average"}
-                                    title={average_rating.category.name}
+                                    title={average_rating.category}
                                     rating={average_rating.value}
                                 />
                             </Grid2>
