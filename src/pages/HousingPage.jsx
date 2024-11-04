@@ -42,7 +42,7 @@ const HousingPage = () => {
 		setReviewModalOpen(true);
 	};
 
-	if (!housingData) return null;
+	if (!housingData || !categories) return null;
 
 	return (
 		<Box sx={{ display: "flex", justifyContent: "center", padding: { xs: "1rem", sm: "2rem", md: "3rem" } }}>
@@ -94,6 +94,15 @@ const HousingPage = () => {
 								/>
 							</Grid2>
 						))}
+						{housingData.average_ratings.length === 0 && (
+							<>
+								{categories.map((category) => (
+									<Grid2 key={category.name} size={{ xs: 6, md: 3 }}>
+										<Rating type={"average"} title={category.name} rating={0.0} />
+									</Grid2>
+								))}
+							</>
+						)}
 					</Grid2>
 				</Card>
 
