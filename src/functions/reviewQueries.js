@@ -21,36 +21,30 @@ export const addReview = async (content, housing_id, room_id, uuid, tag_ids, rat
 		throw new Error("Ratings should not be empty");
 	}
 
-	const { data, error } = await supabase
+	const { data, error: reviewError } = await supabase
 		.from("reviews")
 		.insert({ content, housing_id, room_id, user_id: uuid })
 		.select();
-	if (error) {
-		console.log("Couldn't create review");
-		throw error;
-	}
+	if (reviewError) throw reviewError;
 
 	const review_id = data[0].id;
 
 	if (tag_ids.length != 0) {
-		tag_ids.forEach(async (tag_id) => {
-			const { error } = await supabase.from("reviews_to_tags").insert({ review_id, tag_id });
-			if (error) {
-				console.log("Couldn't create tag");
-				throw error;
-			}
-		});
+		const formattedTags = tag_ids.map((tag_id) => ({
+			review_id,
+			tag_id,
+		}));
+		const { error: tagError } = await supabase.from("reviews_to_tags").insert(formattedTags);
+		if (tagError) throw tagError;
 	}
 
-	ratings.forEach(async (cr) => {
-		const { error } = await supabase
-			.from("reviews_to_categories")
-			.insert({ review_id, category_id: cr.id, rating_value: cr.rating_value });
-		if (error) {
-			console.log("Couldn't create rating for category");
-			throw error;
-		}
-	});
+	const formattedRatings = ratings.map((cr) => ({
+		review_id,
+		category_id: cr.id,
+		rating_value: cr.rating_value,
+	}));
+	const { error: ratingError } = await supabase.from("reviews_to_categories").insert(formattedRatings);
+	if (ratingError) throw ratingError;
 
 	return data;
 };
