@@ -1,9 +1,9 @@
 name: PGTap Tests
 on:
   push:
-    branches: [ main, staging ]
+    branches: [ main, staging, supabase* ]
   pull_request:
-    branches: [ main, staging ]
+    branches: [ main, staging, supabase* ]
 jobs:
   build:
     runs-on: ubuntu-latest
