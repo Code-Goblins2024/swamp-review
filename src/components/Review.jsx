@@ -28,20 +28,24 @@ const Review = ({ review }) => {
 								.replaceAll(",", "")}
 						</Typography>
 					</Box>
-					<Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
-						<Typography>&bull;</Typography>
-						<Typography level="body-sm" fontWeight="lg">
-							{review.user.year}
-							{["First", "Second", "Third", "Fourth", "Fifth"].includes(review.user.year) && "-year"}
-						</Typography>
-					</Stack>
+					{review?.user?.year && (
+						<Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
+							<Typography>&bull;</Typography>
+							<Typography level="body-sm" fontWeight="lg">
+								{review.user.year}
+								{["First", "Second", "Third", "Fourth", "Fifth"].includes(review.user.year) && "-year"}
+							</Typography>
+						</Stack>
+					)}
 
-					<Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
-						<Typography>&bull;</Typography>
-						<Typography level="body-sm" fontWeight="lg">
-							{review.roomType.name}
-						</Typography>
-					</Stack>
+					{review?.roomType && (
+						<Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
+							<Typography>&bull;</Typography>
+							<Typography level="body-sm" fontWeight="lg">
+								{review.roomType.name}
+							</Typography>
+						</Stack>
+					)}
 				</Stack>
 			</Stack>
 		</Card>
