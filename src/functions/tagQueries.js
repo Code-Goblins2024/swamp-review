@@ -6,6 +6,20 @@ export const getAllTags = async () => {
 	return data;
 };
 
+export const getTagCountsForAllHousing = async () => {
+	const { data, error } = await supabase.rpc("get_tag_counts_for_all_housing");
+	if (error) throw error;
+
+	const groupedTagCounts = {};
+	data.forEach((ar) => {
+		const { housing_id, ...rest } = ar;
+		if (!(housing_id in groupedTagCounts)) groupedTagCounts[housing_id] = [];
+		groupedTagCounts[housing_id].push(rest);
+	});
+
+	return groupedTagCounts;
+};
+
 export const getTagCountsForHousing = async (housingId) => {
 	const { data, error } = await supabase.rpc("get_tag_counts_for_single_housing", { housing_id_param: housingId });
 	if (error) throw error;
