@@ -185,3 +185,18 @@ export const getHousingReviews = async (id) => {
 	}
 	return data;
 };
+
+
+
+export const getAvgRatingByCategoryForHousing = async (id) => {
+	const { data, error } = await supabase
+		.rpc('get_avg_rating_by_category', { target_housing_id: id });
+
+	if (error) {
+		console.error('Error fetching data:', error);
+		return null;
+	}
+
+	return data;
+}
+
