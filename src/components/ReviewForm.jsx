@@ -8,9 +8,8 @@ import useAuth from "../store/authStore";
 import FormSelect from "./FormSelect";
 import PropTypes from "prop-types";
 import ClickableRating from "./ClickableRating";
-import ClickableTagChip from "./ClickableTagChip";
+import CustomChip from "./CustomChip";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { setSelection } from "@testing-library/user-event/dist/cjs/event/selection/setSelection.js";
 
 const ReviewForm = ({ setReviewFormOpen, housingData, setHousingData, categories, loading, tags }) => {
 	const theme = useTheme();
@@ -150,7 +149,7 @@ const ReviewForm = ({ setReviewFormOpen, housingData, setHousingData, categories
 		try {
 			// TODO: Add tags later
 			const roomId = housingData.roomTypes.filter((rt) => rt.name === roomType)[0].id;
-			await addReview(content, housingData.id, roomId, session.user.id, [], formattedRatings);
+			await addReview(content, housingData.id, roomId, session.user.id, selectedTags, formattedRatings);
 		} catch {
 			setGeneralError("Sorry, we unexpectedly couldn't submit your review. Please try again later.");
 			setSubmitting(false);
@@ -316,11 +315,11 @@ const ReviewForm = ({ setReviewFormOpen, housingData, setHousingData, categories
 							</Typography>
 							<Box sx={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
 								{tags.map((tag) => (
-									<ClickableTagChip
+									<CustomChip
 										key={tag.id}
 										name={tag.name}
 										active={selectedTags.includes(tag.id)}
-										handleTagClick={() => {
+										onClick={() => {
 											handleTagClick(tag.id);
 										}}
 									/>

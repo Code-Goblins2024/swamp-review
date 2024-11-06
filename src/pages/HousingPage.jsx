@@ -1,4 +1,4 @@
-import { Box, Button, Typography, Stack, Card } from "@mui/joy";
+import { Box, Button, Typography, Stack, Card, CircularProgress } from "@mui/joy";
 import { Grid2 } from "@mui/material";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
@@ -6,10 +6,10 @@ import { getHousing } from "../functions/housingQueries";
 import { getAllCategories } from "../functions/categoryQueries";
 import { getAllTags } from "../functions/tagQueries";
 import { useNavigate, useLocation } from "react-router-dom";
-import { getAvgRatingByCategoryForHousing } from "../functions/housingQueries";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import Rating from "../components/Rating";
 import PricingChip from "../components/PricingChip";
+import CustomChip from "../components/CustomChip";
 import Review from "../components/Review";
 import NoReviewsCard from "../components/NoReviewsCard";
 import ReviewForm from "../components/ReviewForm";
@@ -22,7 +22,6 @@ const HousingPage = () => {
 	const [categories, setCategories] = useState(null); // For passing into the review form
 	const [tags, setTags] = useState(null);
 	const [reviewFormOpen, setReviewFormOpen] = useState(false);
-	const [avgRatings, setAvgRatings] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [activePricingSemester, setActivePricingSemester] = useState("Fall/Spring");
 
@@ -35,8 +34,6 @@ const HousingPage = () => {
 				setCategories(categoriesRes);
 				const tagsRes = await getAllTags();
 				setTags(tagsRes);
-				const avgRes = await getAvgRatingByCategoryForHousing(housingId);
-				setAvgRatings(avgRes);
 			} catch (error) {
 				// TODO: Redirect on failure
 				console.error(error);
@@ -66,19 +63,36 @@ const HousingPage = () => {
 		setReviewFormOpen(true);
 	};
 
-	if (!housingData || !categories || !tags || !avgRatings) return null;
+	if (!housingData || !categories || !tags) {
+		return (
+			<Box
+				sx={{
+					width: "100%",
+					height: "100vh",
+					display: "flex",
+					justifyContent: "center",
+					alignItems: "center",
+				}}
+			>
+				<CircularProgress />
+			</Box>
+		);
+	}
 
 	return (
 		<Box sx={{ display: "flex", justifyContent: "center", padding: { xs: "1rem", sm: "2rem", md: "3rem" } }}>
 			<Stack useFlexGap spacing={4} sx={{ width: { xs: "100%", lg: "85%", xl: "70%" } }}>
 				{!reviewFormOpen && (
 					<>
-						{/* Header (Image/Title) */}
+						{/* Header */}
 						<Stack spacing={2}>
+							{/* Header Image */}
 							<img
 								src={`/housingImages/${housingData.name}.jpg`}
 								style={{ borderRadius: "0.75rem", height: "20rem", width: "100%", objectFit: "cover" }}
 							></img>
+
+							{/* Header Title/MOBILE Tag List/Review Button */}
 							<Stack
 								sx={{
 									display: "flex",
@@ -89,6 +103,21 @@ const HousingPage = () => {
 								}}
 							>
 								<Typography level="h2">{housingData.name}</Typography>
+
+								{/* Tag List (MOBILE SCREENS ONLY) */}
+								<Box
+									sx={{
+										display: { xs: "flex", sm: "none" },
+										justifyContent: { xs: "center", sm: "start" },
+										gap: "0.75rem",
+										flexWrap: "wrap",
+									}}
+								>
+									{housingData.tags.map((tag) => (
+										<CustomChip key={tag.tag_name} name={tag.tag_name} active={true} />
+									))}
+								</Box>
+
 								<Button
 									color="primary"
 									size="lg"
@@ -106,12 +135,26 @@ const HousingPage = () => {
 									<ArrowForwardIcon color="white" fontSize="small" />
 								</Button>
 							</Stack>
+
+							{/* Tag List (SMALL SCREENS AND BIGGER) */}
+							<Box
+								sx={{
+									display: { xs: "none", sm: "flex" },
+									justifyContent: { xs: "center", sm: "start" },
+									gap: "0.75rem",
+									flexWrap: "wrap",
+								}}
+							>
+								{housingData.tags.map((tag) => (
+									<CustomChip key={tag.tag_name} name={tag.tag_name} active={true} />
+								))}
+							</Box>
 						</Stack>
 
 						{/* Average Ratings */}
 						<Card>
 							<Grid2 container spacing={2} sx={{ flexGrow: 1 }}>
-								{avgRatings.map((average_rating) => (
+								{housingData.average_ratings.map((average_rating) => (
 									<Grid2 key={average_rating.category} size={{ xs: 6, md: 3 }}>
 										<Rating
 											type={"average"}
@@ -120,7 +163,7 @@ const HousingPage = () => {
 										/>
 									</Grid2>
 								))}
-								{avgRatings.length === 0 && (
+								{housingData.average_ratings.length === 0 && (
 									<>
 										{categories.map((category) => (
 											<Grid2 key={category.name} size={{ xs: 6, md: 3 }}>
@@ -148,7 +191,7 @@ const HousingPage = () => {
 										<Typography level="h4" fontWeight="xl">
 											Pricing
 										</Typography>
-										<Box sx={{ display: "flex", flexWrap: "nowrap", gap: "0.5rem" }}>
+										<Box sx={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
 											<PricingChip
 												semester={"Fall/Spring"}
 												activePricingSemester={activePricingSemester}

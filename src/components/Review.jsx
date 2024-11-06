@@ -2,6 +2,7 @@ import { Card, Stack, Typography, Box } from "@mui/joy";
 import { Grid2 } from "@mui/material";
 import Rating from "./Rating";
 import PropTypes from "prop-types";
+import CustomChip from "./CustomChip";
 
 const Review = ({ review }) => {
 	return (
@@ -15,6 +16,13 @@ const Review = ({ review }) => {
 					))}
 				</Grid2>
 				{review.content && <Typography level="body-md">{review.content}</Typography>}
+				{review.tags.length > 0 && (
+					<Box sx={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+						{review.tags.map((tag) => (
+							<CustomChip key={tag.id} active={true} name={tag.name} />
+						))}
+					</Box>
+				)}
 				<Stack direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap" }}>
 					<Box>
 						<Typography level="body-sm" fontWeight="lg">
