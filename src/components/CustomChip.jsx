@@ -53,7 +53,9 @@ const CustomChip = ({ name, active, onClick }) => {
 			}
 			onClick={onClick}
 		>
-			<Typography level="body-sm">{name}</Typography>
+			<Typography level="body-sm" fontWeight="lg">
+				{name}
+			</Typography>
 		</Chip>
 	);
 };
