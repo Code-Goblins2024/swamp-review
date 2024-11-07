@@ -13,6 +13,10 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    environment: development
+    env:
+      VITE_BASE_API_URL: ${{ secrets.VITE_BASE_API_URL }}
+      VITE_SUPABASE_KEY: ${{ secrets.VITE_SUPABASE_KEY }}
 
     strategy:
       matrix:
