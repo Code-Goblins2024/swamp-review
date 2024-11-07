@@ -1,10 +1,8 @@
 name: Run Vitest
 
 on:
-  push:
-    branches: [ main, staging, supabase* ]
   pull_request:
-    branches: [ main, staging, supabase* ]
+    branches: [ "master", "staging"]
 
 jobs:
   test:
