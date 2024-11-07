@@ -2,57 +2,73 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Input, Grid, Select, Option, CircularProgress } from '@mui/joy';
 import { Search as SearchIcon } from '@mui/icons-material';
-import supabase from '../config/supabaseClient';
 import DormCard from '../components/DormCard';
+import useAuth from '../store/authStore';
+import { getAllHousing } from '../functions/housingQueries';
+import { getUserFavorites } from "../functions/userQueries";
+import { calculateAverageRating } from '../functions/util';
 
 const Search = () => {
   const navigate = useNavigate();
+  const { session } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
-  const [priceRange, setPriceRange] = useState('all');
-  const [sortBy, setSortBy] = useState('name');
+  const [sortBy, setSortBy] = useState('');
   const [housing, setHousing] = useState([]);
+  const [filteredHousing, setFilteredHousing] = useState([]);
+  const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchHousing();
-  }, [searchTerm, priceRange, sortBy]);
+    fetchData();
+  }, []);
 
-  const fetchHousing = async () => {
+  useEffect(() => {
+    filterAndSortHousing();
+  }, [housing, searchTerm, sortBy]);
+
+  const fetchData = async () => {
     try {
       setLoading(true);
-      let query = supabase
-        .from('housing')
-        .select(`
-          id,
-          name
-        `);
-
-      if (searchTerm) {
-        query = query.ilike('name', `%${searchTerm}%`);
-      }
-
-      if (priceRange !== 'all') {
-        query = query.lte('fallSpringPrice', priceRange);
-      }
-
-      if (sortBy === 'name') {
-        query = query.order('name');
-      } else if (sortBy === 'price') {
-        query = query.order('fallSpringPrice');
-      } else if (sortBy === 'rating') {
-        query = query.order('averageRating', { foreignTable: 'averageRating' });
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-      setHousing(data || []);
+      const [housingData, favoritesData] = await Promise.all([
+        getAllHousing(),
+        session ? getUserFavorites(session.user.id) : []
+      ]);
+      setHousing(housingData || []);
+      setFavorites(favoritesData || []);
     } catch (error) {
       console.error('Error fetching housing:', error);
       setHousing([]);
+      setFavorites([]);
     } finally {
       setLoading(false);
     }
+  };
+
+  const filterAndSortHousing = () => {
+    let filtered = [...housing];
+
+    if (searchTerm) {
+      filtered = filtered.filter(house =>
+        house.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (sortBy === 'name') {
+      filtered.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sortBy === 'rating') {
+      filtered.sort((a, b) => {
+        const aRating = calculateAverageRating(a.average_ratings);
+        const bRating = calculateAverageRating(b.average_ratings);
+        return bRating - aRating;
+      });
+    } else if (sortBy === 'reviews') {
+      filtered.sort((a, b) => (b.reviews?.length || 0) - (a.reviews?.length || 0));
+    }
+    setFilteredHousing(filtered);
+  };
+
+  const isFavorited = (dormId) => {
+    return favorites.some(fav => fav.housing?.id === dormId);
   };
 
   const handleDormClick = (dormId) => {
@@ -60,11 +76,11 @@ const Search = () => {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 4 }}>
       <Typography level="h2" sx={{ mb: 3 }}>Search Housing</Typography>
 
       <Grid container spacing={2} sx={{ mb: 4 }}>
-        <Grid xs={12} md={12}>
+        <Grid xs={12} md={8}>
           <Input
             startDecorator={<SearchIcon />}
             placeholder="Search by name..."
@@ -74,32 +90,18 @@ const Search = () => {
             sx={{ width: '100%' }}
           />
         </Grid>
-        {/* <Grid xs={6} md={3}>
-          <Select
-            value={priceRange}
-            onChange={(_, newValue) => setPriceRange(newValue)}
-            placeholder="Price Range"
-            size="lg"
-          >
-            <Option value="all">All Prices</Option>
-            <Option value="1000">Under $1,000</Option>
-            <Option value="1500">Under $1,500</Option>
-            <Option value="2000">Under $2,000</Option>
-            <Option value="2500">Under $2,500</Option>
-          </Select>
-        </Grid>
-        <Grid xs={6} md={3}>
+        <Grid xs={6} md={4}>
           <Select
             value={sortBy}
             onChange={(_, newValue) => setSortBy(newValue)}
             placeholder="Sort By"
             size="lg"
           >
-            <Option value="name">Name</Option>
-            <Option value="price">Price</Option>
-            <Option value="rating">Rating</Option>
+            <Option value="name">Name (A-Z)</Option>
+            <Option value="rating">Highest Rated</Option>
+            <Option value="reviews">Most Reviewed</Option>
           </Select>
-        </Grid> */}
+        </Grid>
       </Grid>
 
       {loading ? (
@@ -107,16 +109,23 @@ const Search = () => {
           <CircularProgress />
         </Box>
       ) : (
-        <Grid container spacing={2}>
-          {housing.length > 0 ? (
-            housing.map((dorm) => (
+        <Grid container spacing={2} sx={{
+          px: { xs: 2, sm: 4, md: 8, lg: 12 },
+          justifyContent: 'center',
+          width: 'auto',
+          mx: 'auto',
+        }}>
+          {filteredHousing.length > 0 ? (
+            filteredHousing.map((dorm) => (
               <Grid xs={12} sm={6} md={4} lg={3} key={dorm.id}>
                 <DormCard
-                  key={dorm?.id}
+                  key={dorm.id}
                   name={dorm?.name}
-                  isFavorited={false}
-                  housingId={dorm?.id}
-                  onClick={() => handleDormClick(dorm?.id)}
+                  isFavorited={isFavorited(dorm.id)}
+                  housingId={dorm.id}
+                  rating={calculateAverageRating(dorm.average_ratings)}
+                  reviews={dorm.reviews?.length || 0}
+                  onClick={() => handleDormClick(dorm.id)}
                 />
               </Grid>
             ))

@@ -36,13 +36,12 @@ const Review = ({ review }) => {
 						</Typography>
 					</Stack>
 
-					{/* TODO: Update this pull the room the student lived in from the review */}
-					{/* <Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
-          <Typography>&bull;</Typography>
-          <Typography level="body-sm" fontWeight="lg">
-            Traditional Single
-          </Typography>
-        </Stack> */}
+					<Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
+						<Typography>&bull;</Typography>
+						<Typography level="body-sm" fontWeight="lg">
+							{review.roomType.name}
+						</Typography>
+					</Stack>
 				</Stack>
 			</Stack>
 		</Card>

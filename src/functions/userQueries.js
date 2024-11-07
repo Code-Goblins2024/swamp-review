@@ -30,7 +30,13 @@ export const getUserFavorites = async (uuid) => {
 		.select(`
 			housing (
 				id,
-				name
+				name,
+				average_ratings: average_rating (
+					category: categories (
+						name
+					),
+					value: average_rating
+				)
 			)
 		`)
 		.eq('user_id', uuid);
