@@ -13,7 +13,6 @@ import NoReviewsCard from "../components/NoReviewsCard";
 import ReviewModal from "../components/ReviewModal";
 
 const HousingPage = () => {
-<<<<<<< HEAD
 	const { housingId } = useParams();
 	const [housingData, setHousingData] = useState(null);
 	const [categories, setCategories] = useState(null); // For passing into the review modal
@@ -27,8 +26,6 @@ const HousingPage = () => {
 			try {
 				const housingRes = await getHousing(housingId);
 				setHousingData(housingRes);
-
-<<<<<<< HEAD
 				const categoriesRes = await getAllCategories();
 				setCategories(categoriesRes);
 
