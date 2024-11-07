@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { getHousing } from "../functions/housingQueries";
 import { getAllCategories } from "../functions/categoryQueries";
+import { getAvgRatingByCategoryForHousing } from "../functions/housingQueries";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import Rating from "../components/Rating";
 import PricingChip from "../components/PricingChip";
@@ -15,6 +16,7 @@ const HousingPage = () => {
 	const { housingId } = useParams();
 	const [housingData, setHousingData] = useState(null);
 	const [categories, setCategories] = useState(null); // For passing into the review modal
+	const [avgRatings, setAvgRatings] = useState(null);
 	const [reviewModalOpen, setReviewModalOpen] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [activePricingSemester, setActivePricingSemester] = useState("Fall/Spring");
@@ -24,9 +26,11 @@ const HousingPage = () => {
 			try {
 				const housingRes = await getHousing(housingId);
 				setHousingData(housingRes);
-
 				const categoriesRes = await getAllCategories();
 				setCategories(categoriesRes);
+
+				const avgRes = await getAvgRatingByCategoryForHousing(housingId);
+				setAvgRatings(avgRes);
 			} catch (error) {
 				// TODO: Redirect on failure
 				console.error(error);
@@ -42,7 +46,8 @@ const HousingPage = () => {
 		setReviewModalOpen(true);
 	};
 
-	if (!housingData || !categories) return null;
+	if (!housingData) return null;
+	if (!avgRatings) return null;
 
 	return (
 		<Box sx={{ display: "flex", justifyContent: "center", padding: { xs: "1rem", sm: "2rem", md: "3rem" } }}>
@@ -166,8 +171,8 @@ const HousingPage = () => {
 												activePricingSemester === "Fall/Spring"
 													? room_type.fall_spring_price
 													: activePricingSemester === "Summer A/B"
-													? room_type.summer_AB_price
-													: room_type.summer_C_price
+														? room_type.summer_AB_price
+														: room_type.summer_C_price
 											)}
 										</Typography>
 									))}
@@ -191,22 +196,20 @@ const HousingPage = () => {
 					{/* POI (Right) Side */}
 					<Box sx={{ flex: 1 }}>
 						<Card sx={{ height: "100%" }}>
-							<Box sx={{ height: "100%", position: "relative" }}>
-								<Box
-									component="img"
-									src="/map_placeholder.png"
-									alt="Map placeholder"
-									sx={{
-										position: "absolute",
-										top: 0,
-										left: 0,
-										right: 0,
-										bottom: 0,
-										width: "100%",
-										height: "100%",
-										objectFit: "cover",
-									}}
-								/>
+							<Box sx={{ height: "100%", position: "relative" }}> <Box component="img"
+								src="/map_placeholder.png"
+								alt="Map placeholder"
+								sx={{
+									position: "absolute",
+									top: 0,
+									left: 0,
+									right: 0,
+									bottom: 0,
+									width: "100%",
+									height: "100%",
+									objectFit: "cover",
+								}}
+							/>
 							</Box>
 						</Card>
 					</Box>
