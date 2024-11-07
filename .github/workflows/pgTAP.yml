@@ -12,7 +12,7 @@ jobs:
       - uses: supabase/setup-cli@v1
         with:
           version: latest
-      - name: Supabase Start
-        run: supabase db start
       - name: Run Tests
-        run: supabase test db
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE.CONNECTION_URL }}
+        run: supabase test db --db-url "$SUPABASE_URL"
