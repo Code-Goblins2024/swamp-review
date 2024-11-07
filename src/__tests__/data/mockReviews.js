@@ -20,6 +20,10 @@ export const mockReviews = [
 			last_name: "Test Lastname 1",
 			year: "Other",
 		},
+		roomType: {
+			id: -1,
+			name: "Test Room 1",
+		},
 		created_at: "2000-01-02 02:15:00+00",
 	},
 	{
@@ -42,6 +46,10 @@ export const mockReviews = [
 			first_name: "Test Firstname 2",
 			last_name: "Test Lastname 2",
 			year: "Other",
+		},
+		roomType: {
+			id: -2,
+			name: "Test Room 2",
 		},
 		created_at: "2001-01-02 02:15:00+00",
 	},

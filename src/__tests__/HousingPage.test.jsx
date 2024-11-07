@@ -34,15 +34,15 @@ describe("Housing page tests", () => {
 		});
 	});
 
-	it("should render all room types", async () => {
+	it("should render room types in prices and in reviews", async () => {
 		const testPrice = async (roomTypeObj, priceInfo) => {
 			// Find and click button for appropraite price type (fall/spring, summer a/b, or summer c)
 			const button = screen.getByText(priceInfo.buttonText).previousElementSibling;
 			await userEvent.click(button);
 
 			// Test room type is displayed
-			const roomName = screen.getByText(roomTypeObj.name);
-			expect(roomName).toBeInTheDocument();
+			const roomNames = await screen.findAllByText(roomTypeObj.name);
+			expect(roomNames).toHaveLength(2);
 
 			// Test price is displayed
 			const price = screen.getByText(
