@@ -14,5 +14,5 @@ jobs:
           version: latest
       - name: Run Tests
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE.CONNECTION_URL }}
-        run: supabase test db --db-url "$SUPABASE_URL" --debug
+          SUPABASE_URL: ${{ secrets.SUPABASE_CONNECTION_URL }}
+        run: supabase test db --db-url "$SUPABASE_URL"
