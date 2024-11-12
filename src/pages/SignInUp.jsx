@@ -43,7 +43,7 @@ const SignInUp = () => {
 		// TODO: Add logic for redirect after successful sign in/up
 		const housingRedirect = new URLSearchParams(location.search).get("housingRedirect");
 		if (housingRedirect) {
-			navigate(`/housing/${housingRedirect}?showReviewModal=true`);
+			navigate(`/housing/${housingRedirect}?showReviewForm=true`);
 		}
 
 		resetForm();
@@ -168,7 +168,7 @@ const SignInUp = () => {
 	return (
 		<Box
 			sx={{
-				position: 'absolute',
+				position: "absolute",
 				top: 64,
 				bottom: 0,
 				left: 0,
