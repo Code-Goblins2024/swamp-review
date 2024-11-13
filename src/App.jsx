@@ -11,6 +11,7 @@ import HousingPage from "./pages/HousingPage";
 import Dashboard from "./pages/Dashboard";
 import About from "./pages/About";
 import Search from "./pages/Search";
+import Settings from "./pages/Settings";
 
 const App = () => {
   const { session, setSession } = useAuth();
@@ -58,6 +59,10 @@ const App = () => {
             <Route
               path="/dashboard"
               element={session ? <Dashboard /> : <Navigate to="/signin" />}
+            />
+            <Route
+              path="/settings"
+              element={session ? <Settings /> : <Navigate to="/signin" />}
             />
             <Route path="/about" element={<About />} />
             <Route path="/search" element={<Search />} />
