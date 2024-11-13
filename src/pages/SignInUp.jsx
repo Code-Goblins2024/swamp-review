@@ -1,6 +1,6 @@
 import { Typography, Box, Stack, Button, Divider, FormLabel } from "@mui/joy";
 import { useState } from "react";
-import { years } from "../constants/Years";
+import { years } from "../constants/Enums";
 import { createPublicUser } from "../functions/userQueries";
 import { useLocation, useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
