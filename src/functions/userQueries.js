@@ -90,3 +90,47 @@ export const updateUsername = async (uuid, new_username) => {
 		throw error;
 	}
 };
+
+/**
+ * Retrieve user data
+ * @param {string} uuid - User id
+ * @returns {any[]} data - User data
+ */
+
+export const getUser = async (uuid) => {
+	const { data, error } = await supabase
+		.from('users')
+		.select(`
+			first_name,
+			last_name,
+			email,
+			username,
+			major,
+			year,
+			role`)
+		.eq('id', uuid);
+	if (error) {
+		console.log(`Error retrieving user data`);
+		throw error;
+	}
+	return data;
+};
+
+/**
+ * Retrieve user data
+ * @param {string} uuid - User id
+ * @returns {string} data - User role (admin, user, moderator, faculty)
+ */
+
+export const getUserRole = async (uuid) => {
+	const { data, error } = await supabase
+		.from('users')
+		.select(`
+			role`)
+		.eq('id', uuid);
+	if (error) {
+		console.log(`Error retrieving user data`);
+		throw error;
+	}
+	return data;
+};
