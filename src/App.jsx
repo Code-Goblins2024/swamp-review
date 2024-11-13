@@ -12,10 +12,12 @@ import Dashboard from "./pages/Dashboard";
 import About from "./pages/About";
 import Search from "./pages/Search";
 import Admin from "./pages/Admin";
+import { getUserRole } from "./functions/userQueries";
 
 const App = () => {
     const { session, setSession } = useAuth();
     const [loading, setLoading] = useState(true);
+    const [userRole, setUserRole] = useState("");
 
     // All logic for loading the application
     const loadApp = async () => {
@@ -25,9 +27,18 @@ const App = () => {
         setLoading(false);
     };
 
+    const loadRole = async (session) => {
+        const role = await getUserRole(session.user.id);
+        setUserRole(role[0].role);
+    }
+
     useEffect(() => {
         loadApp();
     }, []);
+
+    useEffect(() => {
+        loadRole(session);
+    }, [session]);
 
     // Auth state change listener
     useEffect(() => {
@@ -62,7 +73,7 @@ const App = () => {
                         />
                         <Route
                             path="/admin"
-                            element={session ? <Admin /> : <Navigate to="/dashboard" />}
+                            element={userRole === "admin" ? <Admin /> : <Navigate to="/dashboard" />}
                         />
                         <Route path="/about" element={<About />} />
                         <Route path="/search" element={<Search />} />
