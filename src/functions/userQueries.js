@@ -104,7 +104,6 @@ export const getUser = async (uuid) => {
 			first_name,
 			last_name,
 			email,
-			username,
 			major,
 			year,
 			role`)
