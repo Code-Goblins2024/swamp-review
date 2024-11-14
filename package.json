@@ -21,6 +21,7 @@
 		"@mui/material": "^6.1.7",
 		"@supabase/supabase-js": "^2.46.1",
 		"content-checker": "^1.1.3",
+		"mui-color-input": "^5.0.1",
 		"prop-types": "^15.8.1",
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",
