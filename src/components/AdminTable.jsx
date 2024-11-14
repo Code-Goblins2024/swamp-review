@@ -12,41 +12,7 @@ import BlockIcon from '@mui/icons-material/Block';
 import AutorenewRoundedIcon from '@mui/icons-material/AutorenewRounded';
 import MoreHorizRoundedIcon from '@mui/icons-material/MoreHorizRounded';
 
-const rows = [
-    {
-        id: '11',
-        date: 'Feb 3, 2023',
-        status: 'Approved',
-        content: 'Beaty if pretty cool!',
-        user: {
-            name: 'Jordan Sheehan',
-            initial: 'J',
-            email: 'js@ufl.edu',
-        },
-    },
-    {
-        id: '12',
-        date: 'Nov 12, 2024',
-        status: 'In Review',
-        content: 'Questionable review',
-        user: {
-            name: 'Evan Robinson',
-            initial: 'E',
-            email: 'evan@ufl.edu',
-        },
-    },
-    {
-        id: '13',
-        date: 'Dec 11, 2024',
-        status: 'Rejected',
-        content: 'Profanity detected',
-        user: {
-            name: 'Vance Boudreau',
-            initial: 'V',
-            email: 'vboudreau1@ufl.edu',
-        },
-    },
-];
+import { getFlaggedReviews } from "../functions/reviewQueries";
 
 function handleApprove() {
 }
@@ -202,16 +168,16 @@ const AdminTable = () => {
                                     <Checkbox
                                         size="sm"
                                         indeterminate={
-                                            selected.length > 0 && selected.length !== rows.length
+                                            selected.length > 0 && selected.length !== reviews.length
                                         }
-                                        checked={selected.length === rows.length}
+                                        checked={selected.length === reviews.length}
                                         onChange={(event) => {
                                             setSelected(
-                                                event.target.checked ? rows.map((row) => row.id) : [],
+                                                event.target.checked ? reviews.map((row) => row.id) : [],
                                             );
                                         }}
                                         color={
-                                            selected.length > 0 || selected.length === rows.length
+                                            selected.length > 0 || selected.length === reviews.length
                                                 ? 'primary'
                                                 : undefined
                                         }
@@ -236,7 +202,7 @@ const AdminTable = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {rows.map((row) => (
+                            {reviews.map((row) => (
                                 <tr key={row.id}>
                                     <td style={{ textAlign: 'center', width: 120 }}>
                                         <Checkbox
@@ -255,10 +221,18 @@ const AdminTable = () => {
                                         />
                                     </td>
                                     <td>
-                                        <Typography level="body-xs">{row.id}</Typography>
+                                        <Typography level="body-xs">{row.reviews.review_id}</Typography>
                                     </td>
                                     <td>
-                                        <Typography level="body-xs">{row.date}</Typography>
+                                        <Typography level="body-xs">
+                                            {new Date(row.reviews.created_at)
+                                                .toLocaleDateString("en-US", {
+                                                    month: "short",
+                                                    day: "numeric",
+                                                    year: "numeric",
+                                                })
+                                                .replaceAll(",", "")}
+                                        </Typography>
                                     </td>
                                     <td>
                                         <Chip
@@ -269,21 +243,21 @@ const AdminTable = () => {
                                                     Paid: <CheckRoundedIcon />,
                                                     Refunded: <AutorenewRoundedIcon />,
                                                     Cancelled: <BlockIcon />,
-                                                }[row.status]
+                                                }[row.reviews.status]
                                             }
                                         >
-                                            {row.status}
+                                            {row.reviews.status}
                                         </Chip>
                                     </td>
                                     <td>
-                                        <Typography level="body-xs">{row.content}</Typography>
+                                        <Typography level="body-xs">{row.reviews.content}</Typography>
                                     </td>
                                     <td>
                                         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                                            <Avatar size="sm">{row.user.initial}</Avatar>
+                                            <Avatar size="sm">{row.reviews.users.first_name[0]}</Avatar>
                                             <div>
-                                                <Typography level="body-xs">{row.user.name}</Typography>
-                                                <Typography level="body-xs">{row.user.email}</Typography>
+                                                <Typography level="body-xs">{row.reviews.users.first_name + ' ' + row.reviews.users.last_name}</Typography>
+                                                <Typography level="body-xs">{row.reviews.users.email}</Typography>
                                             </div>
                                         </Box>
                                     </td>

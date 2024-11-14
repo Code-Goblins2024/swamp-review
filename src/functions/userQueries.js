@@ -121,7 +121,7 @@ export const getUser = async (uuid) => {
 /**
  * Retrieve user data
  * @param {string} uuid - User id
- * @returns {string} data - User role (admin, user, moderator, faculty)
+ * @returns {any[]} data - User role (admin, user, moderator, faculty)
  */
 
 export const getUserRole = async (uuid) => {

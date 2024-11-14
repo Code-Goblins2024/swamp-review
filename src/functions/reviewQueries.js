@@ -43,6 +43,7 @@ export const addReview = async (content, housing_id, room_id, uuid, tag_ids, rat
 		category_id: cr.id,
 		rating_value: cr.rating_value,
 	}));
+
 	const { error: ratingError } = await supabase.from("reviews_to_categories").insert(formattedRatings);
 	if (ratingError) throw ratingError;
 
@@ -50,5 +51,47 @@ export const addReview = async (content, housing_id, room_id, uuid, tag_ids, rat
 };
 
 export const getFlaggedReviews = async () => {
-	const { data, error } = await supabase.from("");
+	const { data: flaggedReviews, error: flagError } = await supabase.from("flagged_reviews").select(`
+		id,
+		created_at,
+		reviews (
+			review_id: id,
+			users (
+				user_id: id,
+				email,
+				first_name,
+				last_name
+			),
+			created_at,
+			content,
+			status
+		)
+	`);
+	if (flagError) throw flagError;
+
+	const reviewCounts = flaggedReviews.reduce((acc, review) => {
+		acc[review.review_id] = (acc[review.review_id] || 0) + 1;
+		return acc;
+	}, {});
+
+	const uniqueFlaggedReviews = flaggedReviews
+		.filter(review => reviewCounts[review.review_id] > 2) // Filter for review_ids that appear more than twice
+		.reduce((uniqueReviews, review) => {
+			if (!uniqueReviews.some(r => r.review_id === review.review_id)) {
+				uniqueReviews.push(review);
+			}
+			return uniqueReviews;
+		}, []);
+
+	return uniqueFlaggedReviews;
+};
+
+/**
+ * Flags a review
+ * @param{string} uuid - Unique user identifier
+ * @param{int} review_id - Id of review to be flagged
+ */
+
+export const flagReview = async (uuid, review_id) => {
+
 };

@@ -22,7 +22,7 @@ import { getUserRole } from "./functions/userQueries";
 
 function ColorSchemeSetting({ user }) {
   const { mode, setMode } = useColorScheme();
-  const [mounted, setMounted] = React.useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -63,19 +63,6 @@ const App = () => {
     loadRole(session);
   }, [session]);
 
-  // Auth state change listener
-  useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  if (loading) return null;
-
   useEffect(() => {
     if (session) {
       const fetchUserData = async () => {
@@ -91,6 +78,17 @@ const App = () => {
       fetchUserData();
     }
   }, [session]);
+
+  // Auth state change listener
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   if (loading) return null;
 
