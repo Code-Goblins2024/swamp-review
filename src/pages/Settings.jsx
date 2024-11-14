@@ -9,6 +9,9 @@ import {
   FormLabel,
   Input,
   IconButton,
+  Modal,
+  ModalDialog,
+  ModalClose,
   Textarea,
   Stack,
   Typography,
@@ -17,17 +20,28 @@ import {
   CardOverflow,
   CircularProgress,
 } from "@mui/joy";
-import { Person as PersonIcon, EditRounded as EditRoundedIcon } from "@mui/icons-material";
+import { Person as PersonIcon, EditRounded as EditRoundedIcon, FileUpload } from "@mui/icons-material";
 import supabase from "../config/supabaseClient";
 import useAuth from "../store/authStore";
 import { getUser } from "../functions/userQueries";
 import { years, roles } from "../constants/Enums";
+import UserIcon from "../components/UserIcon";
+import { MuiColorInput } from 'mui-color-input'
+
 
 const Settings = () => {
   const navigate = useNavigate();
   const { session } = useAuth();
   const [user, setUser] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+  const handleOpen = () => setImageModalOpen(true);
+  const handleClose = () => setImageModalOpen(false);
+  
+  const [colorValue, setColorValue] = React.useState('#ffffff');
+  const handleColorChange = (newValue) => {
+    setColorValue(newValue)
+  }
 
   useEffect(() => {
     if (session) {
@@ -44,7 +58,7 @@ const Settings = () => {
     try {
       const data = await getUser(session.user.id);
       setUser(data);
-      
+      setColorValue(user?.icon_color);
     } catch (error) {
       console.error("Error fetching user:", error);
       setUser([]);
@@ -95,23 +109,17 @@ const Settings = () => {
             sx={{ my: 2 }}
           >
             <Stack direction="column" spacing={1}>
-              <AspectRatio
-                ratio="1"
-                maxHeight={200}
-                sx={{ flex: 1, minWidth: 120, borderRadius: '100%' }}
-              >
-                <img
-                  src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=286"
-                  srcSet="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=286&dpr=2 2x"
-                  loading="lazy"
-                  alt=""
-                />
-              </AspectRatio>
+              <UserIcon
+              height={100}
+              width={100}
+              bgcolor={colorValue}
+              />
               <IconButton
                 aria-label="upload new picture"
                 size="sm"
                 variant="outlined"
                 color="neutral"
+                onClick={handleOpen}
                 sx={{
                   bgcolor: 'background.body',
                   position: 'absolute',
@@ -124,6 +132,14 @@ const Settings = () => {
               >
                 <EditRoundedIcon />
               </IconButton>
+              {/* Edit Image Modal */}
+              <Modal open={imageModalOpen} onClose={handleClose}>
+              <ModalDialog variant="outlined">
+                    <ModalClose />
+                    <Typography variant="body2">Change Color</Typography>
+                    <MuiColorInput format="hex" value={colorValue} onChange={handleColorChange} />
+                  </ModalDialog>
+                </Modal>
             </Stack>
             <Stack spacing={2} sx={{ flexGrow: 1 }}>
               <FormControl>
@@ -143,28 +159,6 @@ const Settings = () => {
                 <Input placeholder="Your Major" />
               </FormControl>
             </Stack>
-          </Stack>
-          <CardOverflow sx={{ borderTop: "1px solid", borderColor: "divider" }}>
-            <CardActions sx={{ justifyContent: "flex-end", p: 2 }}>
-              <Button variant="outlined" color="neutral">
-                Cancel
-              </Button>
-              <Button variant="contained" color="primary">
-                Save
-              </Button>
-            </CardActions>
-          </CardOverflow>
-        </Card>
-        <Card>
-          <Box sx={{ mb: 1 }}>
-            <Typography variant="h5">Bio</Typography>
-            <Typography variant="body2">
-              Write a short introduction for your profile
-            </Typography>
-          </Box>
-          <Divider />
-          <Stack spacing={2} sx={{ my: 2 }}>
-            <Textarea minRows={4} placeholder="Tell us a bit about yourself" />
           </Stack>
           <CardOverflow sx={{ borderTop: "1px solid", borderColor: "divider" }}>
             <CardActions sx={{ justifyContent: "flex-end", p: 2 }}>

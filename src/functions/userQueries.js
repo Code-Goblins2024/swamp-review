@@ -106,7 +106,10 @@ export const getUser = async (uuid) => {
 			email,
 			major,
 			year,
-			role`)
+			role,
+			icon_color,
+			theme_ld`,
+		)
 		.eq('id', uuid);
 	if (error) {
 		console.log(`Error retrieving user data`);
