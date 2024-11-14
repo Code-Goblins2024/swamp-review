@@ -1,4 +1,4 @@
-![Logo](./assets/logo.png)
+![Logo](./public/swampreviewlogowithtext.png)
 
 # Swamp Review
 
