@@ -48,3 +48,7 @@ export const addReview = async (content, housing_id, room_id, uuid, tag_ids, rat
 
 	return data;
 };
+
+export const getFlaggedReviews = async () => {
+	const { data, error } = await supabase.from("");
+};
