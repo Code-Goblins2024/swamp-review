@@ -45,7 +45,7 @@ export const getAllHousing = async () => {
       lat,
       lng
     )
-  `);
+  `).gt("id", -1);
 	if (error) {
 		console.log("Error retrieving housing");
 		throw error;
@@ -77,8 +77,6 @@ export const getAllHousing = async () => {
 		});
 		return housing;
 	});
-
-	console.log(data);
 
 	return data;
 };

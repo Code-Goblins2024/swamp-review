@@ -29,8 +29,9 @@ const Navbar = () => {
       sx={{
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-start',
         py: 1.5,
+        gap: 5,
         px: { xs: 2, md: 4 },
         borderBottom: '1px solid',
         borderColor: 'divider',
@@ -50,6 +51,8 @@ const Navbar = () => {
         spacing={1}
         sx={{
           display: { xs: 'none', md: 'flex' },
+          marginRight: 'auto',
+          marginLeft: 2,
         }}
       >
         {navItems.map((item) => (
@@ -67,12 +70,23 @@ const Navbar = () => {
         {session ? (
           <Dropdown>
             <MenuButton
-              slots={{ root: IconButton }}
-              slotProps={{ root: { variant: 'outlined', color: 'neutral' } }}
+              variant="plain"
+              sx={{
+                display: 'flex',
+                gap: 1.5,
+                alignItems: 'center',
+                '&:hover': {
+                  backgroundColor: 'transparent',
+                  color: 'primary.main',
+                }
+              }}
             >
               <Avatar size="sm">
                 <PersonIcon />
               </Avatar>
+              <Typography level="body-sm">
+                {session?.user?.email?.split('@')[0] || 'User'}
+              </Typography>
             </MenuButton>
             <Menu placement="bottom-end">
               <MenuItem onClick={() => navigate('/profile')}>Profile</MenuItem>
