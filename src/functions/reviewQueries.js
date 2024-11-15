@@ -1,6 +1,26 @@
 import supabase from "../config/supabaseClient";
 
 /**
+ * Returns whether the user has a review for the specified room type
+ * @param {string} uuid - Supabase UUID of the desired user
+ * @param {int} housing_id - ID of the housing
+ * @param {int} room_id - ID of the room type
+ * @returns {bool}
+ */
+export const checkUserHasReviewForRoomType = async (uuid, housing_id, room_id) => {
+	const { count, error } = await supabase
+		.from("reviews")
+		.select("*", { count: "exact" })
+		.eq("user_id", uuid)
+		.eq("housing_id", housing_id)
+		.eq("room_id", room_id);
+
+	if (error) throw Error;
+
+	return count > 0;
+};
+
+/**
  * @typedef {Object} CategoryRating
  * @param {number} id - Category id for each rating
  * @param {number} rating_value - Rating number
