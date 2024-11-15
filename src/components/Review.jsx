@@ -1,12 +1,14 @@
 import { Card, Stack, Typography, Box } from "@mui/joy";
 import { Grid2 } from "@mui/material";
+import { useTheme } from "@mui/joy/styles";
 import Rating from "./Rating";
 import PropTypes from "prop-types";
 import CustomChip from "./CustomChip";
 
-const Review = ({ review }) => {
+const Review = ({ review, ownedByCurrentUser }) => {
+	const theme = useTheme();
 	return (
-		<Card>
+		<Card sx={{ border: ownedByCurrentUser ? `1px solid ${theme.palette.primary[300]}` : "" }}>
 			<Stack spacing={2} sx={{ padding: "0.5rem" }}>
 				<Grid2 container spacing={2} sx={{ flexGrow: 1 }}>
 					{review.ratings.map((rating, index) => (
@@ -26,7 +28,16 @@ const Review = ({ review }) => {
 				<Stack direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap" }}>
 					<Box>
 						<Typography level="body-sm" fontWeight="lg">
-							{review.user.first_name} {review.user.last_name},{" "}
+							{ownedByCurrentUser ? (
+								<Typography color="primary" fontWeight="xl">
+									Me
+								</Typography>
+							) : (
+								<>
+									{review.user.first_name} {review.user.last_name}
+								</>
+							)}
+							{", "}
 							{new Date(review.created_at)
 								.toLocaleDateString("en-US", {
 									month: "short",
@@ -62,6 +73,7 @@ const Review = ({ review }) => {
 
 Review.propTypes = {
 	review: PropTypes.object,
+	ownedByCurrentUser: PropTypes.boolean,
 };
 
 export default Review;
