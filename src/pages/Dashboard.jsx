@@ -35,7 +35,7 @@ const Dashboard = () => {
         .eq('housing_id', housingId);
 
       if (data.length === 0) {
-        setFavorites(favorites.filter(fav => fav.housing.id !== housingId));
+        setFavorites(favorites.filter(fav => fav.id !== housingId));
       }
     } catch (error) {
       console.error('Error verifying favorite removal:', error);
@@ -117,14 +117,16 @@ const Dashboard = () => {
           {favorites.length > 0 ? (
             favorites.map((dorm) => (
               <DormCard
-                key={dorm?.housing?.id}
-                name={dorm?.housing?.name}
+                key={dorm.id}
+                name={dorm.name}
                 isFavorited={true}
-                housingId={dorm?.housing?.id}
-                rating={calculateAverageRating(dorm?.housing?.average_ratings)}
-                reviews={dorm?.housing?.reviews?.length}
-                onClick={() => handleDormClick(dorm?.housing?.id)}
+                housingId={dorm.id}
+                rating={calculateAverageRating(dorm.average_ratings)}
+                reviews={dorm.reviews?.length || 0}
+                onClick={() => handleDormClick(dorm.id)}
                 onFavoriteRemoved={onFavoriteRemoved}
+                variant='scroll'
+                tags={dorm?.tags || []}
               />
             ))
           ) : (
