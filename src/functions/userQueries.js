@@ -119,6 +119,29 @@ export const getUser = async (uuid) => {
 };
 
 /**
+ * Update user data
+ * @param {string} uuid - User id
+ * @param {Object} updatedUser - User data
+ */
+export const updateUser = async (uuid, updatedUser) => {
+	console.log(updatedUser);
+	const { data, error } = await supabase
+		.from('users')
+		.update({
+			...updatedUser
+		})
+		.eq("id", uuid).select();
+	console.log(data);
+	console.log(error);
+	if (error) {
+		console.log("Error updating user");
+		throw error;
+	}
+	return {data, error};
+};
+  
+
+/**
  * Retrieve user data
  * @param {string} uuid - User id
  * @returns {string} data - User role (admin, user, moderator, faculty)
