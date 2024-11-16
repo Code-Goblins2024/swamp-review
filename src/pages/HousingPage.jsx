@@ -6,6 +6,7 @@ import { getHousing } from "../functions/housingQueries";
 import { getAllCategories } from "../functions/categoryQueries";
 import { getAllTags } from "../functions/tagQueries";
 import { useNavigate, useLocation } from "react-router-dom";
+import useAuth from "../store/authStore";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import Rating from "../components/Rating";
 import PricingChip from "../components/PricingChip";
@@ -16,6 +17,7 @@ import ReviewForm from "../components/ReviewForm";
 
 const HousingPage = () => {
 	const { housingId } = useParams();
+	const { session } = useAuth();
 	const location = useLocation();
 	const navigate = useNavigate();
 	const [housingData, setHousingData] = useState(null);
@@ -290,9 +292,16 @@ const HousingPage = () => {
 								</Typography>
 							)}
 							<Stack spacing={4}>
-								{housingData.reviews.map((review, index) => (
-									<Review key={index} review={review} />
-								))}
+								{housingData.reviews
+									.filter((review) => review.user.id === session.user.id)
+									.map((review, index) => (
+										<Review key={index} review={review} ownedByCurrentUser={true} />
+									))}
+								{housingData.reviews
+									.filter((review) => review.user.id !== session.user.id)
+									.map((review, index) => (
+										<Review key={index} review={review} />
+									))}
 								{housingData.reviews.length === 0 && (
 									<NoReviewsCard
 										housingName={housingData.name}

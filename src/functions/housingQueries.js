@@ -45,7 +45,7 @@ export const getAllHousing = async () => {
       lat,
       lng
     )
-  `);
+  `).gt("id", -1);
 	if (error) {
 		console.log("Error retrieving housing");
 		throw error;
@@ -77,8 +77,6 @@ export const getAllHousing = async () => {
 		});
 		return housing;
 	});
-
-	console.log(data);
 
 	return data;
 };
@@ -154,6 +152,9 @@ export const getHousing = async (id) => {
 		review.ratings = review.ratings.sort((a, b) => a.category.id - b.category.id);
 		return review;
 	});
+
+	// Sort the reviews by date
+	housing.reviews.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
 	return housing;
 };

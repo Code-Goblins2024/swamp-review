@@ -2,7 +2,7 @@ import { Box, Typography, Stack, Card, Textarea, Button, CircularProgress } from
 import { useTheme } from "@mui/joy/styles";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { addReview } from "../functions/reviewQueries";
+import { addReview, checkUserHasReviewForRoomType } from "../functions/reviewQueries";
 import { getHousing } from "../functions/housingQueries";
 import useAuth from "../store/authStore";
 import FormSelect from "./FormSelect";
@@ -115,11 +115,13 @@ const ReviewForm = ({ setReviewFormOpen, housingData, setHousingData, categories
 
 		let errors = false;
 
+		// Check that a room type has been selected
 		if (!roomType) {
 			errors = true;
 			setRoomTypeError("Please choose a room type");
 		}
 
+		// Check that a rating has been selected for all categories
 		let newRatingsErrors = { ...ratingsErrors };
 		categories.forEach((category) => {
 			if (ratings[category.name] === 0) {
@@ -137,6 +139,14 @@ const ReviewForm = ({ setReviewFormOpen, housingData, setHousingData, categories
 			return;
 		}
 
+		// Check that the user doesn't already have a review for this room type
+		const roomId = housingData.roomTypes.filter((rt) => rt.name === roomType)[0].id;
+		if (await checkUserHasReviewForRoomType(session.user.id, housingData.id, roomId)) {
+			setGeneralError("You have already created a review for this room type at " + housingData.name + ".");
+			setSubmitting(false);
+			return;
+		}
+
 		// Reformat the ratings for submission
 		const formattedRatings = [];
 		categories.forEach((category) => {
@@ -147,8 +157,6 @@ const ReviewForm = ({ setReviewFormOpen, housingData, setHousingData, categories
 		});
 
 		try {
-			// TODO: Add tags later
-			const roomId = housingData.roomTypes.filter((rt) => rt.name === roomType)[0].id;
 			await addReview(content, housingData.id, roomId, session.user.id, selectedTags, formattedRatings);
 		} catch {
 			setGeneralError("Sorry, we unexpectedly couldn't submit your review. Please try again later.");
