@@ -3,7 +3,7 @@ import useAuth from "../store/authStore";
 import { getUser } from "../functions/userQueries";
 import { Avatar } from "@mui/joy";
 
-const UserIcon = ({ height, width, bgcolor }) => {
+const UserIcon = ({ height, width, bgcolor = null }) => {
     const { session } = useAuth();
     const [user, setUser] = useState([]);
   
@@ -30,10 +30,10 @@ const UserIcon = ({ height, width, bgcolor }) => {
     return (
         <Avatar
             sx={{
-                bgcolor: bgcolor ? bgcolor : 'neutral',
+                bgcolor: bgcolor ? bgcolor : user[0].icon_color,
                 width: width,
                 height: height,
-                fontSize: '1.25rem',
+                fontSize: `${Math.min(width, height) * 0.5}px`,
                 fontWeight: 'bold',
                 variant:"soft",
                 

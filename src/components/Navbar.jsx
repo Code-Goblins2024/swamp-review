@@ -5,6 +5,7 @@ import { Sheet, IconButton, Box, Typography, Dropdown, Menu, MenuButton, MenuIte
 import { Menu as MenuIcon, Person as PersonIcon } from '@mui/icons-material';
 import supabase from '../config/supabaseClient';
 import { getUserRole } from '../functions/userQueries';
+import UserIcon from './UserIcon';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -88,9 +89,7 @@ const Navbar = () => {
               slots={{ root: IconButton }}
               slotProps={{ root: { variant: 'outlined', color: 'neutral' } }}
             >
-              <Avatar size="sm">
-                <PersonIcon />
-              </Avatar>
+              <UserIcon/>
             </MenuButton>
             <Menu placement="bottom-end">
               {userRole.role === 'admin' && (
