@@ -95,3 +95,15 @@ export const getFlaggedReviews = async () => {
 export const flagReview = async (uuid, review_id) => {
 
 };
+
+/**
+ * Updates review status
+ * @param{int} review_id - Id of review
+ * @param{string} status - New status (enum from Supabase)
+ */
+
+export const updateReviewStatus = async (review_id, status) => {
+	console.log(review_id);
+	const { error: statusError } = await supabase.from("reviews").update({ status }).eq("id", review_id);
+	if (statusError) throw statusError;
+};

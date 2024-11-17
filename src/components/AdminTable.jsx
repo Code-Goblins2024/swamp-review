@@ -12,18 +12,24 @@ import BlockIcon from '@mui/icons-material/Block';
 import AutorenewRoundedIcon from '@mui/icons-material/AutorenewRounded';
 import MoreHorizRoundedIcon from '@mui/icons-material/MoreHorizRounded';
 
-import { getFlaggedReviews } from "../functions/reviewQueries";
+import { getFlaggedReviews, updateReviewStatus } from "../functions/reviewQueries";
 
 function handleApprove() {
 }
 
-function handleReject() {
+async function handleReject(review_id) {
+    try {
+        console.log("rejecting review");
+        await updateReviewStatus(review_id, "rejected");
+    } catch (error) {
+        console.log(error)
+    }
 }
 
 function handleDelete() {
 }
 
-function RowMenu() {
+const RowMenu = ({ review_id }) => {
     return (
         <Dropdown>
             <MenuButton
@@ -34,7 +40,7 @@ function RowMenu() {
             </MenuButton>
             <Menu size="sm" sx={{ minWidth: 140 }}>
                 <MenuItem onClick={handleApprove}>Approve</MenuItem>
-                <MenuItem onClick={handleReject}>Reject</MenuItem>
+                <MenuItem onClick={() => handleReject(review_id)}>Reject</MenuItem>
                 <Divider />
                 <MenuItem color="danger" onClick={handleDelete}>Delete</MenuItem>
             </Menu>
@@ -231,7 +237,7 @@ const AdminTable = () => {
                                                     day: "numeric",
                                                     year: "numeric",
                                                 })
-                                                .replaceAll(",", "")}
+                                            }
                                         </Typography>
                                     </td>
                                     <td>
@@ -262,7 +268,7 @@ const AdminTable = () => {
                                         </Box>
                                     </td>
                                     <td>
-                                        <RowMenu />
+                                        <RowMenu review_id={row.reviews.review_id} />
                                     </td>
                                 </tr>
                             ))}

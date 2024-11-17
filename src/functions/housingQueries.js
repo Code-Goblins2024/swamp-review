@@ -78,8 +78,6 @@ export const getAllHousing = async () => {
 		return housing;
 	});
 
-	console.log(data);
-
 	return data;
 };
 
