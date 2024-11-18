@@ -142,3 +142,72 @@ export const updateUsername = async (uuid, new_username) => {
 		throw error;
 	}
 };
+
+/**
+ * Retrieve user data
+ * @param {string} uuid - User id
+ * @returns {any[]} data - User data
+ */
+
+export const getUser = async (uuid) => {
+	const { data, error } = await supabase
+		.from('users')
+		.select(`
+			first_name,
+			last_name,
+			email,
+			major,
+			year,
+			role,
+			icon_color,
+			theme_ld`,
+		)
+		.eq('id', uuid);
+	if (error) {
+		console.log(`Error retrieving user data`);
+		throw error;
+	}
+	return data;
+};
+
+/**
+ * Update user data
+ * @param {string} uuid - User id
+ * @param {Object} updatedUser - User data
+ */
+export const updateUser = async (uuid, updatedUser) => {
+	console.log(updatedUser);
+	const { data, error } = await supabase
+		.from('users')
+		.update({
+			...updatedUser
+		})
+		.eq("id", uuid).select();
+	console.log(data);
+	console.log(error);
+	if (error) {
+		console.log("Error updating user");
+		throw error;
+	}
+	return {data, error};
+};
+  
+
+/**
+ * Retrieve user data
+ * @param {string} uuid - User id
+ * @returns {string} data - User role (admin, user, moderator, faculty)
+ */
+
+export const getUserRole = async (uuid) => {
+	const { data, error } = await supabase
+		.from('users')
+		.select(`
+			role`)
+		.eq('id', uuid);
+	if (error) {
+		console.log(`Error retrieving user data`);
+		throw error;
+	}
+	return data;
+};

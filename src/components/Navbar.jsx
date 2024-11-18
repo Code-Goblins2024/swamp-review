@@ -1,20 +1,39 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import useAuth from '../store/authStore';
 import { Sheet, IconButton, Box, Typography, Dropdown, Menu, MenuButton, MenuItem, Button, Stack, Avatar } from '@mui/joy';
 import { Menu as MenuIcon, Person as PersonIcon } from '@mui/icons-material';
 import supabase from '../config/supabaseClient';
+import { getUserRole } from '../functions/userQueries';
+import UserIcon from './UserIcon';
 
 const Navbar = () => {
   const navigate = useNavigate();
   const { session, setSession } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+
+  useEffect(() => {
+    if (session) {
+      fetchUserRole();
+    }
+  }, [session]);
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
     if (!error) {
       setSession(null);
       navigate('/');
+    }
+  };
+
+  const fetchUserRole = async () => {
+    try {
+      const data = await getUserRole(session.user.id);
+      setUserRole(data[0]);
+    } catch (error) {
+      console.error('Error fetching favorites:', error);
+      setUserRole([]);
     }
   };
 
@@ -81,15 +100,15 @@ const Navbar = () => {
                 }
               }}
             >
-              <Avatar size="sm">
-                <PersonIcon />
-              </Avatar>
+              {session ? <UserIcon /> : <PersonIcon />}
               <Typography level="body-sm">
                 {session?.user?.email?.split('@')[0] || 'User'}
               </Typography>
             </MenuButton>
             <Menu placement="bottom-end">
-              <MenuItem onClick={() => navigate('/profile')}>Profile</MenuItem>
+              {userRole && userRole.role === 'admin' && (
+              <MenuItem onClick={() => navigate('/admin')}>Admin</MenuItem>
+              )}
               <MenuItem onClick={() => navigate('/settings')}>Settings</MenuItem>
               <MenuItem onClick={handleLogout}>Logout</MenuItem>
             </Menu>
