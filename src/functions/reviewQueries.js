@@ -73,7 +73,6 @@ export const getFlaggedReviews = async () => {
 		acc[review.reviews.review_id] = (acc[review.reviews.review_id] || 0) + 1;
 		return acc;
 	}, {});
-	console.log(reviewCounts);
 
 	const uniqueFlaggedReviews = flaggedReviews
 		.filter(review => reviewCounts[review.reviews.review_id] > 2) // Filter for review_ids that appear more than twice
@@ -83,8 +82,6 @@ export const getFlaggedReviews = async () => {
 			}
 			return uniqueReviews;
 		}, []);
-
-	console.log(uniqueFlaggedReviews);
 
 	return uniqueFlaggedReviews;
 };
@@ -142,7 +139,7 @@ export const updateReviewStatus = async (review_id, status) => {
 	if (statusError) throw statusError;
 
 	const response = await supabase.from("flagged_reviews").delete().eq("review_id", review_id);
-	if (response.status !== 204) {
+	if (response.status != 204) {
 		console.log("error deleting data");
 	}
 };
