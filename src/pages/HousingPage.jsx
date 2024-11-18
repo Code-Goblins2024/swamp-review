@@ -300,7 +300,7 @@ const HousingPage = () => {
 								{housingData.reviews
 									.filter((review) => review.user.id !== session.user.id)
 									.map((review, index) => (
-										<Review key={index} review={review} />
+										<Review key={index} review={review} ownedByCurrentUser={false} />
 									))}
 								{housingData.reviews.length === 0 && (
 									<NoReviewsCard

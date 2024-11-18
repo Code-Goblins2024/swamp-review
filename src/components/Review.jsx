@@ -73,7 +73,7 @@ const Review = ({ review, ownedByCurrentUser }) => {
 
 Review.propTypes = {
 	review: PropTypes.object,
-	ownedByCurrentUser: PropTypes.boolean,
+	ownedByCurrentUser: PropTypes.bool,
 };
 
 export default Review;

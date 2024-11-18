@@ -153,9 +153,6 @@ export const getHousing = async (id) => {
 		return review;
 	});
 
-	// Sort the reviews by date
-	housing.reviews.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-
 	return housing;
 };
 
