@@ -7,6 +7,8 @@ export const getAllHousing = async () => {
     id,
     name,
     address,
+    lat,
+    lng,
     attributes (
       attribute_name
     ),
@@ -88,6 +90,8 @@ export const getHousing = async (id) => {
 			`
     name,
     address,
+    lat,
+    lng,
     attributes (
       attribute_name
     ),
