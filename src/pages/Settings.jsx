@@ -4,32 +4,24 @@ import {
   Box,
   Button,
   Divider,
-  FormControl,
   FormLabel,
   Grid,
-  Input,
   IconButton,
   Modal,
   ModalDialog,
   ModalClose,
   Typography,
   Stack,
-  RadioGroup,
-  Radio,
   CircularProgress,
   Card,
   CardActions,
-  CardOverflow,
 } from "@mui/joy";
 import { EditRounded as EditRoundedIcon } from "@mui/icons-material";
-import supabase from "../config/supabaseClient";
 import useAuth from "../store/authStore";
 import { getUser, updateUser } from "../functions/userQueries";
 import UserIcon from "../components/UserIcon";
 import { years } from "../constants/Enums";
-import { alignProperty } from "@mui/material/styles/cssUtils";
-import FormItem from "../components/FormItem";
-import FormSelect from "../components/FormSelect";
+import UserInfoForm from "../components/UserInfoForm";
 import FormRadio from "../components/FormRadio";
 
 const Settings = () => {
@@ -256,48 +248,13 @@ const Settings = () => {
               </Modal>
             </Stack>
             <Stack spacing={2} sx={{ flexGrow: 1 }}>
-              <Box sx={{ width: "100%" }}>
-                <FormLabel>Email</FormLabel>
-                <Typography level="body-sm" fontWeight="xl">
-                  {user?.email}
-                </Typography>
-              </Box>
-
-              <FormItem
-                label="Firstname"
-                name="firstname"
-                type="text"
-                value={formData.firstname}
-                onChange={handleFormChange}
-                error={formErrors.firstname}
-              />
-
-              <FormItem
-                label="Lastname"
-                name="lastname"
-                type="text"
-                value={formData.lastname}
-                onChange={handleFormChange}
-                error={formErrors.lastname}
-              />
-
-              <FormItem
-                label="Major"
-                name="major"
-                type="text"
-                value={formData.major}
-                onChange={handleFormChange}
-                error={formErrors.major}
-              />
-
-              <FormSelect
-                  label="Year"
-                  name="year"
-                  value={formData.year}
-                  onChange={handleFormChange}
-                  error={formErrors.year}
-                  options={years}
-              />
+            <UserInfoForm
+              email={user?.email}
+              formData={formData}
+              formErrors={formErrors}
+              handleFormChange={handleFormChange}
+              years={years}
+            />
 
               <FormRadio
                   label="Theme"
