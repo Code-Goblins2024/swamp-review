@@ -11,7 +11,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { session, setSession } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [userRole, setUserRole] = useState([]);
+  const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
     if (session) {
@@ -100,13 +100,13 @@ const Navbar = () => {
                 }
               }}
             >
-              <UserIcon/>
+              {session ? <UserIcon /> : <PersonIcon />}
               <Typography level="body-sm">
                 {session?.user?.email?.split('@')[0] || 'User'}
               </Typography>
             </MenuButton>
             <Menu placement="bottom-end">
-              {userRole.role === 'admin' && (
+              {userRole && userRole.role === 'admin' && (
               <MenuItem onClick={() => navigate('/admin')}>Admin</MenuItem>
               )}
               <MenuItem onClick={() => navigate('/settings')}>Settings</MenuItem>
