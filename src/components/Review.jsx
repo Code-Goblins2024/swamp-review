@@ -13,7 +13,7 @@ async function handleFlagging(uuid, review_id) {
     }
 }
 
-const Review = ({ review }) => {
+const Review = ({ review, session }) => {
     return (
         <Card>
             <Stack spacing={2} sx={{ padding: "0.5rem" }}>
@@ -23,7 +23,7 @@ const Review = ({ review }) => {
                             <Rating type="review" title={rating.category.name} rating={rating.value} />
                         </Grid2>
                     ))}
-                    <Button type="button" onClick={() => handleFlagging(review.user.id, review.review_id)}>Flag</Button>
+                    <Button type="button" onClick={() => handleFlagging(session.user.id, review.review_id)}>Flag</Button>
                 </Grid2>
                 {review.content && <Typography level="body-md">{review.content}</Typography>}
                 {review.tags.length > 0 && (

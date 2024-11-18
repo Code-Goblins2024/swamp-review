@@ -38,7 +38,6 @@ const AdminTable = () => {
         }
     }
 
-    // TODO: delete the tuples in flagged_reviews when approving and rejecting
 
     async function handleApprove(review_id) {
         try {
