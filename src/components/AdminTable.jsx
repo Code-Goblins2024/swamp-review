@@ -29,7 +29,8 @@ const AdminTable = () => {
             setIsLoading(true);
             const reviews = await getFlaggedReviews();
             const filteredReviews = reviews.filter((review) => review.reviews.status === statusFilter);
-            setReviews(filteredReviews);
+            console.log(filteredReviews);
+            setReviews(reviews);
         } catch (error) {
             console.log(error)
             setReviews([]);

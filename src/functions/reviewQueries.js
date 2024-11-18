@@ -70,18 +70,21 @@ export const getFlaggedReviews = async () => {
 	if (flagError) throw flagError;
 
 	const reviewCounts = flaggedReviews.reduce((acc, review) => {
-		acc[review.review_id] = (acc[review.review_id] || 0) + 1;
+		acc[review.reviews.review_id] = (acc[review.reviews.review_id] || 0) + 1;
 		return acc;
 	}, {});
+	console.log(reviewCounts);
 
 	const uniqueFlaggedReviews = flaggedReviews
-		.filter(review => reviewCounts[review.review_id] > 2) // Filter for review_ids that appear more than twice
+		.filter(review => reviewCounts[review.reviews.review_id] > 2) // Filter for review_ids that appear more than twice
 		.reduce((uniqueReviews, review) => {
-			if (!uniqueReviews.some(r => r.review_id === review.review_id)) {
+			if (!uniqueReviews.some(r => r.reviews.review_id === review.reviews.review_id)) {
 				uniqueReviews.push(review);
 			}
 			return uniqueReviews;
 		}, []);
+
+	console.log(uniqueFlaggedReviews);
 
 	return uniqueFlaggedReviews;
 };
