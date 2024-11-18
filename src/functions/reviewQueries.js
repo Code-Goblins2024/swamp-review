@@ -93,6 +93,36 @@ export const getFlaggedReviews = async () => {
  */
 
 export const flagReview = async (uuid, review_id) => {
+	try {
+		const { error: flaggingError } = await supabase
+			.from("flagged_reviews")
+			.insert({ user_id: uuid, review_id });
+
+		if (flaggingError) throw flaggingError;
+
+		const { data: flaggedCount, error: countError } = await supabase
+			.from("flagged_reviews")
+			.select("review_id", { count: "exact" })
+			.eq("review_id", review_id);
+
+		if (countError) throw countError;
+
+		if (flaggedCount && flaggedCount.length >= 3) {
+			const { error: updateError } = await supabase
+				.from("reviews")
+				.update({ status: "in_review" })
+				.eq("id", review_id);
+
+			if (updateError) throw updateError;
+
+			console.log(`Review ID ${review_id} status updated to "in_review"`);
+		} else {
+			console.log(`Review ID ${review_id} flagged successfully, but no status update needed.`);
+		}
+	} catch (error) {
+		console.error("Error flagging review or updating status:", error);
+		throw error;
+	}
 
 };
 
@@ -102,8 +132,14 @@ export const flagReview = async (uuid, review_id) => {
  * @param{string} status - New status (enum from Supabase)
  */
 
+// TODO: delete the tuples in flagged_reviews when approving and rejecting
+
 export const updateReviewStatus = async (review_id, status) => {
-	console.log(review_id);
 	const { error: statusError } = await supabase.from("reviews").update({ status }).eq("id", review_id);
 	if (statusError) throw statusError;
+
+	const response = await supabase.from("flagged_reviews").delete().eq("review_id", review_id);
+	if (response.status !== 204) {
+		console.log("error deleting data");
+	}
 };

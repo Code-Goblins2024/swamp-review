@@ -1,8 +1,17 @@
-import { Card, Stack, Typography, Box } from "@mui/joy";
+import { Card, Stack, Typography, Box, Button } from "@mui/joy";
 import { Grid2 } from "@mui/material";
 import Rating from "./Rating";
 import PropTypes from "prop-types";
 import CustomChip from "./CustomChip";
+import { flagReview } from "../functions/reviewQueries";
+
+async function handleFlagging(uuid, review_id) {
+    try {
+        await flagReview(uuid, review_id);
+    } catch (error) {
+        console.log(error)
+    }
+}
 
 const Review = ({ review }) => {
     return (
@@ -14,6 +23,7 @@ const Review = ({ review }) => {
                             <Rating type="review" title={rating.category.name} rating={rating.value} />
                         </Grid2>
                     ))}
+                    <Button type="button" onClick={() => handleFlagging(review.user.id, review.review_id)}>Flag</Button>
                 </Grid2>
                 {review.content && <Typography level="body-md">{review.content}</Typography>}
                 {review.tags.length > 0 && (

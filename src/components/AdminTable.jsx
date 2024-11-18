@@ -14,40 +14,6 @@ import MoreHorizRoundedIcon from '@mui/icons-material/MoreHorizRounded';
 
 import { getFlaggedReviews, updateReviewStatus } from "../functions/reviewQueries";
 
-function handleApprove() {
-}
-
-async function handleReject(review_id) {
-    try {
-        console.log("rejecting review");
-        await updateReviewStatus(review_id, "rejected");
-    } catch (error) {
-        console.log(error)
-    }
-}
-
-function handleDelete() {
-}
-
-const RowMenu = ({ review_id }) => {
-    return (
-        <Dropdown>
-            <MenuButton
-                slots={{ root: IconButton }}
-                slotProps={{ root: { variant: 'plain', color: 'neutral', size: 'sm' } }}
-            >
-                <MoreHorizRoundedIcon />
-            </MenuButton>
-            <Menu size="sm" sx={{ minWidth: 140 }}>
-                <MenuItem onClick={handleApprove}>Approve</MenuItem>
-                <MenuItem onClick={() => handleReject(review_id)}>Reject</MenuItem>
-                <Divider />
-                <MenuItem color="danger" onClick={handleDelete}>Delete</MenuItem>
-            </Menu>
-        </Dropdown>
-    );
-}
-
 const AdminTable = () => {
     const [selected, setSelected] = useState([]);
     const [open, setOpen] = useState(false);
@@ -58,17 +24,63 @@ const AdminTable = () => {
         fetchFlaggedReviews();
     }, []);
 
-    const fetchFlaggedReviews = async () => {
+    const fetchFlaggedReviews = async (statusFilter = "in_review") => {
         try {
             setIsLoading(true);
             const reviews = await getFlaggedReviews();
-            setReviews(reviews);
+            const filteredReviews = reviews.filter((review) => review.reviews.status === statusFilter);
+            setReviews(filteredReviews);
         } catch (error) {
             console.log(error)
             setReviews([]);
         } finally {
             setIsLoading(false);
         }
+    }
+
+    // TODO: delete the tuples in flagged_reviews when approving and rejecting
+
+    async function handleApprove(review_id) {
+        try {
+            console.log("approving review");
+            await updateReviewStatus(review_id, "approved");
+            await fetchFlaggedReviews("in_review");
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    async function handleReject(review_id) {
+        try {
+            console.log("rejecting review");
+            await updateReviewStatus(review_id, "rejected");
+            await fetchFlaggedReviews("in_review");
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    function handleDelete() {
+        // TODO: decide if we want to delete reviews
+    }
+
+    const RowMenu = ({ review_id }) => {
+        return (
+            <Dropdown>
+                <MenuButton
+                    slots={{ root: IconButton }}
+                    slotProps={{ root: { variant: 'plain', color: 'neutral', size: 'sm' } }}
+                >
+                    <MoreHorizRoundedIcon />
+                </MenuButton>
+                <Menu size="sm" sx={{ minWidth: 140 }}>
+                    <MenuItem onClick={() => handleApprove(review_id)}>Approve</MenuItem>
+                    <MenuItem onClick={() => handleReject(review_id)}>Reject</MenuItem>
+                    <Divider />
+                    <MenuItem color="danger" onClick={handleDelete}>Delete</MenuItem>
+                </Menu>
+            </Dropdown>
+        );
     }
 
     const renderFilters = () => (

@@ -99,6 +99,7 @@ export const getHousing = async (id) => {
       summer_C_price
     ),
     reviews (
+      review_id: id,
       content,
       created_at,
       tags (

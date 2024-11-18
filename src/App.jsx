@@ -21,117 +21,119 @@ import { getUserRole } from "./functions/userQueries";
 
 
 function ColorSchemeSetting({ user }) {
-  const { mode, setMode } = useColorScheme();
-  const [mounted, setMounted] = useState(false);
+    const { mode, setMode } = useColorScheme();
+    const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-    setMode(user[0]?.theme_ld || 'system'); // Use the `user` prop directly
-  }, [user, setMode]); // Include dependencies to avoid warnings
+    useEffect(() => {
+        setMounted(true);
+        setMode(user[0]?.theme_ld || 'system'); // Use the `user` prop directly
+    }, [user, setMode]); // Include dependencies to avoid warnings
 
-  if (!mounted) {
-    return null;
-  }
+    if (!mounted) {
+        return null;
+    }
 
-  return <></>;
+    return <></>;
 }
 
 const App = () => {
-  const { session, setSession } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState("");
-  const [user, setUser] = useState([]);
+    const { session, setSession } = useAuth();
+    const [loading, setLoading] = useState(true);
+    const [userRole, setUserRole] = useState("");
+    const [user, setUser] = useState([]);
 
-  // All logic for loading the application
-  const loadApp = async () => {
-    const { data, error } = await supabase.auth.getSession();
-    if (!error) setSession(data.session);
+    // All logic for loading the application
+    const loadApp = async () => {
+        const { data, error } = await supabase.auth.getSession();
+        if (!error) setSession(data.session);
 
-    setLoading(false);
-  };
+        setLoading(false);
+    };
 
-  const loadRole = async (session) => {
-    const role = await getUserRole(session.user.id);
-    setUserRole(role[0].role);
-  }
-
-  useEffect(() => {
-    loadApp();
-  }, []);
-
-  useEffect(() => {
-    loadRole(session);
-  }, [session]);
-
-  useEffect(() => {
-    if (session) {
-      const fetchUserData = async () => {
-        try {
-          const userData = await getUser(session.user.id);
-          setUser(userData);
-        } catch (error) {
-          console.error("Error fetching user:", error);
-          setUser([]);
-        }
-      };
-
-      fetchUserData();
+    const loadRole = async (session) => {
+        const role = await getUserRole(session.user.id);
+        setUserRole(role[0].role);
     }
-  }, [session]);
 
-  // Auth state change listener
-  useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
+    useEffect(() => {
+        loadApp();
+    }, []);
 
-    return () => subscription.unsubscribe();
-  }, []);
+    useEffect(() => {
+        if (session) {
+            loadRole(session);
+        }
+    }, [session]);
 
-  if (loading) return null;
+    useEffect(() => {
+        if (session) {
+            const fetchUserData = async () => {
+                try {
+                    const userData = await getUser(session.user.id);
+                    setUser(userData);
+                } catch (error) {
+                    console.error("Error fetching user:", error);
+                    setUser([]);
+                }
+            };
 
-  return (
-    <CssVarsProvider>
-      <CssBaseline />
-      <ColorSchemeSetting
-        user={user}
-      />
-      <Router>
-        <div className="app-container">
-          <Navbar />
-          <main>
-            <Routes>
-              <Route
-                path="/"
-                element={session ? <Navigate to="/dashboard" /> : <LandingPage />}
-              />
-              <Route
-                path="/signin"
-                element={session ? <Navigate to="/dashboard" /> : <SignInUp />}
-              />
-              <Route
-                path="/dashboard"
-                element={session ? <Dashboard /> : <Navigate to="/signin" />}
-              />
-              <Route
-                path="/admin"
-                element={userRole === "admin" ? <Admin /> : <Navigate to="/dashboard" />}
-              />
-              <Route
-                path="/settings"
-                element={session ? <Settings /> : <Navigate to="/signin" />}
-              />
-              <Route path="/about" element={<About />} />
-              <Route path="/search" element={<Search />} />
-              <Route path="/housing/:housingId" element={<HousingPage />} />
-            </Routes>
-          </main>
-        </div>
-      </Router>
-    </CssVarsProvider>
-  );
+            fetchUserData();
+        }
+    }, [session]);
+
+    // Auth state change listener
+    useEffect(() => {
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+            setSession(session);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
+
+    if (loading) return null;
+
+    return (
+        <CssVarsProvider>
+            <CssBaseline />
+            <ColorSchemeSetting
+                user={user}
+            />
+            <Router>
+                <div className="app-container">
+                    <Navbar />
+                    <main>
+                        <Routes>
+                            <Route
+                                path="/"
+                                element={session ? <Navigate to="/dashboard" /> : <LandingPage />}
+                            />
+                            <Route
+                                path="/signin"
+                                element={session ? <Navigate to="/dashboard" /> : <SignInUp />}
+                            />
+                            <Route
+                                path="/dashboard"
+                                element={session ? <Dashboard /> : <Navigate to="/signin" />}
+                            />
+                            <Route
+                                path="/admin"
+                                element={userRole === "admin" ? <Admin /> : <Navigate to="/dashboard" />}
+                            />
+                            <Route
+                                path="/settings"
+                                element={session ? <Settings /> : <Navigate to="/signin" />}
+                            />
+                            <Route path="/about" element={<About />} />
+                            <Route path="/search" element={<Search />} />
+                            <Route path="/housing/:housingId" element={<HousingPage />} />
+                        </Routes>
+                    </main>
+                </div>
+            </Router>
+        </CssVarsProvider>
+    );
 };
 
 export default App;
