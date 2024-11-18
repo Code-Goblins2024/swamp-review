@@ -16,7 +16,8 @@ const UserIcon = ({ height, width, bgcolor = null }) => {
     const fetchUser = async () => {
       try {
         const data = await getUser(session.user.id);
-        setUser(data);
+        setUser(data[0]);
+        console.log(user);
         
       } catch (error) {
         console.error("Error fetching user:", error);
@@ -24,23 +25,32 @@ const UserIcon = ({ height, width, bgcolor = null }) => {
       }
     };
 
-    const firstInitial = user[0]?.first_name ? user[0].first_name[0] : "";
-    const lastInitial = user[0]?.last_name ? user[0].last_name[0] : "";
+    const firstInitial = user?.first_name ? user.first_name[0] : "";
+    const lastInitial = user?.last_name ? user.last_name[0] : "";
+
+    const getIconColor = () => {
+      if(bgcolor !== null){
+        return bgcolor;
+      }
+      if (user && user.icon_color) {
+        return user.icon_color;
+      }
+      return "neutral";
+    }
 
     return (
         <Avatar
             sx={{
-                bgcolor: bgcolor ? bgcolor : user[0].icon_color,
+                bgcolor: getIconColor(),
                 width: width,
                 height: height,
                 fontSize: `${Math.min(width, height) * 0.5}px`,
                 fontWeight: 'bold',
                 variant:"soft",
-                
             }}
         >
             {firstInitial}{lastInitial}
         </Avatar>
-    );
+  );
 }
 export default UserIcon;
