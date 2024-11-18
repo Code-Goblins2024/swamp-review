@@ -98,7 +98,15 @@ export const flagReview = async (uuid, review_id) => {
 			.from("flagged_reviews")
 			.insert({ user_id: uuid, review_id });
 
-		if (flaggingError) throw flaggingError;
+		if (flaggingError) {
+			// TODO: delete entry
+			console.log(`Unflagging review ID ${review_id}`);
+			const response = await supabase.from("flagged_reviews").delete().eq("user_id", uuid).eq("review_id", review_id);
+			if (response.status != 204) {
+				console.log("Error unflagging");
+			}
+			return;
+		}
 
 		const { data: flaggedCount, error: countError } = await supabase
 			.from("flagged_reviews")
