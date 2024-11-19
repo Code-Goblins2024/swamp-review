@@ -9,7 +9,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import useAuth from "../store/authStore";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import Rating from "../components/Rating";
-import PricingChip from "../components/PricingChip";
 import CustomChip from "../components/CustomChip";
 import Review from "../components/Review";
 import NoReviewsCard from "../components/NoReviewsCard";
@@ -194,20 +193,20 @@ const HousingPage = () => {
 											Pricing
 										</Typography>
 										<Box sx={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-											<PricingChip
-												semester={"Fall/Spring"}
-												activePricingSemester={activePricingSemester}
-												setActivePricingSemester={setActivePricingSemester}
+											<CustomChip
+												name={"Fall/Spring"}
+												active={activePricingSemester === "Fall/Spring"}
+												onClick={activePricingSemester !== "Fall/Spring" ? () => setActivePricingSemester("Fall/Spring") : null}
 											/>
-											<PricingChip
-												semester={"Summer A/B"}
-												activePricingSemester={activePricingSemester}
-												setActivePricingSemester={setActivePricingSemester}
+											<CustomChip
+												name={"Summer A/B"}
+												active={activePricingSemester === "Summer A/B"}
+												onClick={activePricingSemester === "Summer A/B" ? () => setActivePricingSemester("Summer A/B") : null}
 											/>
-											<PricingChip
-												semester={"Summer C"}
-												activePricingSemester={activePricingSemester}
-												setActivePricingSemester={setActivePricingSemester}
+											<CustomChip
+												name={"Summer C"}
+												active={activePricingSemester === "Summer C"}
+												onClick={activePricingSemester === "Summer C" ? () => setActivePricingSemester("Summer C") : null}
 											/>
 										</Box>
 									</Box>
