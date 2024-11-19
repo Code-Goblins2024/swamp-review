@@ -41,7 +41,7 @@ const customTheme = extendTheme(theme);
 const App = () => {
   const { session, setSession } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState([]);
+  const [user, setUser] = useState(null);
 
   // All logic for loading the application
   const loadApp = async () => {
@@ -83,7 +83,7 @@ const App = () => {
     }
   }, [session]);
 
-  if (loading) return null;
+  if (loading || user === null) return null;
 
   return (
     <CssVarsProvider theme={customTheme}>
