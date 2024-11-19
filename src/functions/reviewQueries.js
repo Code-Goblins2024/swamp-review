@@ -75,7 +75,7 @@ export const getFlaggedReviews = async () => {
     }, {});
 
     const uniqueFlaggedReviews = flaggedReviews
-        .filter(review => reviewCounts[review.reviews.review_id] > 2) // Filter for review_ids that appear more than twice
+        .filter(review => reviewCounts[review.reviews.review_id] > 0) // Filter for review_ids that appear more than twice
         .reduce((uniqueReviews, review) => {
             if (!uniqueReviews.some(r => r.reviews.review_id === review.reviews.review_id)) {
                 uniqueReviews.push(review);

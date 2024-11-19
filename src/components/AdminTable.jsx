@@ -19,16 +19,17 @@ const AdminTable = () => {
     const [open, setOpen] = useState(false);
     const [reviews, setReviews] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [filterStatus, setFilterStatus] = useState("in_review");
 
     useEffect(() => {
         fetchFlaggedReviews();
     }, []);
 
-    const fetchFlaggedReviews = async (statusFilter = "in_review") => {
+    const fetchFlaggedReviews = async (filter = "in_review") => {
         try {
             setIsLoading(true);
             const reviews = await getFlaggedReviews();
-            const filteredReviews = reviews.filter((review) => review.reviews.status === statusFilter);
+            const filteredReviews = reviews.filter((review) => review.reviews.status === filter);
             setReviews(filteredReviews);
         } catch (error) {
             console.log(error)
@@ -43,7 +44,7 @@ const AdminTable = () => {
         try {
             console.log("approving review");
             await updateReviewStatus(review_id, "approved");
-            await fetchFlaggedReviews("in_review");
+            await fetchFlaggedReviews();
         } catch (error) {
             console.log(error)
         }
@@ -53,15 +54,20 @@ const AdminTable = () => {
         try {
             console.log("rejecting review");
             await updateReviewStatus(review_id, "rejected");
-            await fetchFlaggedReviews("in_review");
+            await fetchFlaggedReviews();
         } catch (error) {
             console.log(error)
         }
     }
 
-    function handleDelete() {
+    async function handleDelete() {
         // TODO: decide if we want to delete reviews
     }
+
+    async function handleSelect(_, newFilter) {
+        setFilterStatus(newFilter);
+        await fetchFlaggedReviews(newFilter);
+    };
 
     const RowMenu = ({ review_id }) => {
         return (
@@ -82,21 +88,31 @@ const AdminTable = () => {
         );
     }
 
+    const statusLabels = {
+        approved: "Approved",
+        in_review: "In Review",
+        rejected: "Rejected",
+    };
+
+    const getDisplayStatus = (status) => {
+        return statusLabels[status] || status;
+    };
+
     const renderFilters = () => (
-        <React.Fragment>
-            <FormControl size="sm">
-                <FormLabel>Status</FormLabel>
-                <Select
-                    size="sm"
-                    placeholder="Filter by status"
-                    slotProps={{ button: { sx: { whiteSpace: 'nowrap' } } }}
-                >
-                    <Option value="approved">Approved</Option>
-                    <Option value="inReview">In Review</Option>
-                    <Option value="rejected">Rejected</Option>
-                </Select>
-            </FormControl>
-        </React.Fragment>
+        <FormControl size="sm">
+            <FormLabel>Status</FormLabel>
+            <Select
+                size="sm"
+                placeholder="Filter by status"
+                value={filterStatus}
+                onChange={handleSelect}
+                slotProps={{ button: { sx: { whiteSpace: 'nowrap' } } }}
+            >
+                <Option value="approved">Approved</Option>
+                <Option value="in_review">In Review</Option>
+                <Option value="rejected">Rejected</Option>
+            </Select>
+        </FormControl>
     );
 
     return (
@@ -263,7 +279,7 @@ const AdminTable = () => {
                                                 }[row.reviews.status]
                                             }
                                         >
-                                            {row.reviews.status}
+                                            {getDisplayStatus(row.reviews.status)}
                                         </Chip>
                                     </td>
                                     <td>
