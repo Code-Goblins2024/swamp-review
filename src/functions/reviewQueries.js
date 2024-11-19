@@ -95,7 +95,7 @@ export const getFlaggedReviews = async () => {
     }, {});
 
     const uniqueFlaggedReviews = flaggedReviews
-        .filter(review => reviewCounts[review.reviews.review_id] > 0) // Filter for review_ids that appear more than twice
+        .filter(review => reviewCounts[review.reviews.review_id] > 0)
         .reduce((uniqueReviews, review) => {
             if (!uniqueReviews.some(r => r.reviews.review_id === review.reviews.review_id)) {
                 uniqueReviews.push(review);
@@ -185,8 +185,8 @@ export const updateReviewStatus = async (review_id, status) => {
     const { error: statusError } = await supabase.from("reviews").update({ status }).eq("id", review_id);
     if (statusError) throw statusError;
 
-    const response = await supabase.from("flagged_reviews").delete().eq("review_id", review_id);
-    if (response.status != 204) {
-        console.log("Error deleting data");
-    }
+    //const response = await supabase.from("flagged_reviews").delete().eq("review_id", review_id);
+    //if (response.status != 204) {
+    //    console.log("Error deleting data");
+    //}
 };

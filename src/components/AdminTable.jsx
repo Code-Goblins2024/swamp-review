@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Link, Input, Typography, Chip, Avatar, Box, Modal, ModalDialog, ModalClose, Table, Sheet, Checkbox, Divider, FormControl, FormLabel, Select, Option, Menu, MenuButton } from "@mui/joy";
+import { Button, Link, Input, CircularProgress, Typography, Chip, Avatar, Box, Modal, ModalDialog, ModalClose, Table, Sheet, Checkbox, Divider, FormControl, FormLabel, Select, Option, Menu, MenuButton } from "@mui/joy";
 import IconButton, { iconButtonClasses } from '@mui/joy/IconButton';
 import MenuItem from '@mui/joy/MenuItem';
 import Dropdown from '@mui/joy/Dropdown';
@@ -117,8 +117,8 @@ const AdminTable = () => {
 
     return (
         isLoading ? (
-            <Box>
-                <Typography>Real</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <CircularProgress />
             </Box>
         ) : (
             <React.Fragment>
