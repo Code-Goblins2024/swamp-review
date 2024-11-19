@@ -201,12 +201,12 @@ const HousingPage = () => {
 											<CustomChip
 												name={"Summer A/B"}
 												active={activePricingSemester === "Summer A/B"}
-												onClick={activePricingSemester === "Summer A/B" ? () => setActivePricingSemester("Summer A/B") : null}
+												onClick={activePricingSemester !== "Summer A/B" ? () => setActivePricingSemester("Summer A/B") : null}
 											/>
 											<CustomChip
 												name={"Summer C"}
 												active={activePricingSemester === "Summer C"}
-												onClick={activePricingSemester === "Summer C" ? () => setActivePricingSemester("Summer C") : null}
+												onClick={activePricingSemester !== "Summer C" ? () => setActivePricingSemester("Summer C") : null}
 											/>
 										</Box>
 									</Box>
