@@ -14,10 +14,11 @@ import About from "./pages/About";
 import Search from "./pages/Search";
 import Settings from "./pages/Settings";
 
-import { CssVarsProvider, useColorScheme } from '@mui/joy/styles';
+import { extendTheme, CssVarsProvider, useColorScheme } from '@mui/joy/styles';
 import CssBaseline from '@mui/joy/CssBaseline';
 
 import { getUser } from "./functions/userQueries";
+import { darkModeScheme } from "./constants/Constants";
 
 function ColorSchemeSetting({ user }) {
   const { mode, setMode } = useColorScheme();
@@ -34,6 +35,12 @@ function ColorSchemeSetting({ user }) {
 
   return <></>;
 }
+
+const customTheme = extendTheme({
+  colorSchemes: {
+    dark: darkModeScheme
+  },
+});
 
 const App = () => {
   const { session, setSession } = useAuth();
@@ -83,7 +90,7 @@ const App = () => {
   if (loading) return null;
 
   return (
-    <CssVarsProvider>
+    <CssVarsProvider theme={customTheme}>
       <CssBaseline/>
       <ColorSchemeSetting
       user={user}
