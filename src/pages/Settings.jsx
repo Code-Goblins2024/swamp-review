@@ -132,10 +132,10 @@ const Settings = () => {
       const { error } = await updateUser(session.user.id, updatedUser);
       if (error) throw error;
       await fetchData(); // Refresh the data
+      navigate(0);
     } catch (error) {
       console.error("Error updating user:", error);
       setGeneralError("Failed to update user information. Please try again.");
-    } finally {
       setLoading(false);
     }
   };
