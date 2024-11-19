@@ -3,6 +3,7 @@ import { Favorite as FavoriteIcon, FavoriteBorder as FavoriteBorderIcon, StarRat
 import { addUserFavorite, removeUserFavorite } from '../functions/userQueries';
 import useAuth from '../store/authStore';
 import { useState } from 'react';
+import { useTheme } from '@mui/joy';
 
 const DormCard = ({
   name,
@@ -21,6 +22,7 @@ const DormCard = ({
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [showAllTags, setShowAllTags] = useState(false);
+  const theme = useTheme();
 
   const handleImageError = () => {
     setImageError(true);
@@ -136,9 +138,9 @@ const DormCard = ({
               sx={{ ml: 1 }}
             >
               {isFavorited ? (
-                <FavoriteIcon sx={{ color: 'error.main' }} />
+                <FavoriteIcon sx={{ color: 'red.main' }} />
               ) : (
-                <FavoriteBorderIcon sx={{ color: 'error.main' }} />
+                <FavoriteBorderIcon sx={{ color: 'red.main' }} />
               )}
             </IconButton>
           )}

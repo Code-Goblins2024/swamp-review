@@ -18,7 +18,7 @@ import { extendTheme, CssVarsProvider, useColorScheme } from '@mui/joy/styles';
 import CssBaseline from '@mui/joy/CssBaseline';
 
 import { getUser } from "./functions/userQueries";
-import { darkModeScheme } from "./constants/Constants";
+import { theme } from "./constants/Constants";
 
 function ColorSchemeSetting({ user }) {
   const { mode, setMode } = useColorScheme();
@@ -36,11 +36,7 @@ function ColorSchemeSetting({ user }) {
   return <></>;
 }
 
-const customTheme = extendTheme({
-  colorSchemes: {
-    dark: darkModeScheme
-  },
-});
+const customTheme = extendTheme(theme);
 
 const App = () => {
   const { session, setSession } = useAuth();
