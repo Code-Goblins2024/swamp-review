@@ -37,6 +37,9 @@ export const getAllHousing = async () => {
       roomType: room_type (
         id,
         name
+      ),
+      flags: flagged_reviews (
+        *
       )
     ),
     interest_points (
@@ -119,6 +122,9 @@ export const getHousing = async (id) => {
       roomType: room_type (
         id,
         name
+      ),
+      flags: flagged_reviews (
+        *
       )
     ),
     interest_points (
