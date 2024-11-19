@@ -165,10 +165,7 @@ const DormCard = ({
                   fontSize: '0.75rem',
                   py: 0,
                   height: '20px',
-                  backgroundColor: 'primary.softBg',
-                  '&:hover': {
-                    backgroundColor: 'primary.softHoverBg',
-                  }
+                  borderRadius: '5px',
                 }}
               >
                 {tag.tag_name}
