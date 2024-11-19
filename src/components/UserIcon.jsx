@@ -17,8 +17,6 @@ const UserIcon = ({ height, width, bgcolor = null }) => {
       try {
         const data = await getUser(session.user.id);
         setUser(data[0]);
-        console.log(user);
-        
       } catch (error) {
         console.error("Error fetching user:", error);
         setUser([]);
