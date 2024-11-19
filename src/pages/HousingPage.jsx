@@ -13,10 +13,11 @@ import CustomChip from "../components/CustomChip";
 import Review from "../components/Review";
 import NoReviewsCard from "../components/NoReviewsCard";
 import ReviewForm from "../components/ReviewForm";
+import { flagReview } from "../functions/reviewQueries";
 
 const HousingPage = () => {
-	const { housingId } = useParams();
 	const { session } = useAuth();
+	const { housingId } = useParams();
 	const location = useLocation();
 	const navigate = useNavigate();
 	const [housingData, setHousingData] = useState(null);
@@ -25,6 +26,7 @@ const HousingPage = () => {
 	const [reviewFormOpen, setReviewFormOpen] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [activePricingSemester, setActivePricingSemester] = useState("Fall/Spring");
+	const [flagLoading, setFlagLoading] = useState(null);
 
 	useEffect(() => {
 		const loadHousingData = async () => {
@@ -62,6 +64,16 @@ const HousingPage = () => {
 
 	const handleClickReviewButton = () => {
 		setReviewFormOpen(true);
+	};
+
+	const handleClickFlag = async (review_id) => {
+		if (flagLoading) return;
+		setFlagLoading(review_id);
+
+		await flagReview(session.user.id, review_id);
+		const newHousingData = await getHousing(housingId);
+		setHousingData(newHousingData);
+		setFlagLoading(null);
 	};
 
 	if (!housingData || !categories || !tags) {
@@ -196,17 +208,29 @@ const HousingPage = () => {
 											<CustomChip
 												name={"Fall/Spring"}
 												active={activePricingSemester === "Fall/Spring"}
-												onClick={activePricingSemester !== "Fall/Spring" ? () => setActivePricingSemester("Fall/Spring") : null}
+												onClick={
+													activePricingSemester !== "Fall/Spring"
+														? () => setActivePricingSemester("Fall/Spring")
+														: null
+												}
 											/>
 											<CustomChip
 												name={"Summer A/B"}
 												active={activePricingSemester === "Summer A/B"}
-												onClick={activePricingSemester !== "Summer A/B" ? () => setActivePricingSemester("Summer A/B") : null}
+												onClick={
+													activePricingSemester !== "Summer A/B"
+														? () => setActivePricingSemester("Summer A/B")
+														: null
+												}
 											/>
 											<CustomChip
 												name={"Summer C"}
 												active={activePricingSemester === "Summer C"}
-												onClick={activePricingSemester !== "Summer C" ? () => setActivePricingSemester("Summer C") : null}
+												onClick={
+													activePricingSemester !== "Summer C"
+														? () => setActivePricingSemester("Summer C")
+														: null
+												}
 											/>
 										</Box>
 									</Box>
@@ -292,14 +316,27 @@ const HousingPage = () => {
 							)}
 							<Stack spacing={4}>
 								{housingData.reviews
-									.filter((review) => review.user.id === session.user.id)
+									.filter((review) => review.user.id === session?.user?.id)
 									.map((review, index) => (
-										<Review key={index} review={review} ownedByCurrentUser={true} />
+										<Review
+											key={index}
+											review={review}
+											ownedByCurrentUser={true}
+											session={session}
+											handleClickFlag={handleClickFlag}
+											flagLoading={flagLoading}
+										/>
 									))}
 								{housingData.reviews
-									.filter((review) => review.user.id !== session.user.id)
+									.filter((review) => review.user.id !== session?.user?.id)
 									.map((review, index) => (
-										<Review key={index} review={review} />
+										<Review
+											key={index}
+											review={review}
+											session={session}
+											handleClickFlag={handleClickFlag}
+											flagLoading={flagLoading}
+										/>
 									))}
 								{housingData.reviews.length === 0 && (
 									<NoReviewsCard

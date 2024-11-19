@@ -28,7 +28,10 @@ export const createPublicUser = async (user) => {
  */
 
 export const getUserFavorites = async (uuid) => {
-	let { data, error } = await supabase.from('favorites').select(`
+	let { data, error } = await supabase
+		.from("favorites")
+		.select(
+			`
 			housing (
         id,
         name,
@@ -72,16 +75,17 @@ export const getUserFavorites = async (uuid) => {
           lng
         )
 			)
-		`)
-  .eq('user_id', uuid)
-  .gt("housing_id", -1);
+		`
+		)
+		.eq("user_id", uuid)
+		.gt("housing_id", -1);
 
-  if (error) {
+	if (error) {
 		console.log(`Error retrieving favorites`);
 		throw error;
 	}
 
-  const avgRatings = await getAvgRatingByCategoryForAllHousing();
+	const avgRatings = await getAvgRatingByCategoryForAllHousing();
 	data = data.map((obj) => {
 		return obj.housing?.id in avgRatings
 			? { ...obj.housing, average_ratings: avgRatings[obj.housing?.id] }
@@ -125,7 +129,7 @@ export const removeUserFavorite = async (housing_id, uuid) => {
 		console.log("Error deleting favorite");
 		throw error;
 	}
-}
+};
 
 /**
  * Update a user's username
@@ -151,8 +155,9 @@ export const updateUsername = async (uuid, new_username) => {
 
 export const getUser = async (uuid) => {
 	const { data, error } = await supabase
-		.from('users')
-		.select(`
+		.from("users")
+		.select(
+			`
 			first_name,
 			last_name,
 			email,
@@ -160,14 +165,14 @@ export const getUser = async (uuid) => {
 			year,
 			role,
 			icon_color,
-			theme_ld`,
+			theme_ld`
 		)
-		.eq('id', uuid);
+		.eq("id", uuid);
 	if (error) {
 		console.log(`Error retrieving user data`);
 		throw error;
 	}
-	return data;
+	return data[0];
 };
 
 /**
@@ -178,33 +183,34 @@ export const getUser = async (uuid) => {
 export const updateUser = async (uuid, updatedUser) => {
 	console.log(updatedUser);
 	const { data, error } = await supabase
-		.from('users')
+		.from("users")
 		.update({
-			...updatedUser
+			...updatedUser,
 		})
-		.eq("id", uuid).select();
+		.eq("id", uuid)
+		.select();
 	console.log(data);
 	console.log(error);
 	if (error) {
 		console.log("Error updating user");
 		throw error;
 	}
-	return {data, error};
+	return { data, error };
 };
-  
 
 /**
  * Retrieve user data
  * @param {string} uuid - User id
  * @returns {string} data - User role (admin, user, moderator, faculty)
  */
-
 export const getUserRole = async (uuid) => {
 	const { data, error } = await supabase
-		.from('users')
-		.select(`
-			role`)
-		.eq('id', uuid);
+		.from("users")
+		.select(
+			`
+			role`
+		)
+		.eq("id", uuid);
 	if (error) {
 		console.log(`Error retrieving user data`);
 		throw error;

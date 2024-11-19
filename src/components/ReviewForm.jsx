@@ -10,8 +10,10 @@ import PropTypes from "prop-types";
 import ClickableRating from "./ClickableRating";
 import CustomChip from "./CustomChip";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { Filter } from "content-checker";
 
 const ReviewForm = ({ setReviewFormOpen, housingData, setHousingData, categories, loading, tags }) => {
+	const filter = new Filter();
 	const theme = useTheme();
 	const navigate = useNavigate();
 	const { session } = useAuth();

@@ -1,9 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { extendTheme, CssVarsProvider, useColorScheme } from "@mui/joy/styles";
 import useAuth from "./store/authStore";
 import supabase from "./config/supabaseClient";
-import React from "react";
+import CssBaseline from "@mui/joy/CssBaseline";
 
 import Navbar from "./components/Navbar";
 import LandingPage from "./pages/LandingPage";
@@ -12,115 +13,106 @@ import HousingPage from "./pages/HousingPage";
 import Dashboard from "./pages/Dashboard";
 import About from "./pages/About";
 import Search from "./pages/Search";
+import Admin from "./pages/Admin";
 import Settings from "./pages/Settings";
-
-import { extendTheme, CssVarsProvider, useColorScheme } from '@mui/joy/styles';
-import CssBaseline from '@mui/joy/CssBaseline';
 
 import { getUser } from "./functions/userQueries";
 import { theme } from "./constants/Constants";
+import PropTypes from "prop-types";
 
-function ColorSchemeSetting({ user }) {
-  const { mode, setMode } = useColorScheme();
-  const [mounted, setMounted] = React.useState(false);
+const ColorSchemeSetting = ({ user }) => {
+	const { setMode } = useColorScheme();
+	const [mounted, setMounted] = useState(false);
 
-  React.useEffect(() => {
-    setMounted(true);
-    setMode(user[0]?.theme_ld || 'system'); // Use the `user` prop directly
-  }, [user, setMode]); // Include dependencies to avoid warnings
+	useEffect(() => {
+		setMounted(true);
+		setMode(user?.theme_ld || "system");
+	}, [user]);
 
-  if (!mounted) {
-    return null;
-  }
+	if (!mounted) {
+		return null;
+	}
 
-  return <></>;
-}
+	return <></>;
+};
 
 const customTheme = extendTheme(theme);
 
 const App = () => {
-  const { session, setSession } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
+	const { session, setSession } = useAuth();
+	const [loading, setLoading] = useState(true);
 
-  // All logic for loading the application
-  const loadApp = async () => {
-    const { data, error } = await supabase.auth.getSession();
-    if (!error) setSession(data.session);
+	// All logic for loading the application
+	const loadApp = async () => {
+		const { data, error } = await supabase.auth.getSession();
 
-    setLoading(false);
-  };
+		if (!error && data.session) {
+			setSession(data.session ? await getPublicUserData(data.session) : null);
+		}
 
-  useEffect(() => {
-    loadApp();
-  }, []);
+		setLoading(false);
+	};
 
-  // Auth state change listener
-  useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      
-    });
+	useEffect(() => {
+		loadApp();
+	}, []);
 
-    return () => subscription.unsubscribe();
-  }, []);
+	// Auth state change listener
+	useEffect(() => {
+		const {
+			data: { subscription },
+		} = supabase.auth.onAuthStateChange(async (_event, session) => {
+			setSession(session ? await getPublicUserData(session) : null);
+		});
 
-  useEffect(() => {
-    if (session) {
-      const fetchUserData = async () => {
-        try {
-          const userData = await getUser(session.user.id);
-          setUser(userData);
-        } catch (error) {
-          console.error("Error fetching user:", error);
-          setUser([]);
-        }
-      };
+		return () => subscription.unsubscribe();
+	}, []);
 
-      fetchUserData();
-    }
-  }, [session]);
+	const getPublicUserData = async (session) => {
+		try {
+			const userData = await getUser(session.user.id);
+			session.user = { ...session.user, data: userData };
+		} catch (error) {
+			console.error("Error fetching user:", error);
+		}
 
-  if (loading || user === null) return null;
+		return session;
+	};
 
-  return (
-    <CssVarsProvider theme={customTheme}>
-      <CssBaseline/>
-      <ColorSchemeSetting
-      user={user}
-      />
-      <Router>
-        <div className="app-container">
-          <Navbar />
-          <main>
-            <Routes>
-              <Route
-                path="/"
-                element={session ? <Navigate to="/dashboard" /> : <LandingPage />}
-              />
-              <Route
-                path="/signin"
-                element={session ? <Navigate to="/dashboard" /> : <SignInUp />}
-              />
-              <Route
-                path="/dashboard"
-                element={session ? <Dashboard /> : <Navigate to="/signin" />}
-              />
-              <Route
-                path="/settings"
-                element={session ? <Settings /> : <Navigate to="/signin" />}
-              />
-              <Route path="/about" element={<About />} />
-              <Route path="/search" element={<Search />} />
-              <Route path="/housing/:housingId" element={<HousingPage />} />
-            </Routes>
-          </main>
-        </div>
-      </Router>
-    </CssVarsProvider>
-  );
+	if (loading) return null;
+
+	return (
+		<CssVarsProvider theme={customTheme}>
+			<CssBaseline />
+			<ColorSchemeSetting user={session?.user?.data} />
+			<Router>
+				<div className="app-container">
+					<Navbar />
+					<main>
+						<Routes>
+							<Route path="/" element={session ? <Navigate to="/dashboard" /> : <LandingPage />} />
+							<Route path="/signin" element={session ? <Navigate to="/dashboard" /> : <SignInUp />} />
+							<Route path="/dashboard" element={session ? <Dashboard /> : <Navigate to="/signin" />} />
+							<Route
+								path="/admin"
+								element={
+									session?.user?.data?.role === "admin" ? <Admin /> : <Navigate to="/dashboard" />
+								}
+							/>
+							<Route path="/settings" element={session ? <Settings /> : <Navigate to="/signin" />} />
+							<Route path="/about" element={<About />} />
+							<Route path="/search" element={<Search />} />
+							<Route path="/housing/:housingId" element={<HousingPage />} />
+						</Routes>
+					</main>
+				</div>
+			</Router>
+		</CssVarsProvider>
+	);
+};
+
+ColorSchemeSetting.propTypes = {
+	user: PropTypes.object,
 };
 
 export default App;
