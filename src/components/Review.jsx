@@ -77,6 +77,7 @@ const Review = ({ review, ownedByCurrentUser, handleClickFlag, flagLoading }) =>
 						<Button
 							color="neutral"
 							variant="soft"
+							size="sm"
 							sx={{ position: "relative" }}
 							onClick={() => handleClickFlag(review.review_id)}
 						>
@@ -98,9 +99,9 @@ const Review = ({ review, ownedByCurrentUser, handleClickFlag, flagLoading }) =>
 								}}
 							>
 								{review.flags.filter((flag) => flag.user_id === session.user.id).length > 0 ? (
-									<FlagIcon sx={{ color: "red.main", fontSize: "26px" }} />
+									<FlagIcon sx={{ color: "red.main", fontSize: "24px" }} />
 								) : (
-									<OutlinedFlagIcon sx={{ fontSize: "26px" }} />
+									<OutlinedFlagIcon sx={{ fontSize: "24px" }} />
 								)}
 								<Typography level="body-sm">{review.flags.length}</Typography>
 							</Box>

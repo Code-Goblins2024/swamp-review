@@ -1,41 +1,15 @@
-import { useState, useEffect } from "react";
 import useAuth from "../store/authStore";
-import { getUser } from "../functions/userQueries";
-import { Avatar } from "@mui/joy";
 import PropTypes from "prop-types";
+import { Avatar } from "@mui/joy";
 
 const UserIcon = ({ height, width, bgcolor = null }) => {
 	const { session } = useAuth();
-	const [user, setUser] = useState([]);
-
-	useEffect(() => {
-		if (session) {
-			fetchUser();
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [session]);
-
-	const fetchUser = async () => {
-		try {
-			const data = await getUser(session.user.id);
-			setUser(data[0]);
-		} catch (error) {
-			console.error("Error fetching user:", error);
-			setUser([]);
-		}
-	};
-
-	const firstInitial = user?.first_name ? user.first_name[0] : "";
-	const lastInitial = user?.last_name ? user.last_name[0] : "";
 
 	const getIconColor = () => {
 		if (bgcolor !== null) {
 			return bgcolor;
 		}
-		if (user && user.icon_color) {
-			return user.icon_color;
-		}
-		return "neutral";
+		return session.user.data?.icon_color || "neutral";
 	};
 
 	return (
@@ -49,8 +23,8 @@ const UserIcon = ({ height, width, bgcolor = null }) => {
 				variant: "soft",
 			}}
 		>
-			{firstInitial}
-			{lastInitial}
+			{session.user.data.first_name[0]}
+			{session.user.data.last_name[0]}
 		</Avatar>
 	);
 };

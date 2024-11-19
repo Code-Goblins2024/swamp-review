@@ -172,7 +172,7 @@ export const getUser = async (uuid) => {
 		console.log(`Error retrieving user data`);
 		throw error;
 	}
-	return data;
+	return data[0];
 };
 
 /**

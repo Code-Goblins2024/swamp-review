@@ -1,49 +1,35 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-	AspectRatio,
 	Box,
 	Button,
 	Divider,
-	FormControl,
-	FormLabel,
-	Input,
 	Grid,
 	IconButton,
 	Modal,
 	ModalDialog,
 	ModalClose,
-	Textarea,
 	Stack,
 	Typography,
 	Card,
 	CardActions,
-	CardOverflow,
 	CircularProgress,
 } from "@mui/joy";
-import { Person as PersonIcon, EditRounded as EditRoundedIcon, FileUpload } from "@mui/icons-material";
-import supabase from "../config/supabaseClient";
+import { EditRounded as EditRoundedIcon } from "@mui/icons-material";
 import useAuth from "../store/authStore";
-import { years, roles } from "../constants/Enums";
+import { years } from "../constants/Enums";
 import UserIcon from "../components/UserIcon";
-import { MuiColorInput } from "mui-color-input";
-import { getUser, updateUser } from "../functions/userQueries";
+import { updateUser } from "../functions/userQueries";
 import UserInfoForm from "../components/UserInfoForm";
 import FormRadio from "../components/FormRadio";
 
 const Settings = () => {
 	const navigate = useNavigate();
 	const { session } = useAuth();
-	const [user, setUser] = useState([]);
-	const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(false);
 	const [imageModalOpen, setImageModalOpen] = useState(false);
-	const handleOpen = () => setImageModalOpen(true);
-	const handleClose = () => setImageModalOpen(false);
-
-	const [colorValue, setColorValue] = React.useState("#ffffff");
-	const handleColorChange = (newValue) => {
-		setColorValue(newValue);
-	};
+	// const handleOpen = () => setImageModalOpen(true);
+	// const handleClose = () => setImageModalOpen(false);
 
 	// Form states
 	const formDataTemplate = {
@@ -54,7 +40,14 @@ const Settings = () => {
 		theme_ld: "",
 		icon_color: "",
 	};
-	const [formData, setFormData] = useState({ ...formDataTemplate });
+	const [formData, setFormData] = useState({
+		firstname: session.user.data.first_name,
+		lastname: session.user.data.last_name,
+		major: session.user.data.major,
+		year: session.user.data.year,
+		theme_ld: session.user.data.theme_ld,
+		icon_color: session.user.data.icon_color,
+	});
 	const [formErrors, setFormErrors] = useState({ ...formDataTemplate });
 	const [generalError, setGeneralError] = useState("");
 
@@ -74,36 +67,6 @@ const Settings = () => {
 		"purple",
 		"grey",
 	];
-
-	useEffect(() => {
-		if (session) {
-			fetchData();
-		}
-	}, [session]);
-
-	const imageUrl = user[0]?.profile_image;
-
-	const fetchData = async () => {
-		try {
-			const data = await getUser(session.user.id);
-			if (data && data[0]) {
-				setUser(data[0]);
-				setFormData({
-					firstname: data[0].first_name || "",
-					lastname: data[0].last_name || "",
-					major: data[0].major || "",
-					year: data[0].year || "",
-					theme_ld: data[0].theme_ld || "",
-				});
-				setColorValue(data[0].icon_color || "#ffffff");
-			}
-		} catch (error) {
-			console.error("Error fetching user:", error);
-			setUser(null);
-		} finally {
-			setLoading(false);
-		}
-	};
 
 	const handleFormChange = (e) => {
 		const { name, value } = e.target;
@@ -131,14 +94,13 @@ const Settings = () => {
 			last_name: formData.lastname,
 			major: formData.major,
 			year: formData.year,
-			icon_color: colorValue,
+			icon_color: formData.icon_color,
 			theme_ld: formData.theme_ld,
 		};
 
 		try {
 			const { error } = await updateUser(session.user.id, updatedUser);
 			if (error) throw error;
-			await fetchData(); // Refresh the data
 			navigate(0);
 		} catch (error) {
 			console.error("Error updating user:", error);
@@ -154,10 +116,10 @@ const Settings = () => {
 
 	const resetForm = () => {
 		setFormData({
-			firstname: user?.first_name || "",
-			lastname: user?.last_name || "",
-			major: user?.major || "",
-			year: user?.year || "",
+			firstname: session.user.data.first_name || "",
+			lastname: session.user.data.last_name || "",
+			major: session.user.data.major || "",
+			year: session.user.data.year || "",
 		});
 		setGeneralError("");
 		setFormErrors({ ...formDataTemplate });
@@ -199,7 +161,7 @@ const Settings = () => {
 					<Divider />
 					<Stack direction={{ xs: "column", md: "row" }} spacing={3} sx={{ my: 2 }}>
 						<Stack direction="column" spacing={1}>
-							<UserIcon height={100} width={100} bgcolor={colorValue} />
+							<UserIcon height={100} width={100} bgcolor={formData.icon_color} />
 							<IconButton
 								aria-label="upload new picture"
 								size="sm"
@@ -232,12 +194,12 @@ const Settings = () => {
 														backgroundColor: color,
 														borderRadius: "sm",
 														cursor: "pointer",
-														border:
-															colorValue === color
-																? "2px solid black"
-																: "2px solid transparent",
+														border: "1px solid #cdcdcd",
+														// color === "neutral"
+														// 	? "2px solid #1a1a1a"
+														// 	: "2px solid transparent",
 													}}
-													onClick={() => setColorValue(color)}
+													onClick={() => setFormData({ ...formData, icon_color: color })}
 												/>
 											</Grid>
 										))}
@@ -247,7 +209,7 @@ const Settings = () => {
 						</Stack>
 						<Stack spacing={2} sx={{ flexGrow: 1 }}>
 							<UserInfoForm
-								email={user?.email}
+								email={session.user.email}
 								formData={formData}
 								formErrors={formErrors}
 								handleFormChange={handleFormChange}

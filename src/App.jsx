@@ -1,9 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { extendTheme, CssVarsProvider, useColorScheme } from "@mui/joy/styles";
 import useAuth from "./store/authStore";
 import supabase from "./config/supabaseClient";
-import { extendTheme, CssVarsProvider, useColorScheme } from "@mui/joy/styles";
 import CssBaseline from "@mui/joy/CssBaseline";
 
 import Navbar from "./components/Navbar";
@@ -17,50 +17,40 @@ import Admin from "./pages/Admin";
 import Settings from "./pages/Settings";
 
 import { getUser } from "./functions/userQueries";
-import { getUserRole } from "./functions/userQueries";
 import { theme } from "./constants/Constants";
+import PropTypes from "prop-types";
 
-function ColorSchemeSetting({ user }) {
-	const { mode, setMode } = useColorScheme();
+const ColorSchemeSetting = ({ user }) => {
+	const { setMode } = useColorScheme();
 	const [mounted, setMounted] = useState(false);
 
 	useEffect(() => {
 		setMounted(true);
-		setMode(user[0]?.theme_ld || "system"); // Use the `user` prop directly
-	}, [user, setMode]); // Include dependencies to avoid warnings
+		setMode(user?.theme_ld || "system");
+	}, [user]);
 
 	if (!mounted) {
 		return null;
 	}
 
 	return <></>;
-}
+};
 
 const customTheme = extendTheme(theme);
 
 const App = () => {
 	const { session, setSession } = useAuth();
 	const [loading, setLoading] = useState(true);
-	const [userRole, setUserRole] = useState("");
-	const [user, setUser] = useState(null);
 
 	// All logic for loading the application
 	const loadApp = async () => {
 		const { data, error } = await supabase.auth.getSession();
-		if (!error) setSession(data.session);
+
+		if (!error && data.session) {
+			setSession(data.session ? await getPublicUserData(data.session) : null);
+		}
 
 		setLoading(false);
-	};
-
-	useEffect(() => {
-		if (session) {
-			loadRole(session);
-		}
-	}, [session]);
-
-	const loadRole = async (session) => {
-		const role = await getUserRole(session.user.id);
-		setUserRole(role[0].role);
 	};
 
 	useEffect(() => {
@@ -71,35 +61,30 @@ const App = () => {
 	useEffect(() => {
 		const {
 			data: { subscription },
-		} = supabase.auth.onAuthStateChange((_event, session) => {
-			setSession(session);
+		} = supabase.auth.onAuthStateChange(async (_event, session) => {
+			setSession(session ? await getPublicUserData(session) : null);
 		});
 
 		return () => subscription.unsubscribe();
 	}, []);
 
-	useEffect(() => {
-		if (session) {
-			const fetchUserData = async () => {
-				try {
-					const userData = await getUser(session.user.id);
-					setUser(userData);
-				} catch (error) {
-					console.error("Error fetching user:", error);
-					setUser([]);
-				}
-			};
-
-			fetchUserData();
+	const getPublicUserData = async (session) => {
+		try {
+			const userData = await getUser(session.user.id);
+			session.user = { ...session.user, data: userData };
+		} catch (error) {
+			console.error("Error fetching user:", error);
 		}
-	}, [session]);
 
-	if (loading || user === null) return null;
+		return session;
+	};
+
+	if (loading) return null;
 
 	return (
 		<CssVarsProvider theme={customTheme}>
 			<CssBaseline />
-			<ColorSchemeSetting user={user} />
+			<ColorSchemeSetting user={session?.user?.data} />
 			<Router>
 				<div className="app-container">
 					<Navbar />
@@ -110,7 +95,9 @@ const App = () => {
 							<Route path="/dashboard" element={session ? <Dashboard /> : <Navigate to="/signin" />} />
 							<Route
 								path="/admin"
-								element={userRole === "admin" ? <Admin /> : <Navigate to="/dashboard" />}
+								element={
+									session?.user?.data?.role === "admin" ? <Admin /> : <Navigate to="/dashboard" />
+								}
 							/>
 							<Route path="/settings" element={session ? <Settings /> : <Navigate to="/signin" />} />
 							<Route path="/about" element={<About />} />
@@ -122,6 +109,10 @@ const App = () => {
 			</Router>
 		</CssVarsProvider>
 	);
+};
+
+ColorSchemeSetting.propTypes = {
+	user: PropTypes.object,
 };
 
 export default App;
