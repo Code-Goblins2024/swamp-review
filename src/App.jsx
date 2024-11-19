@@ -14,7 +14,7 @@ import About from "./pages/About";
 import Search from "./pages/Search";
 import Settings from "./pages/Settings";
 
-import { extendTheme, CssVarsProvider, useColorScheme   } from '@mui/joy/styles';
+import { CssVarsProvider, useColorScheme } from '@mui/joy/styles';
 import CssBaseline from '@mui/joy/CssBaseline';
 
 import { getUser } from "./functions/userQueries";
@@ -34,7 +34,6 @@ function ColorSchemeSetting({ user }) {
 
   return <></>;
 }
-
 
 const App = () => {
   const { session, setSession } = useAuth();
