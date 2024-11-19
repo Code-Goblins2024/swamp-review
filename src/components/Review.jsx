@@ -114,7 +114,9 @@ const Review = ({ review, ownedByCurrentUser, handleClickFlag, flagLoading }) =>
 
 Review.propTypes = {
 	review: PropTypes.object,
-	ownedByCurrentUser: PropTypes.boolean,
+	ownedByCurrentUser: PropTypes.bool,
+	handleClickFlag: PropTypes.func,
+	flagLoading: PropTypes.number,
 };
 
 export default Review;

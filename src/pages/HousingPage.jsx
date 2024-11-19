@@ -6,14 +6,13 @@ import { getHousing } from "../functions/housingQueries";
 import { getAllCategories } from "../functions/categoryQueries";
 import { getAllTags } from "../functions/tagQueries";
 import { useNavigate, useLocation } from "react-router-dom";
+import useAuth from "../store/authStore";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import Rating from "../components/Rating";
-import PricingChip from "../components/PricingChip";
 import CustomChip from "../components/CustomChip";
 import Review from "../components/Review";
 import NoReviewsCard from "../components/NoReviewsCard";
 import ReviewForm from "../components/ReviewForm";
-import useAuth from "../store/authStore";
 import { flagReview } from "../functions/reviewQueries";
 
 const HousingPage = () => {
@@ -38,7 +37,6 @@ const HousingPage = () => {
 				setCategories(categoriesRes);
 				const tagsRes = await getAllTags();
 				setTags(tagsRes);
-				console.log(housingRes);
 			} catch (error) {
 				// TODO: Redirect on failure
 				console.error(error);
@@ -207,20 +205,32 @@ const HousingPage = () => {
 											Pricing
 										</Typography>
 										<Box sx={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-											<PricingChip
-												semester={"Fall/Spring"}
-												activePricingSemester={activePricingSemester}
-												setActivePricingSemester={setActivePricingSemester}
+											<CustomChip
+												name={"Fall/Spring"}
+												active={activePricingSemester === "Fall/Spring"}
+												onClick={
+													activePricingSemester !== "Fall/Spring"
+														? () => setActivePricingSemester("Fall/Spring")
+														: null
+												}
 											/>
-											<PricingChip
-												semester={"Summer A/B"}
-												activePricingSemester={activePricingSemester}
-												setActivePricingSemester={setActivePricingSemester}
+											<CustomChip
+												name={"Summer A/B"}
+												active={activePricingSemester === "Summer A/B"}
+												onClick={
+													activePricingSemester !== "Summer A/B"
+														? () => setActivePricingSemester("Summer A/B")
+														: null
+												}
 											/>
-											<PricingChip
-												semester={"Summer C"}
-												activePricingSemester={activePricingSemester}
-												setActivePricingSemester={setActivePricingSemester}
+											<CustomChip
+												name={"Summer C"}
+												active={activePricingSemester === "Summer C"}
+												onClick={
+													activePricingSemester !== "Summer C"
+														? () => setActivePricingSemester("Summer C")
+														: null
+												}
 											/>
 										</Box>
 									</Box>
@@ -305,15 +315,29 @@ const HousingPage = () => {
 								</Typography>
 							)}
 							<Stack spacing={4}>
-								{housingData.reviews.map((review, index) => (
-									<Review
-										key={index}
-										review={review}
-										session={session}
-										handleClickFlag={handleClickFlag}
-										flagLoading={flagLoading}
-									/>
-								))}
+								{housingData.reviews
+									.filter((review) => review.user.id === session?.user?.id)
+									.map((review, index) => (
+										<Review
+											key={index}
+											review={review}
+											ownedByCurrentUser={true}
+											session={session}
+											handleClickFlag={handleClickFlag}
+											flagLoading={flagLoading}
+										/>
+									))}
+								{housingData.reviews
+									.filter((review) => review.user.id !== session?.user?.id)
+									.map((review, index) => (
+										<Review
+											key={index}
+											review={review}
+											session={session}
+											handleClickFlag={handleClickFlag}
+											flagLoading={flagLoading}
+										/>
+									))}
 								{housingData.reviews.length === 0 && (
 									<NoReviewsCard
 										housingName={housingData.name}

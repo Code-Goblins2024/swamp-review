@@ -1,179 +1,286 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  AspectRatio,
-  Box,
-  Button,
-  Divider,
-  FormControl,
-  FormLabel,
-  Input,
-  IconButton,
-  Modal,
-  ModalDialog,
-  ModalClose,
-  Textarea,
-  Stack,
-  Typography,
-  Card,
-  CardActions,
-  CardOverflow,
-  CircularProgress,
+	AspectRatio,
+	Box,
+	Button,
+	Divider,
+	FormControl,
+	FormLabel,
+	Input,
+	Grid,
+	IconButton,
+	Modal,
+	ModalDialog,
+	ModalClose,
+	Textarea,
+	Stack,
+	Typography,
+	Card,
+	CardActions,
+	CardOverflow,
+	CircularProgress,
 } from "@mui/joy";
 import { Person as PersonIcon, EditRounded as EditRoundedIcon, FileUpload } from "@mui/icons-material";
 import supabase from "../config/supabaseClient";
 import useAuth from "../store/authStore";
-import { getUser } from "../functions/userQueries";
 import { years, roles } from "../constants/Enums";
 import UserIcon from "../components/UserIcon";
-import { MuiColorInput } from 'mui-color-input'
-
+import { MuiColorInput } from "mui-color-input";
+import { getUser, updateUser } from "../functions/userQueries";
+import UserInfoForm from "../components/UserInfoForm";
+import FormRadio from "../components/FormRadio";
 
 const Settings = () => {
-  const navigate = useNavigate();
-  const { session } = useAuth();
-  const [user, setUser] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [imageModalOpen, setImageModalOpen] = useState(false);
-  const handleOpen = () => setImageModalOpen(true);
-  const handleClose = () => setImageModalOpen(false);
-  
-  const [colorValue, setColorValue] = React.useState('#ffffff');
-  const handleColorChange = (newValue) => {
-    setColorValue(newValue)
-  }
+	const navigate = useNavigate();
+	const { session } = useAuth();
+	const [user, setUser] = useState([]);
+	const [loading, setLoading] = useState(true);
+	const [imageModalOpen, setImageModalOpen] = useState(false);
+	const handleOpen = () => setImageModalOpen(true);
+	const handleClose = () => setImageModalOpen(false);
 
-  useEffect(() => {
-    if (session) {
-      fetchData();
-    }
-  }, [session]);
+	const [colorValue, setColorValue] = React.useState("#ffffff");
+	const handleColorChange = (newValue) => {
+		setColorValue(newValue);
+	};
 
-  const fetchData = async () => {
-    await Promise.all([fetchUser()]);
-    setLoading(false);
-  };
+	// Form states
+	const formDataTemplate = {
+		firstname: "",
+		lastname: "",
+		major: "",
+		year: "",
+		theme_ld: "",
+		icon_color: "",
+	};
+	const [formData, setFormData] = useState({ ...formDataTemplate });
+	const [formErrors, setFormErrors] = useState({ ...formDataTemplate });
+	const [generalError, setGeneralError] = useState("");
 
-  const fetchUser = async () => {
-    try {
-      const data = await getUser(session.user.id);
-      setUser(data);
-      setColorValue(user?.icon_color);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      setUser([]);
-    }
-  };
+	const colors = [
+		"red",
+		"pink",
+		"orange",
+		"yellow",
+		"lime",
+		"lightGreen",
+		"green",
+		"teal",
+		"cyan",
+		"lightBlue",
+		"blue",
+		"indigo",
+		"purple",
+		"grey",
+	];
 
-  const imageUrl = user[0]?.profile_image;
+	useEffect(() => {
+		if (session) {
+			fetchData();
+		}
+	}, [session]);
 
-  if (loading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
+	const imageUrl = user[0]?.profile_image;
 
-  return (
-    <Box sx={{ flex: 1, width: "100%" }}>
-      <Stack
-        spacing={4}
-        sx={{
-          maxWidth: "800px",
-          mx: "auto",
-          px: { xs: 2, md: 6 },
-          py: { xs: 2, md: 3 },
-        }}
-      >
-        <Card>
-          <Box sx={{ mb: 1, textAlign: "center" }}>
-            <Typography variant="h5" sx={{ color: "text.primary" }}>
-              Personal Info
-            </Typography>
-            <Typography variant="body2">
-              Customize your profile information
-            </Typography>
-          </Box>
-          <Divider />
-          <Stack
-            direction={{ xs: "column", md: "row" }}
-            spacing={3}
-            sx={{ my: 2 }}
-          >
-            <Stack direction="column" spacing={1}>
-              <UserIcon
-              height={100}
-              width={100}
-              bgcolor={colorValue}
-              />
-              <IconButton
-                aria-label="upload new picture"
-                size="sm"
-                variant="outlined"
-                color="neutral"
-                onClick={handleOpen}
-                sx={{
-                  bgcolor: 'background.body',
-                  position: 'absolute',
-                  zIndex: 2,
-                  borderRadius: '50%',
-                  left: 100,
-                  top: 170,
-                  boxShadow: 'sm',
-                }}
-              >
-                <EditRoundedIcon />
-              </IconButton>
-              {/* Edit Image Modal */}
-              <Modal open={imageModalOpen} onClose={handleClose}>
-              <ModalDialog variant="outlined">
-                    <ModalClose />
-                    <Typography variant="body2">Change Color</Typography>
-                    <MuiColorInput format="hex" value={colorValue} onChange={handleColorChange} />
-                  </ModalDialog>
-                </Modal>
-            </Stack>
-            <Stack spacing={2} sx={{ flexGrow: 1 }}>
-              <FormControl>
-                <FormLabel>First Name</FormLabel>
-                <Input placeholder="First Name" />
-              </FormControl>
-              <FormControl>
-                <FormLabel>Last Name</FormLabel>
-                <Input placeholder="Last Name" />
-              </FormControl>
-              <FormControl>
-                <FormLabel>Email</FormLabel>
-                <Input type="email" placeholder="Email" sx={{ flexGrow: 1 }} />
-              </FormControl>
-              <FormControl>
-                <FormLabel>Major</FormLabel>
-                <Input placeholder="Your Major" />
-              </FormControl>
-            </Stack>
-          </Stack>
-          <CardOverflow sx={{ borderTop: "1px solid", borderColor: "divider" }}>
-            <CardActions sx={{ justifyContent: "flex-end", p: 2 }}>
-              <Button variant="outlined" color="neutral">
-                Cancel
-              </Button>
-              <Button variant="contained" color="primary">
-                Save
-              </Button>
-            </CardActions>
-          </CardOverflow>
-        </Card>
-      </Stack>
-    </Box>
-  );
+	const fetchData = async () => {
+		try {
+			const data = await getUser(session.user.id);
+			if (data && data[0]) {
+				setUser(data[0]);
+				setFormData({
+					firstname: data[0].first_name || "",
+					lastname: data[0].last_name || "",
+					major: data[0].major || "",
+					year: data[0].year || "",
+					theme_ld: data[0].theme_ld || "",
+				});
+				setColorValue(data[0].icon_color || "#ffffff");
+			}
+		} catch (error) {
+			console.error("Error fetching user:", error);
+			setUser(null);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleFormChange = (e) => {
+		const { name, value } = e.target;
+		setGeneralError("");
+		setFormErrors({ ...formErrors, [name]: "" });
+		setFormData({ ...formData, [name]: value });
+	};
+
+	const validateUpdate = () => {
+		let newFormErrors = { ...formDataTemplate };
+		if (!formData.firstname.trim()) newFormErrors.firstname = "Firstname cannot be empty.";
+		if (!formData.lastname.trim()) newFormErrors.lastname = "Lastname cannot be empty.";
+		if (!formData.major.trim()) newFormErrors.major = "Major cannot be empty.";
+		if (!formData.year.trim()) newFormErrors.year = "Year cannot be empty.";
+		setFormErrors(newFormErrors);
+		return Object.values(newFormErrors).every((value) => !value);
+	};
+
+	const handleUpdate = async () => {
+		if (!validateUpdate()) return;
+		setLoading(true);
+
+		const updatedUser = {
+			first_name: formData.firstname,
+			last_name: formData.lastname,
+			major: formData.major,
+			year: formData.year,
+			icon_color: colorValue,
+			theme_ld: formData.theme_ld,
+		};
+
+		try {
+			const { error } = await updateUser(session.user.id, updatedUser);
+			if (error) throw error;
+			await fetchData(); // Refresh the data
+			navigate(0);
+		} catch (error) {
+			console.error("Error updating user:", error);
+			setGeneralError("Failed to update user information. Please try again.");
+			setLoading(false);
+		}
+	};
+
+	const cancelUpdate = () => {
+		if (loading) return;
+		resetForm();
+	};
+
+	const resetForm = () => {
+		setFormData({
+			firstname: user?.first_name || "",
+			lastname: user?.last_name || "",
+			major: user?.major || "",
+			year: user?.year || "",
+		});
+		setGeneralError("");
+		setFormErrors({ ...formDataTemplate });
+	};
+
+	if (loading) {
+		return (
+			<Box
+				sx={{
+					display: "flex",
+					justifyContent: "center",
+					alignItems: "center",
+					height: "100vh",
+				}}
+			>
+				<CircularProgress />
+			</Box>
+		);
+	}
+
+	return (
+		<Box sx={{ flex: 1, width: "100%" }}>
+			<Stack
+				spacing={4}
+				sx={{
+					maxWidth: "800px",
+					mx: "auto",
+					px: { xs: 2, md: 6 },
+					py: { xs: 2, md: 3 },
+				}}
+			>
+				<Card>
+					<Box sx={{ mb: 1, textAlign: "center" }}>
+						<Typography variant="h5" sx={{ color: "text.primary" }}>
+							Personal Info
+						</Typography>
+						<Typography variant="body2">Customize your profile information</Typography>
+					</Box>
+					<Divider />
+					<Stack direction={{ xs: "column", md: "row" }} spacing={3} sx={{ my: 2 }}>
+						<Stack direction="column" spacing={1}>
+							<UserIcon height={100} width={100} bgcolor={colorValue} />
+							<IconButton
+								aria-label="upload new picture"
+								size="sm"
+								variant="outlined"
+								color="neutral"
+								sx={{
+									bgcolor: "background.body",
+									position: "absolute",
+									zIndex: 2,
+									borderRadius: "50%",
+									left: 100,
+									top: 170,
+									boxShadow: "sm",
+								}}
+								onClick={() => setImageModalOpen(true)}
+							>
+								<EditRoundedIcon />
+							</IconButton>
+							<Modal open={imageModalOpen} onClose={() => setImageModalOpen(false)}>
+								<ModalDialog variant="outlined">
+									<ModalClose />
+									<Typography level="body2">Change Color</Typography>
+									<Grid container spacing={1} sx={{ my: 2 }}>
+										{colors.map((color) => (
+											<Grid xs={3} key={color}>
+												<Box
+													sx={{
+														width: 30,
+														height: 30,
+														backgroundColor: color,
+														borderRadius: "sm",
+														cursor: "pointer",
+														border:
+															colorValue === color
+																? "2px solid black"
+																: "2px solid transparent",
+													}}
+													onClick={() => setColorValue(color)}
+												/>
+											</Grid>
+										))}
+									</Grid>
+								</ModalDialog>
+							</Modal>
+						</Stack>
+						<Stack spacing={2} sx={{ flexGrow: 1 }}>
+							<UserInfoForm
+								email={user?.email}
+								formData={formData}
+								formErrors={formErrors}
+								handleFormChange={handleFormChange}
+								years={years}
+							/>
+
+							<FormRadio
+								label="Theme"
+								name="theme_ld"
+								value={formData.theme_ld}
+								onChange={handleFormChange}
+								error={formErrors.theme_ld}
+								options={["system", "light", "dark"]}
+							/>
+						</Stack>
+					</Stack>
+					{generalError && (
+						<Typography level="body2" color="danger" sx={{ mb: 1 }}>
+							{generalError}
+						</Typography>
+					)}
+					<CardActions sx={{ justifyContent: "center" }}>
+						<Button onClick={cancelUpdate} disabled={loading} color="neutral">
+							Cancel
+						</Button>
+						<Button disabled={loading} loading={loading} onClick={handleUpdate} variant="solid">
+							Update
+						</Button>
+					</CardActions>
+				</Card>
+			</Stack>
+		</Box>
+	);
 };
 
 export default Settings;

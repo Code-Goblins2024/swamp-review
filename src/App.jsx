@@ -3,8 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { useState, useEffect } from "react";
 import useAuth from "./store/authStore";
 import supabase from "./config/supabaseClient";
-import { extendTheme, CssVarsProvider, useColorScheme } from '@mui/joy/styles';
-import CssBaseline from '@mui/joy/CssBaseline';
+import { extendTheme, CssVarsProvider, useColorScheme } from "@mui/joy/styles";
+import CssBaseline from "@mui/joy/CssBaseline";
 
 import Navbar from "./components/Navbar";
 import LandingPage from "./pages/LandingPage";
@@ -18,122 +18,110 @@ import Settings from "./pages/Settings";
 
 import { getUser } from "./functions/userQueries";
 import { getUserRole } from "./functions/userQueries";
-
+import { theme } from "./constants/Constants";
 
 function ColorSchemeSetting({ user }) {
-    const { mode, setMode } = useColorScheme();
-    const [mounted, setMounted] = useState(false);
+	const { mode, setMode } = useColorScheme();
+	const [mounted, setMounted] = useState(false);
 
-    useEffect(() => {
-        setMounted(true);
-        setMode(user[0]?.theme_ld || 'system'); // Use the `user` prop directly
-    }, [user, setMode]); // Include dependencies to avoid warnings
+	useEffect(() => {
+		setMounted(true);
+		setMode(user[0]?.theme_ld || "system"); // Use the `user` prop directly
+	}, [user, setMode]); // Include dependencies to avoid warnings
 
-    if (!mounted) {
-        return null;
-    }
+	if (!mounted) {
+		return null;
+	}
 
-    return <></>;
+	return <></>;
 }
 
+const customTheme = extendTheme(theme);
+
 const App = () => {
-    const { session, setSession } = useAuth();
-    const [loading, setLoading] = useState(true);
-    const [userRole, setUserRole] = useState("");
-    const [user, setUser] = useState([]);
+	const { session, setSession } = useAuth();
+	const [loading, setLoading] = useState(true);
+	const [userRole, setUserRole] = useState("");
+	const [user, setUser] = useState(null);
 
-    // All logic for loading the application
-    const loadApp = async () => {
-        const { data, error } = await supabase.auth.getSession();
-        if (!error) setSession(data.session);
+	// All logic for loading the application
+	const loadApp = async () => {
+		const { data, error } = await supabase.auth.getSession();
+		if (!error) setSession(data.session);
 
-        setLoading(false);
-    };
+		setLoading(false);
+	};
 
-    const loadRole = async (session) => {
-        const role = await getUserRole(session.user.id);
-        setUserRole(role[0].role);
-    }
+	useEffect(() => {
+		if (session) {
+			loadRole(session);
+		}
+	}, [session]);
 
-    useEffect(() => {
-        loadApp();
-    }, []);
+	const loadRole = async (session) => {
+		const role = await getUserRole(session.user.id);
+		setUserRole(role[0].role);
+	};
 
-    useEffect(() => {
-        if (session) {
-            loadRole(session);
-        }
-    }, [session]);
+	useEffect(() => {
+		loadApp();
+	}, []);
 
-    useEffect(() => {
-        if (session) {
-            const fetchUserData = async () => {
-                try {
-                    const userData = await getUser(session.user.id);
-                    setUser(userData);
-                } catch (error) {
-                    console.error("Error fetching user:", error);
-                    setUser([]);
-                }
-            };
+	// Auth state change listener
+	useEffect(() => {
+		const {
+			data: { subscription },
+		} = supabase.auth.onAuthStateChange((_event, session) => {
+			setSession(session);
+		});
 
-            fetchUserData();
-        }
-    }, [session]);
+		return () => subscription.unsubscribe();
+	}, []);
 
-    // Auth state change listener
-    useEffect(() => {
-        const {
-            data: { subscription },
-        } = supabase.auth.onAuthStateChange((_event, session) => {
-            setSession(session);
-        });
+	useEffect(() => {
+		if (session) {
+			const fetchUserData = async () => {
+				try {
+					const userData = await getUser(session.user.id);
+					setUser(userData);
+				} catch (error) {
+					console.error("Error fetching user:", error);
+					setUser([]);
+				}
+			};
 
-        return () => subscription.unsubscribe();
-    }, []);
+			fetchUserData();
+		}
+	}, [session]);
 
-    if (loading) return null;
+	if (loading || user === null) return null;
 
-    return (
-        <CssVarsProvider>
-            <CssBaseline />
-            <ColorSchemeSetting
-                user={user}
-            />
-            <Router>
-                <div className="app-container">
-                    <Navbar />
-                    <main>
-                        <Routes>
-                            <Route
-                                path="/"
-                                element={session ? <Navigate to="/dashboard" /> : <LandingPage />}
-                            />
-                            <Route
-                                path="/signin"
-                                element={session ? <Navigate to="/dashboard" /> : <SignInUp />}
-                            />
-                            <Route
-                                path="/dashboard"
-                                element={session ? <Dashboard /> : <Navigate to="/signin" />}
-                            />
-                            <Route
-                                path="/admin"
-                                element={userRole === "admin" ? <Admin /> : <Navigate to="/dashboard" />}
-                            />
-                            <Route
-                                path="/settings"
-                                element={session ? <Settings /> : <Navigate to="/signin" />}
-                            />
-                            <Route path="/about" element={<About />} />
-                            <Route path="/search" element={<Search />} />
-                            <Route path="/housing/:housingId" element={<HousingPage />} />
-                        </Routes>
-                    </main>
-                </div>
-            </Router>
-        </CssVarsProvider>
-    );
+	return (
+		<CssVarsProvider theme={customTheme}>
+			<CssBaseline />
+			<ColorSchemeSetting user={user} />
+			<Router>
+				<div className="app-container">
+					<Navbar />
+					<main>
+						<Routes>
+							<Route path="/" element={session ? <Navigate to="/dashboard" /> : <LandingPage />} />
+							<Route path="/signin" element={session ? <Navigate to="/dashboard" /> : <SignInUp />} />
+							<Route path="/dashboard" element={session ? <Dashboard /> : <Navigate to="/signin" />} />
+							<Route
+								path="/admin"
+								element={userRole === "admin" ? <Admin /> : <Navigate to="/dashboard" />}
+							/>
+							<Route path="/settings" element={session ? <Settings /> : <Navigate to="/signin" />} />
+							<Route path="/about" element={<About />} />
+							<Route path="/search" element={<Search />} />
+							<Route path="/housing/:housingId" element={<HousingPage />} />
+						</Routes>
+					</main>
+				</div>
+			</Router>
+		</CssVarsProvider>
+	);
 };
 
 export default App;

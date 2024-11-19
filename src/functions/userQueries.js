@@ -1,4 +1,7 @@
 import supabase from "../config/supabaseClient";
+import { getTagCountsForAllHousing } from "./tagQueries";
+import { computeTagsForHousing } from "../util/tagUtil";
+import { getAvgRatingByCategoryForAllHousing } from "./housingQueries";
 
 /**
  * Creates a record for the user in the public.users table
@@ -25,25 +28,78 @@ export const createPublicUser = async (user) => {
  */
 
 export const getUserFavorites = async (uuid) => {
-	const { data, error } = await supabase
-		.from('favorites')
-		.select(`
+	let { data, error } = await supabase
+		.from("favorites")
+		.select(
+			`
 			housing (
-				id,
-				name,
-				average_ratings: average_rating (
-					category: categories (
-						name
-					),
-					value: average_rating
-				)
+        id,
+        name,
+        address,
+        attributes (
+          attribute_name
+        ),
+        room_types: room_type (
+          id,
+          name,
+          fall_spring_price,
+          summer_AB_price,
+          summer_C_price
+        ),
+        reviews (
+          content,
+          created_at,
+          tags (
+            id,
+            name
+          ),
+          ratings: reviews_to_categories (
+            value: rating_value,
+            category: categories (
+              id,
+              name
+            )
+          ),
+          user: users (
+            *
+          ),
+          roomType: room_type (
+            id,
+            name
+          )
+        ),
+        interest_points (
+          name,
+          address,
+          lat,
+          lng
+        )
 			)
-		`)
-		.eq('user_id', uuid);
+		`
+		)
+		.eq("user_id", uuid)
+		.gt("housing_id", -1);
+
 	if (error) {
 		console.log(`Error retrieving favorites`);
 		throw error;
 	}
+
+	const avgRatings = await getAvgRatingByCategoryForAllHousing();
+	data = data.map((obj) => {
+		return obj.housing?.id in avgRatings
+			? { ...obj.housing, average_ratings: avgRatings[obj.housing?.id] }
+			: { ...obj.housing, average_ratings: [] };
+	});
+
+	const tagCounts = await getTagCountsForAllHousing();
+	data = data.map((housing) => {
+		if (housing?.id in tagCounts)
+			return { ...housing, tags: computeTagsForHousing(tagCounts[housing?.id], housing?.reviews?.length) };
+
+		return { ...housing, tags: [] };
+	});
+
 	return data;
 };
 
@@ -73,7 +129,7 @@ export const removeUserFavorite = async (housing_id, uuid) => {
 		console.log("Error deleting favorite");
 		throw error;
 	}
-}
+};
 
 /**
  * Update a user's username
@@ -99,8 +155,9 @@ export const updateUsername = async (uuid, new_username) => {
 
 export const getUser = async (uuid) => {
 	const { data, error } = await supabase
-		.from('users')
-		.select(`
+		.from("users")
+		.select(
+			`
 			first_name,
 			last_name,
 			email,
@@ -108,9 +165,9 @@ export const getUser = async (uuid) => {
 			year,
 			role,
 			icon_color,
-			theme_ld`,
+			theme_ld`
 		)
-		.eq('id', uuid);
+		.eq("id", uuid);
 	if (error) {
 		console.log(`Error retrieving user data`);
 		throw error;
@@ -119,17 +176,41 @@ export const getUser = async (uuid) => {
 };
 
 /**
+ * Update user data
+ * @param {string} uuid - User id
+ * @param {Object} updatedUser - User data
+ */
+export const updateUser = async (uuid, updatedUser) => {
+	console.log(updatedUser);
+	const { data, error } = await supabase
+		.from("users")
+		.update({
+			...updatedUser,
+		})
+		.eq("id", uuid)
+		.select();
+	console.log(data);
+	console.log(error);
+	if (error) {
+		console.log("Error updating user");
+		throw error;
+	}
+	return { data, error };
+};
+
+/**
  * Retrieve user data
  * @param {string} uuid - User id
- * @returns {any[]} data - User role (admin, user, moderator, faculty)
+ * @returns {string} data - User role (admin, user, moderator, faculty)
  */
-
 export const getUserRole = async (uuid) => {
 	const { data, error } = await supabase
-		.from('users')
-		.select(`
-			role`)
-		.eq('id', uuid);
+		.from("users")
+		.select(
+			`
+			role`
+		)
+		.eq("id", uuid);
 	if (error) {
 		console.log(`Error retrieving user data`);
 		throw error;
