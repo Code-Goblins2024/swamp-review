@@ -3,10 +3,12 @@ import { useState } from "react";
 import { years } from "../constants/Enums";
 import { createPublicUser } from "../functions/userQueries";
 import { useLocation, useNavigate } from "react-router-dom";
+import { getUser } from "../functions/userQueries";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import FormItem from "../components/FormItem";
 import UserInfoForm from "../components/UserInfoForm";
 import supabase from "../config/supabaseClient";
+import useAuth from "../store/authStore";
 
 const SignInUp = () => {
 	const uflEmailPattern = /^[a-zA-Z0-9._%+-]+@([a-zA-Z0-9.-]+\.)*ufl\.edu/;
@@ -21,6 +23,7 @@ const SignInUp = () => {
 	};
 	const location = useLocation();
 	const navigate = useNavigate();
+	const { setSession, setPublicUser } = useAuth();
 	const [formState, setFormState] = useState("SIGNIN");
 	const [formData, setFormData] = useState({ ...formDataTemplate });
 	const [formErrors, setFormErrors] = useState({ ...formDataTemplate });
@@ -78,7 +81,12 @@ const SignInUp = () => {
 			email: formData.email,
 			password: formData.password,
 		});
-		if (error) setGeneralError(error.message);
+		if (error) {
+			setGeneralError(error.message);
+			return false;
+		}
+
+		setSession(data.session);
 
 		const newUser = {
 			id: data.user.id,
@@ -87,8 +95,12 @@ const SignInUp = () => {
 			last_name: formData.lastname,
 			major: formData.major,
 			year: formData.year,
+			theme_ld: "system",
+			icon_color: "neutral",
 		};
+
 		await createPublicUser(newUser);
+		setPublicUser(newUser);
 
 		setLoading(false);
 		return error === null;
@@ -97,11 +109,20 @@ const SignInUp = () => {
 	const handleSignIn = async () => {
 		if (!validateSignIn()) return;
 		setLoading(true);
-		const { error } = await supabase.auth.signInWithPassword({
+		const { data, error } = await supabase.auth.signInWithPassword({
 			email: formData.email,
 			password: formData.password,
 		});
-		if (error) setGeneralError(error.message);
+
+		if (error) {
+			setGeneralError(error.message);
+			return false;
+		}
+
+		setSession(data.session);
+
+		const publicUserData = await getUser(data.user.id);
+		setPublicUser(publicUserData);
 		setLoading(false);
 		return error === null;
 	};
@@ -265,12 +286,12 @@ const SignInUp = () => {
 
 							{formState === "SIGNUP_CONFIRM" && (
 								<UserInfoForm
-								email={formData.email}
-								formData={formData}
-								formErrors={formErrors}
-								handleFormChange={handleFormChange}
-								years={years}
-							  />
+									email={formData.email}
+									formData={formData}
+									formErrors={formErrors}
+									handleFormChange={handleFormChange}
+									years={years}
+								/>
 							)}
 
 							{/* Password Form Group */}

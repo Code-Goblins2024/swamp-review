@@ -3,13 +3,13 @@ import PropTypes from "prop-types";
 import { Avatar } from "@mui/joy";
 
 const UserIcon = ({ height, width, bgcolor = null }) => {
-	const { session } = useAuth();
+	const { session, publicUser } = useAuth();
 
 	const getIconColor = () => {
 		if (bgcolor !== null) {
 			return bgcolor;
 		}
-		return session.user.data?.icon_color || "neutral";
+		return publicUser?.icon_color || "neutral";
 	};
 
 	return (
@@ -23,8 +23,8 @@ const UserIcon = ({ height, width, bgcolor = null }) => {
 				variant: "soft",
 			}}
 		>
-			{session.user.data.first_name[0]}
-			{session.user.data.last_name[0]}
+			{publicUser?.first_name[0]}
+			{publicUser?.last_name[0]}
 		</Avatar>
 	);
 };

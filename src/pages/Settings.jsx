@@ -25,7 +25,7 @@ import FormRadio from "../components/FormRadio";
 
 const Settings = () => {
 	const navigate = useNavigate();
-	const { session } = useAuth();
+	const { session, publicUser, setPublicUser } = useAuth();
 	const [loading, setLoading] = useState(false);
 	const [imageModalOpen, setImageModalOpen] = useState(false);
 	// const handleOpen = () => setImageModalOpen(true);
@@ -41,12 +41,12 @@ const Settings = () => {
 		icon_color: "",
 	};
 	const [formData, setFormData] = useState({
-		firstname: session.user.data.first_name,
-		lastname: session.user.data.last_name,
-		major: session.user.data.major,
-		year: session.user.data.year,
-		theme_ld: session.user.data.theme_ld,
-		icon_color: session.user.data.icon_color,
+		firstname: publicUser?.first_name,
+		lastname: publicUser?.last_name,
+		major: publicUser?.major,
+		year: publicUser?.year,
+		theme_ld: publicUser?.theme_ld,
+		icon_color: publicUser?.icon_color,
 	});
 	const [formErrors, setFormErrors] = useState({ ...formDataTemplate });
 	const [generalError, setGeneralError] = useState("");
@@ -101,10 +101,11 @@ const Settings = () => {
 		try {
 			const { error } = await updateUser(session.user.id, updatedUser);
 			if (error) throw error;
-			navigate(0);
+			setPublicUser(updatedUser);
 		} catch (error) {
 			console.error("Error updating user:", error);
 			setGeneralError("Failed to update user information. Please try again.");
+		} finally {
 			setLoading(false);
 		}
 	};
@@ -116,10 +117,12 @@ const Settings = () => {
 
 	const resetForm = () => {
 		setFormData({
-			firstname: session.user.data.first_name || "",
-			lastname: session.user.data.last_name || "",
-			major: session.user.data.major || "",
-			year: session.user.data.year || "",
+			firstname: publicUser?.first_name || "",
+			lastname: publicUser?.last_name || "",
+			major: publicUser?.major || "",
+			year: publicUser?.year || "",
+			theme_ld: publicUser?.theme_ld || "",
+			icon_color: publicUser?.icon_color || "",
 		});
 		setGeneralError("");
 		setFormErrors({ ...formDataTemplate });
