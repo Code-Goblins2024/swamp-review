@@ -1,7 +1,6 @@
-import { Typography, Box, Stack } from "@mui/joy";
+import { Typography, Box, Stack, Chip } from "@mui/joy";
 import { StarHalf, Star, StarOutline } from "@mui/icons-material";
 import { useMemo, useState, useLayoutEffect } from "react";
-import CustomChip from "./CustomChip";
 import PropTypes from "prop-types";
 
 const Rating = ({ type, title, rating }) => {
@@ -60,11 +59,18 @@ const Rating = ({ type, title, rating }) => {
 						))}
 					</Box>
 					{type === "average" && (
-						<CustomChip>
-							<Typography sx={{ fontSize: { xs: "1rem", sm: "1.1rem", lg: "1.2rem" } }} fontWeight="xl">
-								{rating.toFixed(1)}
-							</Typography>
-						</CustomChip>
+            <Chip
+              color="primary"
+              variant="outlined"
+              sx={{
+                borderRadius: "5px",
+                borderWidth: "1px",
+              }}
+            >
+              <Typography sx={{ fontSize: { xs: "1rem", sm: "1.1rem", lg: "1.2rem" } }} fontWeight="xl">
+              {rating.toFixed(1)}
+            </Typography>
+            </Chip>
 					)}
 
 					{type === "review" && (
