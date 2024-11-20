@@ -3,7 +3,10 @@ import { computeTagsForHousing } from "../util/tagUtil";
 import { getTagCountsForAllHousing, getTagCountsForHousing } from "./tagQueries";
 
 export const getAllHousing = async () => {
-	let { data, error } = await supabase.from("housing").select(`
+	let { data, error } = await supabase
+		.from("housing")
+		.select(
+			`
     id,
     name,
     address,
@@ -39,6 +42,9 @@ export const getAllHousing = async () => {
       roomType: room_type (
         id,
         name
+      ),
+      flags: flagged_reviews (
+        *
       )
     ),
     interest_points (
@@ -47,7 +53,10 @@ export const getAllHousing = async () => {
       lat,
       lng
     )
-  `);
+  `
+		)
+		.gt("id", -1)
+		.eq("reviews.status", "approved");
 	if (error) {
 		console.log("Error retrieving housing");
 		throw error;
@@ -103,6 +112,7 @@ export const getHousing = async (id) => {
       summer_C_price
     ),
     reviews (
+      review_id: id,
       content,
       created_at,
       tags (
@@ -122,6 +132,9 @@ export const getHousing = async (id) => {
       roomType: room_type (
         id,
         name
+      ),
+      flags: flagged_reviews (
+        *
       )
     ),
     interest_points (
@@ -132,7 +145,8 @@ export const getHousing = async (id) => {
     )
   `
 		)
-		.eq("id", id);
+		.eq("id", id)
+		.eq("reviews.status", "approved");
 	if (error) {
 		console.log(`Error retrieving housing ${id}`);
 		throw error;

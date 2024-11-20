@@ -6,10 +6,10 @@ import { getHousing } from "../functions/housingQueries";
 import { getAllCategories } from "../functions/categoryQueries";
 import { getAllTags } from "../functions/tagQueries";
 import { useNavigate, useLocation } from "react-router-dom";
+import { flagReview } from "../functions/reviewQueries";
 import useAuth from "../store/authStore";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import Rating from "../components/Rating";
-import PricingChip from "../components/PricingChip";
 import CustomChip from "../components/CustomChip";
 import Review from "../components/Review";
 import NoReviewsCard from "../components/NoReviewsCard";
@@ -17,8 +17,8 @@ import ReviewForm from "../components/ReviewForm";
 import CustomMap from "../components/CustomMap";
 
 const HousingPage = () => {
-	const { housingId } = useParams();
 	const { session } = useAuth();
+	const { housingId } = useParams();
 	const location = useLocation();
 	const navigate = useNavigate();
 	const [housingData, setHousingData] = useState(null);
@@ -28,6 +28,7 @@ const HousingPage = () => {
 	const [reviewFormOpen, setReviewFormOpen] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [activePricingSemester, setActivePricingSemester] = useState("Fall/Spring");
+	const [flagLoading, setFlagLoading] = useState(null);
 
 	useEffect(() => {
 		const loadHousingData = async () => {
@@ -77,7 +78,17 @@ const HousingPage = () => {
 		setReviewFormOpen(true);
 	};
 
-	if (!housingData || !categories || !tags || !pois) {
+	const handleClickFlag = async (review_id) => {
+		if (flagLoading) return;
+		setFlagLoading(review_id);
+
+		await flagReview(session.user.id, review_id);
+		const newHousingData = await getHousing(housingId);
+		setHousingData(newHousingData);
+		setFlagLoading(null);
+	};
+
+  if (!housingData || !categories || !tags || !pois) {
 		return (
 			<Box
 				sx={{
@@ -206,20 +217,32 @@ const HousingPage = () => {
 											Pricing
 										</Typography>
 										<Box sx={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-											<PricingChip
-												semester={"Fall/Spring"}
-												activePricingSemester={activePricingSemester}
-												setActivePricingSemester={setActivePricingSemester}
+											<CustomChip
+												name={"Fall/Spring"}
+												active={activePricingSemester === "Fall/Spring"}
+												onClick={
+													activePricingSemester !== "Fall/Spring"
+														? () => setActivePricingSemester("Fall/Spring")
+														: null
+												}
 											/>
-											<PricingChip
-												semester={"Summer A/B"}
-												activePricingSemester={activePricingSemester}
-												setActivePricingSemester={setActivePricingSemester}
+											<CustomChip
+												name={"Summer A/B"}
+												active={activePricingSemester === "Summer A/B"}
+												onClick={
+													activePricingSemester !== "Summer A/B"
+														? () => setActivePricingSemester("Summer A/B")
+														: null
+												}
 											/>
-											<PricingChip
-												semester={"Summer C"}
-												activePricingSemester={activePricingSemester}
-												setActivePricingSemester={setActivePricingSemester}
+											<CustomChip
+												name={"Summer C"}
+												active={activePricingSemester === "Summer C"}
+												onClick={
+													activePricingSemester !== "Summer C"
+														? () => setActivePricingSemester("Summer C")
+														: null
+												}
 											/>
 										</Box>
 									</Box>
@@ -299,14 +322,28 @@ const HousingPage = () => {
 							)}
 							<Stack spacing={4}>
 								{housingData.reviews
-									.filter((review) => review.user.id === session.user.id)
+									.filter((review) => review.user.id === session?.user?.id)
 									.map((review, index) => (
-										<Review key={index} review={review} ownedByCurrentUser={true} />
+										<Review
+											key={index}
+											review={review}
+											ownedByCurrentUser={true}
+											session={session}
+											handleClickFlag={handleClickFlag}
+											flagLoading={flagLoading}
+										/>
 									))}
 								{housingData.reviews
-									.filter((review) => review.user.id !== session.user.id)
+									.filter((review) => review.user.id !== session?.user?.id)
 									.map((review, index) => (
-										<Review key={index} review={review} ownedByCurrentUser={false} />
+										<Review
+											key={index}
+											review={review}
+											session={session}
+                      ownedByCurrentUser={false}
+											handleClickFlag={handleClickFlag}
+											flagLoading={flagLoading}
+										/>
 									))}
 								{housingData.reviews.length === 0 && (
 									<NoReviewsCard
