@@ -4,7 +4,7 @@ import { Box, Typography, Card, CardContent, Grid, Button, Chip, CircularProgres
 import { Apartment as ApartmentIcon } from '@mui/icons-material';
 import supabase from '../config/supabaseClient';
 import useAuth from '../store/authStore';
-import { getUserFavorites } from "../functions/userQueries";
+import { getUserFavorites, getUserRecommendations} from "../functions/userQueries";
 import DormCard from '../components/DormCard.jsx';
 import { calculateAverageRating } from '../functions/util';
 
@@ -67,6 +67,8 @@ const Dashboard = () => {
         .from('housing')
         .select('*')
         .limit(3);
+
+        getUserRecommendations(session.user.id);
 
       if (error) throw error;
       setRecommendations(data);

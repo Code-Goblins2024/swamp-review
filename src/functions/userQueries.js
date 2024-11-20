@@ -1,7 +1,7 @@
 import supabase from "../config/supabaseClient";
 import { getTagCountsForAllHousing } from "./tagQueries";
-import { computeTagsForHousing } from "../util/tagUtil";
-import { getAvgRatingByCategoryForAllHousing } from "./housingQueries";
+import { computeTagsForHousing } from "./util";
+import { getAvgRatingByCategoryForAllHousing, getReviewCountsForAllHousing } from "./housingQueries";
 
 /**
  * Creates a record for the user in the public.users table
@@ -131,20 +131,48 @@ export const removeUserFavorite = async (housing_id, uuid) => {
 	}
 };
 
-/**
- * Update a user's username
- * @param {string} uuid - User id
- * @param {string} new_username - New username
- */
+export const getUserRecommendations = async (uuid) => {
 
-export const updateUsername = async (uuid, new_username) => {
-	// TODO: check if username is unique and valid
+	//compute user recommendations based on collaboative filtering
+	var { collabData, error } = await supabase.rpc("get_user_recommendations", { user_id_param: uuid });
+	if (error) throw error;
 
-	const { error } = await supabase.from("users").update({ username: new_username }).eq("id", uuid);
-	if (error) {
-		console.log("Error updating username");
-		throw error;
+
+	// compute user recommendations based on content-based filtering
+	// Compute tag counts
+	const tagCounts = await getTagCountsForAllHousing();
+	const reviewCounts = await getReviewCountsForAllHousing();
+	const tagsForHousing = [];
+	for (const [key, value] of Object.entries(reviewCounts)) {
+		tagsForHousing.push({ housing_id: key, tags: computeTagsForHousing(tagCounts[key] ? tagCounts[key] : [], value) });
 	}
+
+	const userTags = await supabase.from("users_to_tags").select("tags(id, name)").eq("user_id", uuid);
+	//const tagsToMatch = userTags.map((tag) => tag.tag.name);
+	console.log(userTags);
+	//console.log(tagsToMatch);
+
+	
+	var contentData = tagsForHousing.map(housing => {
+        const matchCount = housing.tags.filter(tag => tagsToMatch.includes(tag)).length;
+        return { ...housing, matchCount };
+      })
+      .sort((a, b) => b.matchCount - a.matchCount);
+	// Combine both recommendations systems
+
+	if (!collabData || collabData.length === 0) {
+		console.log("No collab recommendations found");
+		collabData = [];
+	}
+
+	if (!contentData || contentData.length === 0) {
+		console.log("No content recommendations found");
+		contentData = [];
+	}
+
+
+	const data = collabData;
+	return data;
 };
 
 /**
