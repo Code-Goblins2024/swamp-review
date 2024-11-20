@@ -8,7 +8,7 @@ import UserIcon from "./UserIcon";
 
 const Navbar = () => {
 	const navigate = useNavigate();
-	const { session, setSession, setPublicUser } = useAuth();
+	const { session, setSession, publicUser, setPublicUser } = useAuth();
 	const [menuOpen, setMenuOpen] = useState(false);
 
 	const handleLogout = async () => {
@@ -99,7 +99,7 @@ const Navbar = () => {
 								<Typography level="body-sm">{session?.user?.email?.split("@")[0] || "User"}</Typography>
 							</MenuButton>
 							<Menu placement="bottom-end">
-								{session?.user?.data?.role === "admin" && (
+								{publicUser?.role === "admin" && (
 									<MenuItem onClick={() => navigate("/admin")}>Admin</MenuItem>
 								)}
 								<MenuItem onClick={() => navigate("/settings")}>Settings</MenuItem>
