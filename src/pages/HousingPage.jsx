@@ -1,11 +1,12 @@
 import { Box, Button, Typography, Stack, Card, CircularProgress } from "@mui/joy";
 import { Grid2 } from "@mui/material";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { getHousing } from "../functions/housingQueries";
 import { getAllCategories } from "../functions/categoryQueries";
 import { getAllTags } from "../functions/tagQueries";
 import { useNavigate, useLocation } from "react-router-dom";
+import { flagReview } from "../functions/reviewQueries";
 import useAuth from "../store/authStore";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import Rating from "../components/Rating";
@@ -13,7 +14,7 @@ import CustomChip from "../components/CustomChip";
 import Review from "../components/Review";
 import NoReviewsCard from "../components/NoReviewsCard";
 import ReviewForm from "../components/ReviewForm";
-import { flagReview } from "../functions/reviewQueries";
+import CustomMap from "../components/CustomMap";
 
 const HousingPage = () => {
 	const { session } = useAuth();
@@ -23,6 +24,7 @@ const HousingPage = () => {
 	const [housingData, setHousingData] = useState(null);
 	const [categories, setCategories] = useState(null); // For passing into the review form
 	const [tags, setTags] = useState(null);
+	const [pois, setPois] = useState(null);
 	const [reviewFormOpen, setReviewFormOpen] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [activePricingSemester, setActivePricingSemester] = useState("Fall/Spring");
@@ -47,6 +49,16 @@ const HousingPage = () => {
 
 		loadHousingData();
 	}, [housingId]);
+
+	useEffect(() => {
+		if (housingData) {
+			const newPois = housingData.interest_points.map((ip) => ({
+				key: ip.name,
+				location: { lat: ip.lat, lng: ip.lng },
+			}));
+			setPois(newPois);
+		}
+	}, [housingData]);
 
 	useEffect(() => {
 		// Check if there's a param specifying to open the review form
@@ -76,7 +88,7 @@ const HousingPage = () => {
 		setFlagLoading(null);
 	};
 
-	if (!housingData || !categories || !tags) {
+  if (!housingData || !categories || !tags || !pois) {
 		return (
 			<Box
 				sx={{
@@ -286,20 +298,14 @@ const HousingPage = () => {
 							<Box sx={{ flex: 1 }}>
 								<Card sx={{ height: "100%" }}>
 									<Box sx={{ height: "100%", position: "relative" }}>
-										<Box
-											component="img"
-											src="/map_placeholder.png"
-											alt="Map placeholder"
-											sx={{
-												position: "absolute",
-												top: 0,
-												left: 0,
-												right: 0,
-												bottom: 0,
-												width: "100%",
-												height: "100%",
-												objectFit: "cover",
-											}}
+										<CustomMap
+											housingName={housingData.name}
+											housingPosition={
+												housingData
+													? { lat: housingData.lat, lng: housingData.lng }
+													: { lat: 0, lng: 0 }
+											}
+											pois={pois}
 										/>
 									</Box>
 								</Card>
@@ -334,6 +340,7 @@ const HousingPage = () => {
 											key={index}
 											review={review}
 											session={session}
+                      ownedByCurrentUser={false}
 											handleClickFlag={handleClickFlag}
 											flagLoading={flagLoading}
 										/>

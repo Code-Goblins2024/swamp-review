@@ -8,13 +8,14 @@ import UserIcon from "./UserIcon";
 
 const Navbar = () => {
 	const navigate = useNavigate();
-	const { session, setSession } = useAuth();
+	const { session, setSession, setPublicUser } = useAuth();
 	const [menuOpen, setMenuOpen] = useState(false);
 
 	const handleLogout = async () => {
 		const { error } = await supabase.auth.signOut();
 		if (!error) {
 			setSession(null);
+			setPublicUser(null);
 			navigate("/");
 		}
 	};

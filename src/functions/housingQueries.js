@@ -10,6 +10,8 @@ export const getAllHousing = async () => {
     id,
     name,
     address,
+    lat,
+    lng,
     attributes (
       attribute_name
     ),
@@ -79,11 +81,12 @@ export const getAllHousing = async () => {
 
 	// Sort the categories so they are displayed consistently
 	data = data.map((housing) => {
-		housing.average_ratings = housing.average_ratings.sort((a, b) => a.category.id - b.category.id);
+		housing.average_ratings.sort((a, b) => a.category.id - b.category.id);
 		housing.reviews = housing.reviews.map((review) => {
-			review.ratings = review.ratings.sort((a, b) => a.category.id - b.category.id);
+			review.ratings.sort((a, b) => a.category.id - b.category.id);
 			return review;
 		});
+		housing.reviews.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 		return housing;
 	});
 
@@ -97,6 +100,8 @@ export const getHousing = async (id) => {
 			`
     name,
     address,
+    lat,
+    lng,
     attributes (
       attribute_name
     ),
@@ -161,13 +166,11 @@ export const getHousing = async (id) => {
 	housing = { ...housing, tags: appliedTags };
 
 	// Sort the categories so they are displayed consistently
-	housing.average_ratings = housing.average_ratings.sort((a, b) => a.category.id - b.category.id);
+	housing.average_ratings.sort((a, b) => a.category.id - b.category.id);
 	housing.reviews = housing.reviews.map((review) => {
-		review.ratings = review.ratings.sort((a, b) => a.category.id - b.category.id);
+		review.ratings.sort((a, b) => a.category.id - b.category.id);
 		return review;
 	});
-
-	// Sort the reviews by date
 	housing.reviews.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
 	return housing;
