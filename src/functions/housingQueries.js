@@ -1,5 +1,5 @@
 import supabase from "../config/supabaseClient";
-import { computeTagsForHousing } from "../util/tagUtil";
+import { computeTagsForHousing } from "./util";
 import { getTagCountsForAllHousing, getTagCountsForHousing } from "./tagQueries";
 
 export const getAllHousing = async () => {
@@ -173,6 +173,9 @@ export const getHousing = async (id) => {
 	});
 	housing.reviews.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
+	// Sort the reviews by date
+	housing.reviews.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
 	return housing;
 };
 
@@ -252,3 +255,22 @@ export const getAvgRatingByCategoryForHousing = async (id) => {
 
 	return data;
 };
+
+export const getReviewCountsForAllHousing = async () => {
+  let { data, error } = await supabase
+  .from('housing')
+  .select('id, reviews(count)')
+  .eq('reviews.status', 'approved');
+
+  if (error) {
+    console.log(`Error retrieving review counts`);
+    throw error;
+  }
+
+  const reviewCounts = {};
+  data.forEach((review) => {
+    reviewCounts[review.id] = review.reviews[0].count;
+  });
+
+  return reviewCounts;
+}

@@ -1,7 +1,7 @@
 import supabase from "../config/supabaseClient";
 import { getTagCountsForAllHousing } from "./tagQueries";
-import { computeTagsForHousing } from "../util/tagUtil";
-import { getAvgRatingByCategoryForAllHousing } from "./housingQueries";
+import { computeTagsForHousing } from "./util";
+import { getAvgRatingByCategoryForAllHousing, getReviewCountsForAllHousing } from "./housingQueries";
 
 /**
  * Creates a record for the user in the public.users table
@@ -131,20 +131,119 @@ export const removeUserFavorite = async (housing_id, uuid) => {
 	}
 };
 
+export const getUserRecommendations = async (uuid) => {
+
+	//compute user recommendations based on collaboative filtering
+	var { collabData, error } = await supabase.rpc("get_user_recommendations", { user_id_param: uuid });
+	if (error) throw error;
+
+
+	// compute user recommendations based on content-based filtering
+	// Compute tag counts
+	const tagCounts = await getTagCountsForAllHousing();
+	const reviewCounts = await getReviewCountsForAllHousing();
+	const tagsForHousing = [];
+	for (const [key, value] of Object.entries(reviewCounts)) {
+		tagsForHousing.push({ housing_id: key, tags: computeTagsForHousing(tagCounts[key] ? tagCounts[key] : [], value) });
+	}
+
+	const userTags = await supabase.from("users_to_tags").select("tags(id, name)").eq("user_id", uuid);
+	//const tagsToMatch = userTags.map((tag) => tag.tag.name);
+	console.log(userTags);
+	//console.log(tagsToMatch);
+
+	
+	var contentData = tagsForHousing.map(housing => {
+        const matchCount = housing.tags.filter(tag => tagsToMatch.includes(tag)).length;
+        return { ...housing, matchCount };
+      })
+      .sort((a, b) => b.matchCount - a.matchCount);
+	// Combine both recommendations systems
+
+	if (!collabData || collabData.length === 0) {
+		console.log("No collab recommendations found");
+		collabData = [];
+	}
+
+	if (!contentData || contentData.length === 0) {
+		console.log("No content recommendations found");
+		contentData = [];
+	}
+
+
+	const data = collabData;
+	return data;
+};
+
 /**
- * Update a user's username
+ * Retrieve user data
  * @param {string} uuid - User id
- * @param {string} new_username - New username
+ * @returns {any[]} data - User data
  */
 
-export const updateUsername = async (uuid, new_username) => {
-	// TODO: check if username is unique and valid
-
-	const { error } = await supabase.from("users").update({ username: new_username }).eq("id", uuid);
+export const getUser = async (uuid) => {
+	const { data, error } = await supabase
+		.from("users")
+		.select(
+			`
+			first_name,
+			last_name,
+			email,
+			major,
+			year,
+			role,
+			icon_color,
+			theme_ld`
+		)
+		.eq("id", uuid);
 	if (error) {
-		console.log("Error updating username");
+		console.log(`Error retrieving user data`);
 		throw error;
 	}
+	return data[0];
+};
+
+/**
+ * Update user data
+ * @param {string} uuid - User id
+ * @param {Object} updatedUser - User data
+ */
+export const updateUser = async (uuid, updatedUser) => {
+	console.log(updatedUser);
+	const { data, error } = await supabase
+		.from("users")
+		.update({
+			...updatedUser,
+		})
+		.eq("id", uuid)
+		.select();
+	console.log(data);
+	console.log(error);
+	if (error) {
+		console.log("Error updating user");
+		throw error;
+	}
+	return { data, error };
+};
+
+/**
+ * Retrieve user data
+ * @param {string} uuid - User id
+ * @returns {string} data - User role (admin, user, moderator, faculty)
+ */
+export const getUserRole = async (uuid) => {
+	const { data, error } = await supabase
+		.from("users")
+		.select(
+			`
+			role`
+		)
+		.eq("id", uuid);
+	if (error) {
+		console.log(`Error retrieving user data`);
+		throw error;
+	}
+	return data;
 };
 
 /**
