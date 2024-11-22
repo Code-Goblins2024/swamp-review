@@ -217,7 +217,7 @@ export const getUserRole = async (uuid) => {
 
 export const getUserRecommendations = async (uuid) => {
 	//compute user recommendations based on collaboative filtering
-	const { data: collabData, error } = await supabase.rpc("get_user_recommendations", { user_id_param: uuid });
+	let { data: collabData, error } = await supabase.rpc("get_user_recommendations", { user_id_param: uuid });
 	if (error) throw error;
 
 	// compute user recommendations based on content-based filtering
@@ -231,7 +231,7 @@ export const getUserRecommendations = async (uuid) => {
 	const userTags = await supabase.from("users_to_tags").select("tags(id, name)").eq("user_id", uuid);
 	const tagsToMatch = userTags.data.map((tag) => tag.tags.name);
 	
-	const contentData = tagsForHousing
+	let contentData = tagsForHousing
 		.map(housing => {
 			// Calculate match count and sum of tag_count for matched tags
 			const matchedTags = housing.tags.filter(tag => tagsToMatch.includes(tag.tag_name));
