@@ -231,7 +231,7 @@ export const getUserRecommendations = async (uuid) => {
 	const userTags = await supabase.from("users_to_tags").select("tags(id, name)").eq("user_id", uuid);
 	const tagsToMatch = userTags.data.map((tag) => tag.tags.name);
 	
-	var contentData = tagsForHousing
+	const contentData = tagsForHousing
 		.map(housing => {
 			// Calculate match count and sum of tag_count for matched tags
 			const matchedTags = housing.tags.filter(tag => tagsToMatch.includes(tag.tag_name));
@@ -261,12 +261,12 @@ export const getUserRecommendations = async (uuid) => {
 	}
 
 	// Combine both recommendations systems
-	const recommendations = combineRankings(collabData, contentData);
-
-	recommendations.map((housing) => housing.housing_id)
+	const recommendationsObj = combineRankings(collabData, contentData);
+	const recommendations = recommendationsObj.map((housing) => housing.housing_id);
+	console.log("Recommendations", recommendations);
 
 	//if recommendations are less than 3, append more recommendations from highest rated housing
-	if (recommendations.length < 3) {
+	if (recommendations.length < 10) {
 		const housingRatings = await getAvgRatingByCategoryForAllHousing();
 		// calculate based on global average rating
 		const topRatedHousing = [];
@@ -275,13 +275,18 @@ export const getUserRecommendations = async (uuid) => {
 			topRatedHousing.push({ housing_id: parseInt(key), averageRating: calculateAverageRating(value) });
 		}
 
-		// Sort by average rating
-		topRatedHousing.sort((a, b) => b.averageRating - a.averageRating).slice(0, 3 - recommendations.length);
+		// Sort by average rating (descending)
+		topRatedHousing.sort((a, b) => b.average_ratings - a.average_ratings);
+		// Extract housing IDs and filter out those already in recommendations
+		const topRatedSlice = topRatedHousing
+			.map(house => house.housing_id) // Get only IDs
+			.filter(houseId => !recommendations.includes(houseId)) // Exclude existing IDs
+			.slice(0, 3 - recommendations.length); // Limit to remaining slots in recommendations
 
-		//append to recommendations
-		recommendations.push(...topRatedHousing);
+		// Append the filtered top-rated housing IDs to recommendations
+		recommendations.push(...topRatedSlice);
 	}
-
+	console.log("Final Recommendations", recommendations);
 	return recommendations;
 };
 
