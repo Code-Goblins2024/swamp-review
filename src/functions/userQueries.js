@@ -217,7 +217,7 @@ export const getUserRole = async (uuid) => {
 
 export const getUserRecommendations = async (uuid) => {
 	//compute user recommendations based on collaboative filtering
-	var { data: collabData, error } = await supabase.rpc("get_user_recommendations", { user_id_param: uuid });
+	const { data: collabData, error } = await supabase.rpc("get_user_recommendations", { user_id_param: uuid });
 	if (error) throw error;
 
 	// compute user recommendations based on content-based filtering
