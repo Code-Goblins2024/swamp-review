@@ -1,7 +1,7 @@
 import supabase from "../config/supabaseClient";
 import { getTagCountsForAllHousing } from "./tagQueries";
-import { computeTagsForHousing } from "../util/tagUtil";
-import { getAvgRatingByCategoryForAllHousing } from "./housingQueries";
+import { computeTagsForHousing, calculateAverageRating } from "./util";
+import { getAvgRatingByCategoryForAllHousing, getReviewCountsForAllHousing } from "./housingQueries";
 
 /**
  * Creates a record for the user in the public.users table
@@ -181,7 +181,6 @@ export const getUser = async (uuid) => {
  * @param {Object} updatedUser - User data
  */
 export const updateUser = async (uuid, updatedUser) => {
-	console.log(updatedUser);
 	const { data, error } = await supabase
 		.from("users")
 		.update({
@@ -189,8 +188,6 @@ export const updateUser = async (uuid, updatedUser) => {
 		})
 		.eq("id", uuid)
 		.select();
-	console.log(data);
-	console.log(error);
 	if (error) {
 		console.log("Error updating user");
 		throw error;
@@ -217,3 +214,117 @@ export const getUserRole = async (uuid) => {
 	}
 	return data;
 };
+
+export const getUserRecommendations = async (uuid) => {
+	//compute user recommendations based on collaboative filtering
+	let { data: collabData, error } = await supabase.rpc("get_user_recommendations", { user_id_param: uuid });
+	if (error) throw error;
+
+	// compute user recommendations based on content-based filtering
+	// Compute tag counts
+	const tagCounts = await getTagCountsForAllHousing();
+	const reviewCounts = await getReviewCountsForAllHousing();
+	const tagsForHousing = [];
+	for (const [key, value] of Object.entries(reviewCounts)) {
+		tagsForHousing.push({ housing_id: key, tags: computeTagsForHousing(tagCounts[key] ? tagCounts[key] : [], value) });
+	}
+	const userTags = await supabase.from("users_to_tags").select("tags(id, name)").eq("user_id", uuid);
+	const tagsToMatch = userTags.data.map((tag) => tag.tags.name);
+	
+	let contentData = tagsForHousing
+		.map(housing => {
+			// Calculate match count and sum of tag_count for matched tags
+			const matchedTags = housing.tags.filter(tag => tagsToMatch.includes(tag.tag_name));
+			const matchCount = matchedTags.length;
+			const matchScore = matchedTags.reduce((sum, tag) => sum + tag.tag_count, 0);
+
+			return { housing_id: parseInt(housing.housing_id), matchCount, matchScore };
+		})
+		.filter(housing => housing.matchCount > 0) // Keep only housing with at least one match
+		.sort((a, b) => {
+			// Sort by matchCount first, then by matchScore if tied
+			if (b.matchCount !== a.matchCount) {
+				return b.matchCount - a.matchCount;
+			} else {
+				return b.matchScore - a.matchScore;
+			}
+		});
+
+	// Combine both recommendations systems
+	if (!collabData || collabData.length === 0) {
+		console.log("No collab recommendations found");
+		collabData = [];
+	}
+	if (!contentData || contentData.length === 0) {
+		console.log("No content recommendations found");
+		contentData = [];
+	}
+
+	// Combine both recommendations systems
+	const recommendationsObj = combineRankings(collabData, contentData);
+	const recommendations = recommendationsObj.map((housing) => housing.housing_id);
+	console.log("Recommendations", recommendations);
+
+	//if recommendations are less than 3, append more recommendations from highest rated housing
+	if (recommendations.length < 10) {
+		const housingRatings = await getAvgRatingByCategoryForAllHousing();
+		// calculate based on global average rating
+		const topRatedHousing = [];
+		for(const [key, value] of Object.entries(housingRatings)) {
+			// Calculate the average rating for each housing
+			topRatedHousing.push({ housing_id: parseInt(key), averageRating: calculateAverageRating(value) });
+		}
+
+		// Sort by average rating (descending)
+		topRatedHousing.sort((a, b) => b.average_ratings - a.average_ratings);
+		// Extract housing IDs and filter out those already in recommendations
+		const topRatedSlice = topRatedHousing
+			.map(house => house.housing_id) // Get only IDs
+			.filter(houseId => !recommendations.includes(houseId)) // Exclude existing IDs
+			.slice(0, 3 - recommendations.length); // Limit to remaining slots in recommendations
+
+		// Append the filtered top-rated housing IDs to recommendations
+		recommendations.push(...topRatedSlice);
+	}
+	console.log("Final Recommendations", recommendations);
+	return recommendations;
+};
+
+
+function combineRankings(array1, array2) {
+	// Define weights for each metric
+	const weights = { frequency: 0.6, matchCount: 0.3, matchScore: 0.1 };
+    
+    // Step 1: Append both arrays
+    const combinedArray = [...array1, ...array2];
+
+    // Step 2: Merge duplicates and add missing attributes
+    const result = [];
+    const seen = {};
+
+    combinedArray.forEach(item => {
+        const id = parseInt(item.housing_id); // Normalize `housing_id` to an integer
+        if (!seen[id]) {
+            // If `housing_id` is not yet processed, add it to the result
+            seen[id] = {
+                housing_id: id,
+                frequency: 0,
+                matchCount: 0,
+                matchScore: 0,
+            };
+            result.push(seen[id]);
+        }
+
+        // Update the metrics
+        seen[id].frequency += item.frequency || 0;
+        seen[id].matchCount += item.matchCount || 0;
+        seen[id].matchScore += item.matchScore || 0;
+		seen[id].totalScore =
+			seen[id].frequency * weights.frequency +
+			seen[id].matchCount * weights.matchCount +
+			seen[id].matchScore * weights.matchScore;
+    });
+
+    // Convert to array and sort by totalScore
+    return Object.values(result).sort((a, b) => b.totalScore - a.totalScore);
+}
