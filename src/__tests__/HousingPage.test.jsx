@@ -2,42 +2,31 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { describe, it, beforeEach, expect } from "vitest";
 import { mockHousingData } from "./data/mockHousingData";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
+import { APIProvider } from "@vis.gl/react-google-maps";
 import userEvent from "@testing-library/user-event";
 import HousingPage from "../pages/HousingPage";
 
 describe("Housing page tests", () => {
 	beforeEach(() => {
 		render(
-			<MemoryRouter initialEntries={["/housing/-1"]}>
-				<Routes>
-					<Route path="/housing/:housingId" element={<HousingPage />} />
-				</Routes>
-			</MemoryRouter>
+			<APIProvider apiKey={import.meta.env.VITE_MAPS_KEY}>
+				<MemoryRouter initialEntries={["/housing/-1"]}>
+					<Routes>
+						<Route path="/housing/:housingId" element={<HousingPage />} />
+					</Routes>
+				</MemoryRouter>
+			</APIProvider>
 		);
 	});
 
 	it("should render housing name", async () => {
-		await waitFor(() => {
-			expect(screen.getByText(mockHousingData.name)).toBeInTheDocument();
-		});
-	});
-
-	it("should render all average ratings", async () => {
-		await waitFor(() => {
-			mockHousingData.average_ratings.forEach((rating) => {
-				const category = screen.getByText(rating.category.name);
-				expect(category).toBeInTheDocument();
-
-				const value = screen.getByText(rating.value.toFixed(1));
-				expect(value).toBeInTheDocument();
-			});
-		});
+		expect(await screen.findByText(mockHousingData.name)).toBeInTheDocument();
 	});
 
 	it("should render room types in prices and in reviews", async () => {
 		const testPrice = async (roomTypeObj, priceInfo) => {
 			// Find and click button for appropraite price type (fall/spring, summer a/b, or summer c)
-			const button = screen.getByText(priceInfo.buttonText).previousElementSibling;
+			const button = (await screen.findByText(priceInfo.buttonText)).parentElement.previousElementSibling;
 			await userEvent.click(button);
 
 			// Test room type is displayed

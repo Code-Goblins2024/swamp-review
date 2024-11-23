@@ -25,6 +25,7 @@ export const mockReviews = [
 			name: "Test Room 1",
 		},
 		created_at: "2000-01-02 02:15:00+00",
+		tags: [],
 	},
 	{
 		ratings: [
@@ -52,5 +53,6 @@ export const mockReviews = [
 			name: "Test Room 2",
 		},
 		created_at: "2001-01-02 02:15:00+00",
+		tags: [],
 	},
 ];

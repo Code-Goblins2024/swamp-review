@@ -88,7 +88,7 @@ const HousingPage = () => {
 		setFlagLoading(null);
 	};
 
-  if (!housingData || !categories || !tags || !pois) {
+	if (!housingData || !categories || !tags || !pois) {
 		return (
 			<Box
 				sx={{
@@ -340,7 +340,7 @@ const HousingPage = () => {
 											key={index}
 											review={review}
 											session={session}
-                      ownedByCurrentUser={false}
+											ownedByCurrentUser={false}
 											handleClickFlag={handleClickFlag}
 											flagLoading={flagLoading}
 										/>
