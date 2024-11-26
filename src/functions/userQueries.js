@@ -1,7 +1,7 @@
 import supabase from "../config/supabaseClient";
 import { getTagCountsForAllHousing } from "./tagQueries";
 import { computeTagsForHousing, calculateAverageRating } from "./util";
-import { getAvgRatingByCategoryForAllHousing, getReviewCountsForAllHousing } from "./housingQueries";
+import { getAvgRatingByCategoryForAllHousing, getReviewCountsForAllHousing, getHousing } from "./housingQueries";
 
 /**
  * Creates a record for the user in the public.users table
@@ -215,11 +215,77 @@ export const getUserRole = async (uuid) => {
 	return data;
 };
 
-export const getUserRecommendations = async (uuid) => {
+/**
+ * Retrieve user data
+ * @param {string} uuid - User id
+ * @returns {array} data - Array of housing objects
+ */
+export const getUserRecommendations = async (uuid, recommendationsLength = 3) => {
+
+	const collabData = await getCollabRecommendations(uuid);
+
+	//get list of favorite housing to not be returned as recommendations
+	const favorites = await getUserFavorites(uuid);
+	console.log(favorites);
+	const favoritesIds = favorites.map((favorite) => favorite.id);
+
+	// Get content-based recommendations
+	const contentData = await getContentRecommendations(uuid, favoritesIds);
+
+	// Combine both recommendations systems
+	const recommendationsObj = combineRankings(collabData, contentData);
+	const recommendations = recommendationsObj.map((housing) => housing.housing_id);
+	console.log("Recommendations", recommendations);
+
+	//if recommendations are less than recommendations length, append more recommendations from highest rated housing
+	if (recommendations.length < recommendationsLength) {
+		await addHighestRatedHousing(recommendations, recommendationsLength, favoritesIds);
+	}
+
+	const fullHousingObjects = await Promise.all(
+		recommendations.map(async (housing_id) => {
+			const data = await getHousing(housing_id);
+			return {id: housing_id, ...data};
+		})
+	);
+
+	return fullHousingObjects;
+};
+
+/**
+ * Retrieves collaborative filtering recommendations for a user.
+ *
+ * This function calls a stored procedure `get_user_recommendations` in the Supabase database
+ * to compute user recommendations based on collaborative filtering.
+ *
+ * @param {string} uuid - The unique identifier of the user for whom to retrieve recommendations.
+ * @returns {Promise<Array>} A promise that resolves to an array of collaborative filtering recommendations.
+ * @throws Will throw an error if the Supabase RPC call fails.
+ */
+const getCollabRecommendations = async (uuid) => {
 	//compute user recommendations based on collaboative filtering
 	let { data: collabData, error } = await supabase.rpc("get_user_recommendations", { user_id_param: uuid });
 	if (error) throw error;
 
+	if (!collabData || collabData.length === 0) {
+		console.log("No collab recommendations found");
+		collabData = [];
+	}
+
+	return collabData;
+};
+
+/**
+ * Computes user content recommendations based on content-based filtering.
+ *
+ * @param {string} uuid - The unique identifier of the user.
+ * @param {Array<number>} favoritesIds - An array of housing IDs that the user has marked as favorites.
+ * @returns {Promise<Array<{housing_id: number, matchCount: number, matchScore: number}>>} A promise that resolves to an array of recommended housing objects, each containing:
+ * - housing_id: The ID of the housing.
+ * - matchCount: The number of tags that match the user's tags.
+ * - matchScore: The sum of tag counts for the matched tags.
+ */
+const getContentRecommendations = async (uuid, favoritesIds) => {
 	// compute user recommendations based on content-based filtering
 	// Compute tag counts
 	const tagCounts = await getTagCountsForAllHousing();
@@ -241,6 +307,7 @@ export const getUserRecommendations = async (uuid) => {
 			return { housing_id: parseInt(housing.housing_id), matchCount, matchScore };
 		})
 		.filter(housing => housing.matchCount > 0) // Keep only housing with at least one match
+		.filter(housing => !favoritesIds.includes(housing.housing_id)) // Exclude favorites
 		.sort((a, b) => {
 			// Sort by matchCount first, then by matchScore if tied
 			if (b.matchCount !== a.matchCount) {
@@ -250,48 +317,31 @@ export const getUserRecommendations = async (uuid) => {
 			}
 		});
 
-	// Combine both recommendations systems
-	if (!collabData || collabData.length === 0) {
-		console.log("No collab recommendations found");
-		collabData = [];
-	}
-	if (!contentData || contentData.length === 0) {
-		console.log("No content recommendations found");
-		contentData = [];
-	}
-
-	// Combine both recommendations systems
-	const recommendationsObj = combineRankings(collabData, contentData);
-	const recommendations = recommendationsObj.map((housing) => housing.housing_id);
-	console.log("Recommendations", recommendations);
-
-	//if recommendations are less than 3, append more recommendations from highest rated housing
-	if (recommendations.length < 10) {
-		const housingRatings = await getAvgRatingByCategoryForAllHousing();
-		// calculate based on global average rating
-		const topRatedHousing = [];
-		for(const [key, value] of Object.entries(housingRatings)) {
-			// Calculate the average rating for each housing
-			topRatedHousing.push({ housing_id: parseInt(key), averageRating: calculateAverageRating(value) });
+		if (!contentData || contentData.length === 0) {
+			console.log("No content recommendations found");
+			contentData = [];
 		}
-
-		// Sort by average rating (descending)
-		topRatedHousing.sort((a, b) => b.average_ratings - a.average_ratings);
-		// Extract housing IDs and filter out those already in recommendations
-		const topRatedSlice = topRatedHousing
-			.map(house => house.housing_id) // Get only IDs
-			.filter(houseId => !recommendations.includes(houseId)) // Exclude existing IDs
-			.slice(0, 3 - recommendations.length); // Limit to remaining slots in recommendations
-
-		// Append the filtered top-rated housing IDs to recommendations
-		recommendations.push(...topRatedSlice);
-	}
-	console.log("Final Recommendations", recommendations);
-	return recommendations;
+	
+	return contentData;
 };
 
-
-function combineRankings(array1, array2) {
+/**
+ * Combines two arrays of ranking objects, merges duplicates, and calculates a total score for each unique item.
+ * The total score is calculated based on predefined weights for frequency, matchCount, and matchScore.
+ * The resulting array is sorted in descending order of totalScore.
+ *
+ * @param {Array<Object>} array1 - The first array of ranking objects.
+ * @param {Array<Object>} array2 - The second array of ranking objects.
+ * @returns {Array<Object>} - The combined and sorted array of ranking objects.
+ *
+ * @typedef {Object} RankingObject
+ * @property {number} housing_id - The unique identifier for the housing.
+ * @property {number} [frequency=0] - The frequency metric.
+ * @property {number} [matchCount=0] - The match count metric.
+ * @property {number} [matchScore=0] - The match score metric.
+ * @property {number} totalScore - The calculated total score based on the weights.
+ */
+const combineRankings = (array1, array2) => {
 	// Define weights for each metric
 	const weights = { frequency: 0.6, matchCount: 0.3, matchScore: 0.1 };
     
@@ -327,4 +377,36 @@ function combineRankings(array1, array2) {
 
     // Convert to array and sort by totalScore
     return Object.values(result).sort((a, b) => b.totalScore - a.totalScore);
+}
+
+/**
+ * Adds the highest-rated housing IDs to the recommendations list.
+ *
+ * @param {Array<number>} recommendations - The current list of recommended housing IDs.
+ * @param {number} [recommendationsLength=3] - The desired length of the recommendations list.
+ * @param {Array<number>} favoritesIds - The list of favorite housing IDs to exclude from recommendations.
+ * @returns {Promise<Array<number>>} The updated list of recommended housing IDs.
+ */
+const addHighestRatedHousing = async (recommendations, recommendationsLength = 3, favoritesIds) => {
+	const housingRatings = await getAvgRatingByCategoryForAllHousing();
+	// calculate based on global average rating
+	const topRatedHousing = [];
+	for(const [key, value] of Object.entries(housingRatings)) {
+		// Calculate the average rating for each housing
+		topRatedHousing.push({ housing_id: parseInt(key), averageRating: calculateAverageRating(value) });
+	}
+
+	// Sort by average rating (descending)
+	topRatedHousing.sort((a, b) => b.average_ratings - a.average_ratings);
+	// Extract housing IDs and filter out those already in recommendations
+	const topRatedSlice = topRatedHousing
+		.map(house => house.housing_id) // Get only IDs
+		.filter(houseId => !recommendations.includes(houseId)) // Exclude existing IDs
+		.filter(houseId => !favoritesIds.includes(houseId)) // Exclude favorites
+		.slice(0, recommendationsLength - recommendations.length); // Limit to remaining slots in recommendations
+
+	// Append the filtered top-rated housing IDs to recommendations
+	recommendations.push(...topRatedSlice);
+
+	return recommendations;
 }
