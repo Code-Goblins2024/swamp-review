@@ -4,8 +4,9 @@ import { Box, Typography, Card, CardContent, Grid, Button, Chip, CircularProgres
 import { Apartment as ApartmentIcon } from '@mui/icons-material';
 import supabase from '../config/supabaseClient';
 import useAuth from '../store/authStore';
-import { getUserFavorites } from "../functions/userQueries";
+import { getUserFavorites, getUserRecommendations } from "../functions/userQueries";
 import DormCard from '../components/DormCard.jsx';
+import DormCardMini from '../components/DormCardMini.jsx';
 import { calculateAverageRating } from '../functions/util';
 
 const Dashboard = () => {
@@ -46,7 +47,7 @@ const Dashboard = () => {
     await Promise.all([
       fetchFavorites(),
       fetchRecommendations(),
-      // fetchRecentReviews()
+      //fetchRecentReviews()
     ]);
     setLoading(false);
   };
@@ -63,12 +64,7 @@ const Dashboard = () => {
 
   const fetchRecommendations = async () => {
     try {
-      const { data, error } = await supabase
-        .from('housing')
-        .select('*')
-        .limit(3);
-
-      if (error) throw error;
+      const data = await getUserRecommendations(session.user.id);
       setRecommendations(data);
     } catch (error) {
       console.error('Error fetching recommendations:', error);
@@ -142,24 +138,18 @@ const Dashboard = () => {
               <Typography level="h4" sx={{ mb: 2 }}>Recommended for You</Typography>
               {recommendations.length > 0 ? (
                 recommendations.map((dorm) => (
-                  <Box key={dorm.id} sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    mb: 2,
-                    p: 1,
-                    borderRadius: 1,
-                    cursor: 'pointer',
-                    transition: 'all 0.3s',
-                    '&:hover': {
-                      bgcolor: '#DDDDDD',
-                    },
-                  }}>
-                    <ApartmentIcon sx={{ mr: 2, color: 'primary.main' }} />
-                    <Box>
-                      <Typography level="title-sm">{dorm.name}</Typography>
-                      <Typography level="body-sm">{dorm.description}</Typography>
-                    </Box>
-                  </Box>
+                  <DormCardMini
+                    key={dorm.id}
+                    name={dorm.name}
+                    isFavorited={true}
+                    housingId={dorm.id}
+                    rating={calculateAverageRating(dorm.average_ratings)}
+                    reviews={dorm.reviews?.length || 0}
+                    onClick={() => handleDormClick(dorm.id)}
+                    onFavoriteRemoved={onFavoriteRemoved}
+                    variant='scroll'
+                    tags={dorm?.tags || []}
+                  />
                 ))
               ) : (
                 <Typography level="body-md">No recommendations available at the moment.</Typography>

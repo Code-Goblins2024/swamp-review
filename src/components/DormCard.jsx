@@ -4,6 +4,7 @@ import { addUserFavorite, removeUserFavorite } from '../functions/userQueries';
 import useAuth from '../store/authStore';
 import { useState } from 'react';
 import { useTheme } from '@mui/joy';
+import TagList from './TagList';
 
 const DormCard = ({
   name,
@@ -147,48 +148,10 @@ const DormCard = ({
         </Box>
 
         {tags.length > 0 && (
-          <Box
-            sx={{
-              mt: 1,
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 0.5,
-              minHeight: '28px'
-            }}
-            onClick={hasMoreTags ? handleTagsClick : undefined}
-          >
-            {displayedTags.map((tag) => (
-              <Chip
-                key={tag.tag_name}
-                size="sm"
-                variant="soft"
-                color="primary"
-                sx={{
-                  fontSize: '0.75rem',
-                  py: 0,
-                  height: '20px',
-                  borderRadius: '5px',
-                }}
-              >
-                {tag.tag_name}
-              </Chip>
-            ))}
-            {!showAllTags && hasMoreTags && (
-              <Chip
-                size="sm"
-                variant="outlined"
-                color="neutral"
-                sx={{
-                  fontSize: '0.75rem',
-                  py: 0,
-                  height: '20px',
-                  cursor: 'pointer'
-                }}
-              >
-                +{tags.length - 2} more
-              </Chip>
-            )}
-          </Box>
+          <TagList
+            tags={tags}
+            maxVisibleTags={2}
+          />
         )}
 
         <Box sx={{
