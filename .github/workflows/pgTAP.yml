@@ -1,0 +1,16 @@
+name: PGTap Tests
+on:
+  pull_request:
+    branches: [ "main", "staging"]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Run Tests
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_CONNECTION_URL }}
+        run: supabase test db --db-url "$SUPABASE_URL"

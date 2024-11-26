@@ -3,20 +3,6 @@ import { mockReviews } from "./mockReviews";
 export const mockHousingData = {
 	name: "Test Housing",
 	address: "Test Address",
-	average_ratings: [
-		{
-			category: {
-				name: "Test Avg Rating 1",
-			},
-			value: 1.1,
-		},
-		{
-			category: {
-				name: "Test Avg Rating 2",
-			},
-			value: 2.2,
-		},
-	],
 	attributes: [{ attribute_name: "Test Attr 1" }, { attribute_name: "Test Attr 2" }],
 	room_types: [
 		{

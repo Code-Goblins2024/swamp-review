@@ -1,24 +1,28 @@
-import { Chip } from "@mui/joy";
+import { Chip, Typography } from "@mui/joy";
 import PropTypes from "prop-types";
 
-const CustomChip = ({ children }) => {
+const CustomChip = ({ name, active, onClick }) => {
 	return (
 		<Chip
-			color="primary"
-			sx={{
-				borderRadius: "5px",
-				backgroundColor: "primary.50",
-				borderColor: "primary.400",
-				borderWidth: "1px",
-			}}
+			onClick={onClick}
+      variant="soft"
+      color={active ? "primary" : "neutral"}
+      sx={{
+        borderRadius: "5px",
+        padding: "0.25rem 0.75rem",
+      }}
 		>
-			{children}
+			<Typography level="body-sm" fontWeight="lg">
+				{name}
+			</Typography>
 		</Chip>
 	);
 };
 
 CustomChip.propTypes = {
-	children: PropTypes.node,
+	name: PropTypes.string,
+	active: PropTypes.bool,
+	onClick: PropTypes.func,
 };
 
 export default CustomChip;

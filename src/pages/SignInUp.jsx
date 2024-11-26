@@ -1,12 +1,14 @@
 import { Typography, Box, Stack, Button, Divider, FormLabel } from "@mui/joy";
 import { useState } from "react";
-import { years } from "../constants/Years";
+import { years } from "../constants/Enums";
 import { createPublicUser } from "../functions/userQueries";
 import { useLocation, useNavigate } from "react-router-dom";
+import { getUser } from "../functions/userQueries";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import FormItem from "../components/FormItem";
-import FormSelect from "../components/FormSelect";
+import UserInfoForm from "../components/UserInfoForm";
 import supabase from "../config/supabaseClient";
+import useAuth from "../store/authStore";
 
 const SignInUp = () => {
 	const uflEmailPattern = /^[a-zA-Z0-9._%+-]+@([a-zA-Z0-9.-]+\.)*ufl\.edu/;
@@ -21,6 +23,7 @@ const SignInUp = () => {
 	};
 	const location = useLocation();
 	const navigate = useNavigate();
+	const { setSession, setPublicUser } = useAuth();
 	const [formState, setFormState] = useState("SIGNIN");
 	const [formData, setFormData] = useState({ ...formDataTemplate });
 	const [formErrors, setFormErrors] = useState({ ...formDataTemplate });
@@ -43,7 +46,7 @@ const SignInUp = () => {
 		// TODO: Add logic for redirect after successful sign in/up
 		const housingRedirect = new URLSearchParams(location.search).get("housingRedirect");
 		if (housingRedirect) {
-			navigate(`/housing/${housingRedirect}?showReviewModal=true`);
+			navigate(`/housing/${housingRedirect}?showReviewForm=true`);
 		}
 
 		resetForm();
@@ -78,7 +81,12 @@ const SignInUp = () => {
 			email: formData.email,
 			password: formData.password,
 		});
-		if (error) setGeneralError(error.message);
+		if (error) {
+			setGeneralError(error.message);
+			return false;
+		}
+
+		setSession(data.session);
 
 		const newUser = {
 			id: data.user.id,
@@ -87,8 +95,12 @@ const SignInUp = () => {
 			last_name: formData.lastname,
 			major: formData.major,
 			year: formData.year,
+			theme_ld: "system",
+			icon_color: "neutral",
 		};
+
 		await createPublicUser(newUser);
+		setPublicUser(newUser);
 
 		setLoading(false);
 		return error === null;
@@ -97,11 +109,20 @@ const SignInUp = () => {
 	const handleSignIn = async () => {
 		if (!validateSignIn()) return;
 		setLoading(true);
-		const { error } = await supabase.auth.signInWithPassword({
+		const { data, error } = await supabase.auth.signInWithPassword({
 			email: formData.email,
 			password: formData.password,
 		});
-		if (error) setGeneralError(error.message);
+
+		if (error) {
+			setGeneralError(error.message);
+			return false;
+		}
+
+		setSession(data.session);
+
+		const publicUserData = await getUser(data.user.id);
+		setPublicUser(publicUserData);
 		setLoading(false);
 		return error === null;
 	};
@@ -168,7 +189,7 @@ const SignInUp = () => {
 	return (
 		<Box
 			sx={{
-				position: 'absolute',
+				position: "absolute",
 				top: 64,
 				bottom: 0,
 				left: 0,
@@ -264,50 +285,13 @@ const SignInUp = () => {
 							)}
 
 							{formState === "SIGNUP_CONFIRM" && (
-								<>
-									<Box sx={{ width: "100%" }}>
-										<FormLabel>Email</FormLabel>
-										<Typography level="body-sm" fontWeight="xl">
-											{formData.email}
-										</Typography>
-									</Box>
-
-									<FormItem
-										label="Firstname"
-										name="firstname"
-										type="text"
-										value={formData.firstname}
-										onChange={handleFormChange}
-										error={formErrors.firstname}
-									/>
-
-									<FormItem
-										label="Lastname"
-										name="lastname"
-										type="text"
-										value={formData.lastname}
-										onChange={handleFormChange}
-										error={formErrors.lastname}
-									/>
-
-									<FormItem
-										label="Major"
-										name="major"
-										type="text"
-										value={formData.major}
-										onChange={handleFormChange}
-										error={formErrors.major}
-									/>
-
-									<FormSelect
-										label="Year"
-										name="year"
-										value={formData.year}
-										onChange={handleFormChange}
-										error={formErrors.year}
-										options={years}
-									/>
-								</>
+								<UserInfoForm
+									email={formData.email}
+									formData={formData}
+									formErrors={formErrors}
+									handleFormChange={handleFormChange}
+									years={years}
+								/>
 							)}
 
 							{/* Password Form Group */}
