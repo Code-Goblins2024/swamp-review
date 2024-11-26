@@ -7,7 +7,7 @@ import userEvent from "@testing-library/user-event";
 import HousingPage from "../pages/HousingPage";
 
 describe("Housing page tests", () => {
-	beforeEach(() => {
+	beforeEach(async () => {
 		render(
 			<APIProvider apiKey={import.meta.env.VITE_MAPS_KEY}>
 				<MemoryRouter initialEntries={["/housing/-1"]}>
@@ -17,9 +17,13 @@ describe("Housing page tests", () => {
 				</MemoryRouter>
 			</APIProvider>
 		);
+		await waitFor(() => expect(screen.queryByRole("progressbar")).not.toBeInTheDocument(), { timeout: 10000, interval: 1000, onTimeout: () => {
+			throw new Error("Loading took too long");
+		} });
 	});
 
 	it("should render housing name", async () => {
+
 		expect(await screen.findByText(mockHousingData.name)).toBeInTheDocument();
 	});
 
