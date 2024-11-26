@@ -4,7 +4,7 @@ import {
   CommentRounded as ReviewIcon, 
   Apartment as ApartmentIcon 
 } from '@mui/icons-material';
-import { addUserFavorite, removeUserFavorite } from '../functions/userQueries';
+import TagList from './TagList';
 import useAuth from '../store/authStore';
 import { useState } from 'react';
 
@@ -16,16 +16,6 @@ const DormCardMini = ({
   tags = [],
   housingId,
 }) => {
-  const { session } = useAuth();
-  const [showAllTags, setShowAllTags] = useState(false);
-
-  const handleTagsClick = (e) => {
-    e.stopPropagation();
-    setShowAllTags(!showAllTags);
-  };
-
-  const displayedTags = showAllTags ? tags : tags.slice(0, 2);
-  const hasMoreTags = tags.length > 2;
 
   return (
     <Box
@@ -111,48 +101,7 @@ const DormCardMini = ({
       </Box>
     {/* Tags */}
     {tags.length > 0 && (
-          <Box
-            sx={{
-              mt: 1,
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 0.5,
-              minHeight: '28px'
-            }}
-            onClick={hasMoreTags ? handleTagsClick : undefined}
-          >
-            {displayedTags.map((tag) => (
-              <Chip
-                key={tag.tag_name}
-                size="sm"
-                variant="soft"
-                color="primary"
-                sx={{
-                  fontSize: '0.75rem',
-                  py: 0,
-                  height: '20px',
-                  borderRadius: '5px',
-                }}
-              >
-                {tag.tag_name}
-              </Chip>
-            ))}
-            {!showAllTags && hasMoreTags && (
-              <Chip
-                size="sm"
-                variant="outlined"
-                color="neutral"
-                sx={{
-                  fontSize: '0.75rem',
-                  py: 0,
-                  height: '20px',
-                  cursor: 'pointer'
-                }}
-              >
-                +{tags.length - 2} more
-              </Chip>
-            )}
-          </Box>
+      <TagList tags={tags} maxVisibleTags={2} />
         )}
     </Box>
   );
