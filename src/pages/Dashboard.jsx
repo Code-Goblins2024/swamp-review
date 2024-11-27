@@ -7,6 +7,7 @@ import useAuth from '../store/authStore';
 import { getUserFavorites, getUserRecommendations } from "../functions/userQueries";
 import DormCard from '../components/DormCard.jsx';
 import DormCardMini from '../components/DormCardMini.jsx';
+import UserCard from '../components/UserCard.jsx';
 import { calculateAverageRating } from '../functions/util';
 
 const Dashboard = () => {
@@ -107,7 +108,8 @@ const Dashboard = () => {
     <Box sx={{ p: 4 }}>
       <Typography level="h2" sx={{ mb: 3 }}>Dashboard</Typography>
 
-      <Box sx={{ mb: 4 }}>
+      <Grid container spacing={3}>
+        <Grid xs={12} md={9}>
         <Typography level="h3" sx={{ mb: 2 }}>Your Favorites</Typography>
         <Box sx={{ display: 'flex', overflowX: 'auto', pb: 2 }}>
           {favorites.length > 0 ? (
@@ -129,7 +131,14 @@ const Dashboard = () => {
             <Typography level="body-md">No favorites found. Start exploring dorms to add some!</Typography>
           )}
         </Box>
-      </Box>
+        </Grid>
+        <Grid xs={12} md={3}>
+        <UserCard
+            user_id={session.user.id}
+            isEditable={true}
+          />
+        </Grid>
+      </Grid>
 
       <Grid container spacing={3}>
         <Grid xs={12} md={6}>
