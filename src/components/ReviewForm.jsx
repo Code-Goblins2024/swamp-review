@@ -161,6 +161,10 @@ const ReviewForm = ({ setReviewFormOpen, housingData, setHousingData, categories
         try {
             if (!filter.isProfane(content)) {
                 await addReview(content, housingData.id, roomId, session.user.id, selectedTags, formattedRatings);
+            } else {
+                setGeneralError("Sorry, your review contains inappropriate language and we cannot process your request.");
+                setSubmitting(false);
+                return;
             }
         } catch {
             setGeneralError("Sorry, we unexpectedly couldn't submit your review. Please try again later.");
