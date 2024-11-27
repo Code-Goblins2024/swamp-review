@@ -9,7 +9,7 @@ const TagList = ({ tags, maxVisibleTags = 2 }) => {
     e.stopPropagation(); // Prevent parent click handlers
     setShowAllTags(!showAllTags);
   };
-  
+
 
   const displayedTags = showAllTags ? tags : tags.slice(0, maxVisibleTags);
   const hasMoreTags = tags.length > maxVisibleTags;
@@ -27,7 +27,7 @@ const TagList = ({ tags, maxVisibleTags = 2 }) => {
     >
       {displayedTags.map((tag) => (
         <Chip
-          key={tag.tag_name}
+          key={tag?.tag_name || tag.name}
           size="sm"
           variant="soft"
           color="primary"
@@ -38,7 +38,7 @@ const TagList = ({ tags, maxVisibleTags = 2 }) => {
             borderRadius: '5px',
           }}
         >
-          {tag.tag_name}
+          {tag?.tag_name || tag.name}
         </Chip>
       ))}
       {!showAllTags && hasMoreTags && (
@@ -57,15 +57,6 @@ const TagList = ({ tags, maxVisibleTags = 2 }) => {
       )}
     </Box>
   );
-};
-
-TagList.propTypes = {
-  tags: PropTypes.arrayOf(
-    PropTypes.shape({
-      tag_name: PropTypes.string.isRequired,
-    })
-  ).isRequired,
-  maxVisibleTags: PropTypes.number,
 };
 
 export default TagList;

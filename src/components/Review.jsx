@@ -7,6 +7,7 @@ import Rating from "./Rating";
 import PropTypes from "prop-types";
 import useAuth from "../store/authStore";
 import CustomChip from "./CustomChip";
+import UserIcon from "./UserIcon";
 
 const Review = ({ review, ownedByCurrentUser, handleClickFlag, flagLoading }) => {
 	const theme = useTheme();
@@ -32,6 +33,7 @@ const Review = ({ review, ownedByCurrentUser, handleClickFlag, flagLoading }) =>
 				)}
 				<Stack direction="row" sx={{ justifyContent: "space-between", flexWrap: "wrap" }}>
 					<Stack direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap" }}>
+					<UserIcon user={review.user} hoverable={true}/>
 						<Box>
 							<Typography level="body-sm" fontWeight="lg">
 								{ownedByCurrentUser ? (
