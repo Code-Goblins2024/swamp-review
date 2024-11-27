@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Avatar, Tooltip } from "@mui/joy";
 import UserCard from "./UserCard";
 
-const UserIcon = ({ height, width, user, bgcolor = null }) => {
+const UserIcon = ({ height, width, user, bgcolor = null, hoverable = false }) => {
 	const { session, publicUser } = useAuth();
 
 	const getIconColor = () => {
@@ -20,18 +20,32 @@ const UserIcon = ({ height, width, user, bgcolor = null }) => {
 		return publicUser?.first_name[0] + publicUser?.last_name[0];
 	}
 
-	return (
+	return hoverable ? (
 		<Tooltip
-		placement="top-end"
-		variant="outlined"
-		arrow
-		title={
-			<UserCard
-			user_id={user?.id}
-			isEditable={false}
-		  	/>
-		}
-	  >
+			placement="top-end"
+			variant="outlined"
+			arrow
+			title={
+				<UserCard
+					user_id={user?.id}
+					isEditable={false}
+				/>
+			}
+		>
+			<Avatar
+				sx={{
+					bgcolor: getIconColor(),
+					width: width,
+					height: height,
+					fontSize: `${Math.min(width, height) * 0.5}px`,
+					fontWeight: "bold",
+					variant: "soft",
+				}}
+			>
+				{getInitials()}
+			</Avatar>
+		</Tooltip>
+	) : (
 		<Avatar
 			sx={{
 				bgcolor: getIconColor(),
@@ -44,7 +58,6 @@ const UserIcon = ({ height, width, user, bgcolor = null }) => {
 		>
 			{getInitials()}
 		</Avatar>
-	  </Tooltip>
 	);
 };
 

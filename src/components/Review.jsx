@@ -33,7 +33,7 @@ const Review = ({ review, ownedByCurrentUser, handleClickFlag, flagLoading }) =>
 				)}
 				<Stack direction="row" sx={{ justifyContent: "space-between", flexWrap: "wrap" }}>
 					<Stack direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap" }}>
-					<UserIcon user={review.user} />
+					<UserIcon user={review.user} hoverable={true}/>
 						<Box>
 							<Typography level="body-sm" fontWeight="lg">
 								{ownedByCurrentUser ? (
