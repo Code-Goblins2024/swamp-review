@@ -226,7 +226,6 @@ export const getUserRecommendations = async (uuid, recommendationsLength = 3) =>
 
 	//get list of favorite housing to not be returned as recommendations
 	const favorites = await getUserFavorites(uuid);
-	console.log(favorites);
 	const favoritesIds = favorites.map((favorite) => favorite.id);
 
 	// Get content-based recommendations
@@ -235,7 +234,6 @@ export const getUserRecommendations = async (uuid, recommendationsLength = 3) =>
 	// Combine both recommendations systems
 	const recommendationsObj = combineRankings(collabData, contentData);
 	const recommendations = recommendationsObj.map((housing) => housing.housing_id);
-	console.log("Recommendations", recommendations);
 
 	//if recommendations are less than recommendations length, append more recommendations from highest rated housing
 	if (recommendations.length < recommendationsLength) {
