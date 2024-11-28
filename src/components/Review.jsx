@@ -31,85 +31,91 @@ const Review = ({ review, ownedByCurrentUser, handleClickFlag, flagLoading }) =>
 						))}
 					</Box>
 				)}
-				<Stack direction="row" sx={{ justifyContent: "space-between", flexWrap: "wrap" }}>
-					<Stack direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap" }}>
-					<UserIcon user={review.user} hoverable={true}/>
-						<Box>
-							<Typography level="body-sm" fontWeight="lg">
-								{ownedByCurrentUser ? (
-									<Typography color="primary" fontWeight="xl">
-										Me
-									</Typography>
-								) : (
-									<>
-										{review.user.first_name} {review.user.last_name}
-									</>
-								)}
-								{", "}
-								{new Date(review.created_at)
-									.toLocaleDateString("en-US", {
-										month: "short",
-										day: "numeric",
-										year: "numeric",
-									})
-									.replaceAll(",", "")}
-							</Typography>
-						</Box>
-						{review?.user?.year && (
-							<Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
-								<Typography>&bull;</Typography>
-								<Typography level="body-sm" fontWeight="lg">
-									{review.user.year}
-									{["First", "Second", "Third", "Fourth", "Fifth"].includes(review.user.year) &&
-										"-year"}
-								</Typography>
-							</Stack>
-						)}
+				{/* <Stack direction="row" sx={{ justifyContent: "space-between" }}> */}
+        <Grid2 container spacing={1}>
+          <Grid2 size={{ xs: 12, sm: 10 }}>
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap" }}>
+              <UserIcon user={review.user} hoverable={true}/>
+              <Box>
+                <Typography level="body-sm" fontWeight="lg">
+                  {ownedByCurrentUser ? (
+                    <Typography color="primary" fontWeight="xl">
+                      Me
+                    </Typography>
+                  ) : (
+                    <>
+                      {review.user.first_name} {review.user.last_name}
+                    </>
+                  )}
+                  {", "}
+                  {new Date(review.created_at)
+                    .toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })
+                    .replaceAll(",", "")}
+                </Typography>
+              </Box>
+              {review?.user?.year && (
+                <Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
+                  <Typography>&bull;</Typography>
+                  <Typography level="body-sm" fontWeight="lg">
+                    {review.user.year}
+                    {["First", "Second", "Third", "Fourth", "Fifth"].includes(review.user.year) &&
+                      "-year"}
+                  </Typography>
+                </Stack>
+              )}
 
-						{review?.roomType && (
-							<Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
-								<Typography>&bull;</Typography>
-								<Typography level="body-sm" fontWeight="lg">
-									{review.roomType.name}
-								</Typography>
-							</Stack>
-						)}
-					</Stack>
+              {review?.roomType && (
+                <Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
+                  <Typography>&bull;</Typography>
+                  <Typography level="body-sm" fontWeight="lg">
+                    {review.roomType.name}
+                  </Typography>
+                </Stack>
+              )}
+            </Stack>
+          </Grid2>
 					{session?.user?.id && (
-						<Button
-							color="neutral"
-							variant="soft"
-							size="sm"
-							sx={{ position: "relative" }}
-							onClick={() => handleClickFlag(review.review_id)}
-						>
-							{flagLoading === review.review_id && (
-								<CircularProgress
-									sx={{
-										position: "absolute",
-										top: "50%",
-										left: "50%",
-										transform: "translate(-50%, -50%)",
-									}}
-								/>
-							)}
-							<Box
-								sx={{
-									display: "flex",
-									gap: "0.5rem",
-									opacity: flagLoading === review.review_id ? 0 : 1,
-								}}
-							>
-								{review.flags.filter((flag) => flag.user_id === session.user.id).length > 0 ? (
-									<FlagIcon sx={{ color: "red.main", fontSize: "24px" }} />
-								) : (
-									<OutlinedFlagIcon sx={{ fontSize: "24px" }} />
-								)}
-								<Typography level="body-sm">{review.flags.length}</Typography>
-							</Box>
-						</Button>
+            <Grid2 size={{ xs: 12, sm: 2 }} sx={{ display: "flex", justifyContent: "end" }}>
+              <Button
+                color="neutral"
+                variant="soft"
+                size="sm"
+                sx={{ position: "relative" }}
+                onClick={() => handleClickFlag(review.review_id)}
+              >
+                {flagLoading === review.review_id && (
+                  <CircularProgress
+                    sx={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                    }}
+                  />
+                )}
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: "0.5rem",
+                    opacity: flagLoading === review.review_id ? 0 : 1,
+                  }}
+                >
+                  {review.flags.filter((flag) => flag.user_id === session.user.id).length > 0 ? (
+                    <FlagIcon sx={{ color: "red.main", fontSize: "24px" }} />
+                  ) : (
+                    <OutlinedFlagIcon sx={{ fontSize: "24px" }} />
+                  )}
+                  <Typography level="body-sm">{review.flags.length}</Typography>
+                </Box>
+              </Button>
+            </Grid2>
 					)}
-				</Stack>
+        </Grid2>
+				{/* </Stack> */}
 			</Stack>
 		</Card>
 	);
