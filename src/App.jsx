@@ -27,7 +27,7 @@ const ColorSchemeSetting = ({ user }) => {
 
 	useEffect(() => {
 		setMounted(true);
-		setMode(user?.theme_ld || "system");
+		setMode(user?.theme_ld || "light");
 	}, [user]);
 
 	if (!mounted) {
