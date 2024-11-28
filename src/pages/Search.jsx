@@ -168,7 +168,7 @@ const Search = () => {
             sx={{ width: '100%' }}
           />
         </Grid>
-        <Grid xs={6} md={4}>
+        <Grid xs={12} md={4}>
           <Select
             value={sortBy}
             onChange={handleSortChange}
