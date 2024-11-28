@@ -1,4 +1,4 @@
-import { Box, Typography, Card, Modal, ModalDialog, Button, IconButton } from '@mui/joy';
+import { Box, Typography, Card, Modal, ModalDialog, Button, IconButton, CircularProgress } from '@mui/joy';
 import { Save as SaveIcon } from '@mui/icons-material';
 import { useState, useEffect } from 'react';
 import UserIcon from './UserIcon';
@@ -14,6 +14,7 @@ const UserCard = ({ user_id, isEditable = false, onClick }) => {
   const [userTags, setUserTags] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getData();
@@ -32,6 +33,8 @@ const UserCard = ({ user_id, isEditable = false, onClick }) => {
         const tagsRes = await getAllTags();
         setTags(tagsRes);
       }
+
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching user data or tags:", error);
     }
@@ -70,7 +73,7 @@ const UserCard = ({ user_id, isEditable = false, onClick }) => {
       variant="outlined"
       onClick={onClick}
       sx={{
-        width: "100%",
+        width: isEditable ? "100%" : "14rem",
         transition: "all 0.2s",
         padding: 0,
         overflow: "hidden",
@@ -80,28 +83,45 @@ const UserCard = ({ user_id, isEditable = false, onClick }) => {
         },
       }}
     >
-      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "16px" }}>
-        <UserIcon height={60} width={60} user={user}/>
-        <Box sx={{ textAlign: "center", marginTop: "8px" }}>
-          <Typography level="h6" sx={{ fontWeight: "bold" }}>
+      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "1rem" }}>
+        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", opacity: loading ? 0 : 1 }}>
+          <UserIcon height={60} width={60} user={user}/>
+          <Typography level="h6" sx={{ fontWeight: "bold", marginTop: "0.75rem" }}>
             {user.first_name} {user.last_name}
           </Typography>
-          <Typography level="body2" sx={{ color: "neutral.600" }}>
+          <Typography level="body-sm" sx={{ color: "neutral.600" }}>
             Year: {user.year}
           </Typography>
-          <Typography level="body2" sx={{ color: "neutral.600" }}>
+          <Typography level="body-sm" sx={{ color: "neutral.600" }}>
             Major: {user.major}
           </Typography>
-        </Box>
-        <Typography level="body2" sx={{ color: "neutral.600" }}>
-          Tag Preferences:
-        </Typography>
-        {userTags.length === 0 && (
           <Typography level="body-sm" sx={{ color: "neutral.600" }}>
-            No tags selected
+            Tag Preferences:
           </Typography>
-        )}
-        <TagList tags={userTags} maxVisibleTags={5} />
+          {userTags.length === 0 && (
+            <Typography level="body-sm" sx={{ color: "neutral.600" }}>
+              No tags selected
+            </Typography>
+          )}
+          <TagList tags={userTags} maxVisibleTags={5} />
+        </Box>
+        <>
+          {loading && (
+            <Box 
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          )}
+        </>
       </Box>
 
       {isEditable && (
