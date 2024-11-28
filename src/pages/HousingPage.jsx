@@ -296,7 +296,7 @@ const HousingPage = () => {
 
 							{/* POI (Right) Side */}
 							<Box sx={{ flex: 1 }}>
-								<Card sx={{ height: "100%" }}>
+								<Card sx={{ height: "100%", minHeight: "15rem" }}>
 									<Box sx={{ height: "100%", position: "relative" }}>
 										<CustomMap
 											housingName={housingData.name}
