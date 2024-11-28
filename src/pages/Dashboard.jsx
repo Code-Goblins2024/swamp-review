@@ -133,7 +133,8 @@ const Dashboard = () => {
         </Box>
         </Grid>
         <Grid xs={12} md={3}>
-        <UserCard
+          <Typography level="h3" sx={{ mb: 2 }}>Your Profile</Typography>
+          <UserCard
             user_id={session.user.id}
             isEditable={true}
           />
