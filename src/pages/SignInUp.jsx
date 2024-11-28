@@ -63,6 +63,7 @@ const SignInUp = () => {
 
         if (error) {
             setGeneralError("Error: Unknown error while trying to sign up. Please try again later.");
+            setLoading(false);
             return;
         }
 
@@ -85,6 +86,7 @@ const SignInUp = () => {
         });
         if (error) {
             setGeneralError(error.message);
+            setLoading(false);
             return false;
         }
 
@@ -118,6 +120,7 @@ const SignInUp = () => {
 
         if (error) {
             setGeneralError(error.message);
+            setLoading(false);
             return false;
         }
 
