@@ -3,7 +3,6 @@ import { Favorite as FavoriteIcon, FavoriteBorder as FavoriteBorderIcon, StarRat
 import { addUserFavorite, removeUserFavorite } from '../functions/userQueries';
 import useAuth from '../store/authStore';
 import { useState } from 'react';
-import { useTheme } from '@mui/joy';
 import TagList from './TagList';
 
 const DormCard = ({
@@ -22,8 +21,6 @@ const DormCard = ({
   const [favorited, setFavorited] = useState(isFavorited);
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [showAllTags, setShowAllTags] = useState(false);
-  const theme = useTheme();
 
   const handleImageError = () => {
     setImageError(true);
@@ -52,11 +49,6 @@ const DormCard = ({
     }
   };
 
-  const handleTagsClick = (e) => {
-    e.stopPropagation();
-    setShowAllTags(!showAllTags);
-  };
-
   const cardStyles = variant === 'grid' ? {
     width: '100%',
     height: '100%',
@@ -65,9 +57,6 @@ const DormCard = ({
     flexShrink: 0,
     mr: 2,
   };
-
-  const displayedTags = showAllTags ? tags : tags.slice(0, 2);
-  const hasMoreTags = tags.length > 2;
 
   return (
     <Card
@@ -169,7 +158,7 @@ const DormCard = ({
             py: 0.5
           }}>
             <RatingIcon sx={{ color: '#e6c200', mr: 0.5, fontSize: '1.1rem' }} />
-            <Typography level="body-sm" sx={{ fontWeight: 600 }}>{rating.toFixed(1)}</Typography>
+            <Typography level="body-sm" sx={{ fontWeight: 600 }}>{reviews && reviews > 0 ? rating.toFixed(1) : '---'}</Typography>
           </Box>
           <Box sx={{
             display: 'flex',
