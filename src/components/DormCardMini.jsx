@@ -99,10 +99,12 @@ const DormCardMini = ({
           </Box>
         </Box>
       </Box>
-    {/* Tags */}
-    {tags.length > 0 && (
-      <TagList tags={tags} maxVisibleTags={2} />
-        )}
+      {/* Tags */}
+      <Box sx={{ flex: 1, minWidth: 0 }}>
+      {tags.length > 0 && (
+        <TagList tags={tags} maxVisibleTags={2} />
+          )}
+      </Box>
     </Box>
   );
 };
