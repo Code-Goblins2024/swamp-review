@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Card, CardContent, Grid, Button, Chip, CircularProgress } from '@mui/joy';
-import { Apartment as ApartmentIcon } from '@mui/icons-material';
+import { Apartment as ApartmentIcon, Tag } from '@mui/icons-material';
 import supabase from '../config/supabaseClient';
 import useAuth from '../store/authStore';
 import { getUserFavorites, getUserRecommendations } from "../functions/userQueries";
@@ -9,6 +9,7 @@ import DormCard from '../components/DormCard.jsx';
 import DormCardMini from '../components/DormCardMini.jsx';
 import UserCard from '../components/UserCard.jsx';
 import { calculateAverageRating } from '../functions/util';
+import TagList from '../components/TagList.jsx';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -39,6 +40,8 @@ const Dashboard = () => {
       if (data.length === 0) {
         setFavorites(favorites.filter(fav => fav.id !== housingId));
       }
+
+      fetchRecommendations();
     } catch (error) {
       console.error('Error verifying favorite removal:', error);
     }
@@ -48,7 +51,7 @@ const Dashboard = () => {
     await Promise.all([
       fetchFavorites(),
       fetchRecommendations(),
-      //fetchRecentReviews()
+      fetchRecentReviews()
     ]);
     setLoading(false);
   };
@@ -80,11 +83,21 @@ const Dashboard = () => {
         .select(`
           id,
           content,
-          rating,
           created_at,
-          housing:housingId(name)
+          tags (
+            id,
+            name
+          ),
+          ratings: reviews_to_categories (
+            value: rating_value,
+            category: categories (
+              id,
+              name
+            )
+          ),
+          housing(name)
         `)
-        .eq('userId', session.user.id)
+        .eq('user_id', session.user.id)
         .order('created_at', { ascending: false })
         .limit(5);
 
@@ -137,6 +150,7 @@ const Dashboard = () => {
           <UserCard
             user_id={session.user.id}
             isEditable={true}
+            onTagSave={() => {fetchRecommendations();}}
           />
         </Grid>
       </Grid>
@@ -185,8 +199,17 @@ const Dashboard = () => {
                 recentReviews.map((review) => (
                   <Box key={review.id} sx={{ mb: 2 }}>
                     <Typography level="title-sm">{review.housing.name}</Typography>
-                    <Typography level="body-sm">{review.content.substring(0, 100)}...</Typography>
-                    <Chip size="sm" variant="outlined" sx={{ mt: 1 }}>{review.rating}/5</Chip>
+                    <Typography level="body-sm">{review.content.substring(0, 100)}{review.content.length > 100 ? '...' : ''}</Typography>
+                    <Chip size="sm" variant="outlined" sx={{ mt: 1 }}>{review.ratings[0].category.name}: {review.ratings[0].value}/5</Chip>
+                    <Chip size="sm" variant="outlined" sx={{ mt: 1 }}>{review.ratings[1].category.name}: {review.ratings[1].value}/5</Chip>
+                    <Chip size="sm" variant="outlined" sx={{ mt: 1 }}>{review.ratings[2].category.name}: {review.ratings[2].value}/5</Chip>
+                    <Chip size="sm" variant="outlined" sx={{ mt: 1 }}>{review.ratings[3].category.name}: {review.ratings[3].value}/5</Chip>
+                    {review.tags.length > 0 && (
+                    <>
+                      <Typography level="body-sm" sx={{ mt: 1 }}>Tags:</Typography>
+                      <TagList size="sm" sx={{ mt: 1 }} tags={review.tags} />
+                    </>
+                    )}
                   </Box>
                 ))
               ) : (
