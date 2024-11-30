@@ -237,11 +237,16 @@ export const getUserRecommendations = async (uuid, recommendationsLength = 3) =>
 
 	//if recommendations are less than recommendations length, append more recommendations from highest rated housing
 	if (recommendations.length < recommendationsLength) {
-		await addHighestRatedHousing(recommendations, recommendationsLength, favoritesIds);
+		await addHighestRatedHousing(recommendations, favoritesIds);
+	}
+
+	let toprecs = recommendations;
+	if (recommendations.length > recommendationsLength) {
+		toprecs = recommendations.slice(0, recommendationsLength - recommendations.length); // Limit to remaining slots in recommendations
 	}
 
 	const fullHousingObjects = await Promise.all(
-		recommendations.map(async (housing_id) => {
+		toprecs.map(async (housing_id) => {
 			const data = await getHousing(housing_id);
 			return {id: housing_id, ...data};
 		})
@@ -301,6 +306,7 @@ const getContentRecommendations = async (uuid, favoritesIds) => {
 			const matchedTags = housing.tags.filter(tag => tagsToMatch.includes(tag.tag_name));
 			const matchCount = matchedTags.length;
 			const matchScore = matchedTags.reduce((sum, tag) => sum + tag.tag_count, 0);
+			
 
 			return { housing_id: parseInt(housing.housing_id), matchCount, matchScore };
 		})
@@ -385,7 +391,7 @@ const combineRankings = (array1, array2) => {
  * @param {Array<number>} favoritesIds - The list of favorite housing IDs to exclude from recommendations.
  * @returns {Promise<Array<number>>} The updated list of recommended housing IDs.
  */
-const addHighestRatedHousing = async (recommendations, recommendationsLength = 3, favoritesIds) => {
+const addHighestRatedHousing = async (recommendations, favoritesIds) => {
 	const housingRatings = await getAvgRatingByCategoryForAllHousing();
 	// calculate based on global average rating
 	const topRatedHousing = [];
@@ -395,13 +401,12 @@ const addHighestRatedHousing = async (recommendations, recommendationsLength = 3
 	}
 
 	// Sort by average rating (descending)
-	topRatedHousing.sort((a, b) => b.average_ratings - a.average_ratings);
+	topRatedHousing.sort((a, b) => b.averageRating - a.averageRating);
 	// Extract housing IDs and filter out those already in recommendations
 	const topRatedSlice = topRatedHousing
 		.map(house => house.housing_id) // Get only IDs
 		.filter(houseId => !recommendations.includes(houseId)) // Exclude existing IDs
 		.filter(houseId => !favoritesIds.includes(houseId)) // Exclude favorites
-		.slice(0, recommendationsLength - recommendations.length); // Limit to remaining slots in recommendations
 
 	// Append the filtered top-rated housing IDs to recommendations
 	recommendations.push(...topRatedSlice);
