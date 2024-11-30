@@ -239,7 +239,7 @@ const Search = () => {
         </Grid>
 
         {selectedTags.length > 0 && (
-          <Box sx={{ mb: 4, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+          <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
             {selectedTags.map(tag => (
               <Chip
                 key={tag}
