@@ -101,8 +101,6 @@ const Dashboard = () => {
         .order('created_at', { ascending: false })
         .limit(5);
 
-        console.log(data[0].tags);
-
       if (error) throw error;
       setRecentReviews(data);
     } catch (error) {
