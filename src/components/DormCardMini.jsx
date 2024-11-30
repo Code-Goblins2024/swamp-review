@@ -77,7 +77,7 @@ const DormCardMini = ({
           >
             <RatingIcon sx={{ color: '#e6c200', fontSize: '1rem' }} />
             <Typography level="body-sm" sx={{ fontWeight: 600 }}>
-              {rating.toFixed(1)}
+              {reviews && reviews > 0 ? rating.toFixed(1) : '---'}
             </Typography>
           </Box>
           {/* Reviews */}
