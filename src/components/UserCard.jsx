@@ -7,7 +7,7 @@ import { getUser } from '../functions/userQueries';
 import { getAllTags, getTagsForUser, updateTagsForUser } from '../functions/tagQueries';
 import CustomChip from './CustomChip';
 
-const UserCard = ({ user_id, isEditable = false, onClick }) => {
+const UserCard = ({ user_id, isEditable = false, onClick, onTagSave }) => {
   const [user, setUser] = useState({});
   const [tags, setTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
@@ -65,6 +65,7 @@ const UserCard = ({ user_id, isEditable = false, onClick }) => {
       console.error("Error saving tags:", error);
     } finally {
       setIsSaving(false);
+      onTagSave();
     }
   };
 
