@@ -4,6 +4,102 @@ import { StarRateRounded as RatingIcon } from '@mui/icons-material';
 import UserIcon from './UserIcon';
 import TagList from './TagList';
 
+const ReviewHeader = ({ review }) => (
+  <Stack direction="row" spacing={1} sx={{ alignItems: "center", minWidth: 0 }}>
+    <UserIcon user={review.user} hoverable={false} />
+    <Box sx={{ minWidth: 0 }}>
+      <Typography
+        level="title-sm"
+        sx={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap'
+        }}
+      >
+        {review.housing.name}
+      </Typography>
+      <Typography level="body-xs" sx={{ color: 'neutral.500' }}>
+        {new Date(review.created_at).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }).replaceAll(",", "")}
+      </Typography>
+    </Box>
+  </Stack>
+);
+
+const RatingDisplay = ({ rating }) => (
+  <Stack
+    spacing={0.5}
+    sx={{ alignItems: 'center' }}
+  >
+    <Typography
+      level="body-xs"
+      sx={{
+        color: 'neutral.500',
+        textAlign: 'center'
+      }}
+    >
+      {rating.category.name}
+    </Typography>
+    <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+      <RatingIcon sx={{ color: '#e6c200', fontSize: '1.1rem' }} />
+      <Typography level="body-sm" fontWeight="md">
+        {rating.value.toFixed(1)}
+      </Typography>
+    </Stack>
+  </Stack>
+);
+
+const DesktopView = ({ review }) => (
+  <Stack
+    direction="row"
+    spacing={1}
+    sx={{
+      alignItems: "flex-start",
+      justifyContent: "space-between",
+      display: { xs: 'none', sm: 'flex' }
+    }}
+  >
+    <Stack direction="row" spacing={1} sx={{ alignItems: "center", minWidth: 0, flex: 1 }}>
+      <ReviewHeader review={review} />
+    </Stack>
+
+    <Stack
+      direction="row"
+      spacing={2}
+      sx={{ flexShrink: 0 }}
+    >
+      {review.ratings.map((rating, index) => (
+        <RatingDisplay key={index} rating={rating} />
+      ))}
+    </Stack>
+  </Stack>
+);
+
+const MobileView = ({ review }) => (
+  <Stack
+    spacing={1}
+    sx={{
+      display: { xs: 'flex', sm: 'none' }
+    }}
+  >
+    <ReviewHeader review={review} />
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(2, 1fr)',
+        gap: 1
+      }}
+    >
+      {review.ratings.map((rating, index) => (
+        <RatingDisplay key={index} rating={rating} />
+      ))}
+    </Box>
+  </Stack>
+);
+
 const ReviewMini = ({ review }) => {
   return (
     <Card
@@ -18,130 +114,8 @@ const ReviewMini = ({ review }) => {
     >
       <Stack spacing={1}>
         <Box>
-          <Stack
-            direction="row"
-            spacing={1}
-            sx={{
-              alignItems: "flex-start",
-              justifyContent: "space-between",
-              display: { xs: 'none', sm: 'flex' }
-            }}
-          >
-            <Stack direction="row" spacing={1} sx={{ alignItems: "center", minWidth: 0, flex: 1 }}>
-              <UserIcon user={review.user} hoverable={false} />
-              <Box sx={{ minWidth: 0 }}>
-                <Typography
-                  level="title-sm"
-                  sx={{
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  {review.housing.name}
-                </Typography>
-                <Typography level="body-xs" sx={{ color: 'neutral.500' }}>
-                  {new Date(review.created_at).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  }).replaceAll(",", "")}
-                </Typography>
-              </Box>
-            </Stack>
-
-            <Stack
-              direction="row"
-              spacing={2}
-              sx={{ flexShrink: 0 }}
-            >
-              {review.ratings.map((rating, index) => (
-                <Stack
-                  key={index}
-                  spacing={0.5}
-                  sx={{ alignItems: 'center' }}
-                >
-                  <Typography
-                    level="body-xs"
-                    sx={{
-                      color: 'neutral.500',
-                      textAlign: 'center'
-                    }}
-                  >
-                    {rating.category.name}
-                  </Typography>
-                  <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
-                    <RatingIcon sx={{ color: '#e6c200', fontSize: '1.1rem' }} />
-                    <Typography level="body-sm" fontWeight="md">
-                      {rating.value.toFixed(1)}
-                    </Typography>
-                  </Stack>
-                </Stack>
-              ))}
-            </Stack>
-          </Stack>
-
-          <Stack
-            spacing={1}
-            sx={{
-              display: { xs: 'flex', sm: 'none' }
-            }}
-          >
-            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-              <UserIcon user={review.user} hoverable={false} />
-              <Box sx={{ minWidth: 0 }}>
-                <Typography
-                  level="title-sm"
-                  sx={{
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  {review.housing.name}
-                </Typography>
-                <Typography level="body-xs" sx={{ color: 'neutral.500' }}>
-                  {new Date(review.created_at).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  }).replaceAll(",", "")}
-                </Typography>
-              </Box>
-            </Stack>
-
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(2, 1fr)',
-                gap: 1
-              }}
-            >
-              {review.ratings.map((rating, index) => (
-                <Stack
-                  key={index}
-                  spacing={0.5}
-                  sx={{ alignItems: 'center' }}
-                >
-                  <Typography
-                    level="body-xs"
-                    sx={{
-                      color: 'neutral.500',
-                      textAlign: 'center'
-                    }}
-                  >
-                    {rating.category.name}
-                  </Typography>
-                  <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
-                    <RatingIcon sx={{ color: '#e6c200', fontSize: '1.1rem' }} />
-                    <Typography level="body-sm" fontWeight="md">
-                      {rating.value.toFixed(1)}
-                    </Typography>
-                  </Stack>
-                </Stack>
-              ))}
-            </Box>
-          </Stack>
+          <DesktopView review={review} />
+          <MobileView review={review} />
         </Box>
 
         {review.content && (
