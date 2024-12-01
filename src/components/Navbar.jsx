@@ -102,6 +102,7 @@ const Navbar = () => {
                                 {publicUser?.role === "admin" && (
                                     <MenuItem onClick={() => navigate("/admin")}>Admin</MenuItem>
                                 )}
+                                <MenuItem onClick={() => navigate("/reviews")}>My Reviews</MenuItem>
                                 <MenuItem onClick={() => navigate("/settings")}>Settings</MenuItem>
                                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
                             </Menu>

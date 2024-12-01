@@ -1,6 +1,38 @@
 import supabase from "../config/supabaseClient";
 
 /**
+ * Gets all reviews for a specific user
+ * @param {string} uuid - Supabase UUID of the desired user
+ * @returns {Promise<Array>} Array of user's reviews with related data
+ */
+export const getUserReviews = async (uuid) => {
+    const { data, error } = await supabase
+        .from('reviews')
+        .select(`
+          id,
+          content,
+          created_at,
+          tags (
+            id,
+            name
+          ),
+          ratings: reviews_to_categories (
+            value: rating_value,
+            category: categories (
+              id,
+              name
+            )
+          ),
+          housing(name)
+        `)
+        .eq('user_id', uuid)
+        .order('created_at', { ascending: false })
+
+    if (error) throw error;
+    return data || [];
+};
+
+/**
  * Returns whether the user has a review for the specified room type
  * @param {string} uuid - Supabase UUID of the desired user
  * @param {int} housing_id - ID of the housing
@@ -8,16 +40,16 @@ import supabase from "../config/supabaseClient";
  * @returns {bool}
  */
 export const checkUserHasReviewForRoomType = async (uuid, housing_id, room_id) => {
-	const { count, error } = await supabase
-		.from("reviews")
-		.select("*", { count: "exact" })
-		.eq("user_id", uuid)
-		.eq("housing_id", housing_id)
-		.eq("room_id", room_id);
+    const { count, error } = await supabase
+        .from("reviews")
+        .select("*", { count: "exact" })
+        .eq("user_id", uuid)
+        .eq("housing_id", housing_id)
+        .eq("room_id", room_id);
 
-	if (error) throw Error;
+    if (error) throw Error;
 
-	return count > 0;
+    return count > 0;
 };
 
 /**
