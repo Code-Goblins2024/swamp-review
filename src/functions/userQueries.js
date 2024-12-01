@@ -271,7 +271,6 @@ const getCollabRecommendations = async (uuid) => {
 	if (error) throw error;
 
 	if (!collabData || collabData.length === 0) {
-		console.log("No collab recommendations found");
 		collabData = [];
 	}
 
@@ -322,7 +321,6 @@ const getContentRecommendations = async (uuid, favoritesIds) => {
 		});
 
 		if (!contentData || contentData.length === 0) {
-			console.log("No content recommendations found");
 			contentData = [];
 		}
 	

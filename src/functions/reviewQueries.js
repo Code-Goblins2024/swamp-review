@@ -153,7 +153,6 @@ export const isFlagged = async (uuid, review_id) => {
 export const flagReview = async (uuid, review_id) => {
     try {
         if (await isFlagged(uuid, review_id)) {
-            console.log(`Unflagging review ID ${review_id}`);
             const response = await supabase.from("flagged_reviews").delete().eq("user_id", uuid).eq("review_id", review_id);
             if (response.status != 204) {
                 console.log("Error removing flag");
@@ -195,10 +194,6 @@ export const flagReview = async (uuid, review_id) => {
                     .eq("id", review_id);
 
                 if (updateError) throw updateError;
-
-                console.log(`Review ID ${review_id} status updated to "in_review"`);
-            } else {
-                console.log(`Review ID ${review_id} flagged successfully, but no status update needed.`);
             }
         }
     } catch (error) {
