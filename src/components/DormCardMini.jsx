@@ -23,22 +23,18 @@ const DormCardMini = ({
       sx={{
         display: 'flex',
         alignItems: 'center',
-        mb: 2,
-        p: 1,
-        borderRadius: 1,
+        mb: 0.5,
+        p: 1.5,
+        borderRadius: "0.3rem",
         cursor: 'pointer',
         transition: 'all 0.3s',
         bgcolor: 'background.paper',
         '&:hover': {
-          bgcolor: '#DDDDDD',
+          bgcolor: '#efefef',
         },
       }}
       onClick={onClick}
     >
-      {/* Icon Section */}
-      <Box sx={{ mr: 2 }}>
-        <ApartmentIcon sx={{ color: 'primary.main' }} />
-      </Box>
 
       {/* Content Section */}
       <Box sx={{ flex: 1, minWidth: 0 }}>
