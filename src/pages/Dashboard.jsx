@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Typography, Card, CardContent, Grid, Button, Chip, CircularProgress } from '@mui/joy';
+import { Box, Typography, Card, CardContent, Grid, Button, Chip, CircularProgress, Stack } from '@mui/joy';
 import { Apartment as ApartmentIcon, Tag } from '@mui/icons-material';
 import supabase from '../config/supabaseClient';
 import useAuth from '../store/authStore';
@@ -10,6 +10,7 @@ import DormCardMini from '../components/DormCardMini.jsx';
 import UserCard from '../components/UserCard.jsx';
 import { calculateAverageRating } from '../functions/util';
 import TagList from '../components/TagList.jsx';
+import ReviewMini from '../components/ReviewMini.jsx';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -99,7 +100,7 @@ const Dashboard = () => {
         `)
         .eq('user_id', session.user.id)
         .order('created_at', { ascending: false })
-        .limit(5);
+        .limit(3);
 
       if (error) throw error;
       setRecentReviews(data);
@@ -123,34 +124,34 @@ const Dashboard = () => {
 
       <Grid container spacing={3}>
         <Grid xs={12} md={9}>
-        <Typography level="h3" sx={{ mb: 2 }}>Your Favorites</Typography>
-        <Box sx={{ display: 'flex', overflowX: 'auto', pb: 2 }}>
-          {favorites.length > 0 ? (
-            favorites.map((dorm) => (
-              <DormCard
-                key={dorm.id}
-                name={dorm.name}
-                isFavorited={true}
-                housingId={dorm.id}
-                rating={calculateAverageRating(dorm.average_ratings)}
-                reviews={dorm.reviews?.length || 0}
-                onClick={() => handleDormClick(dorm.id)}
-                onFavoriteRemoved={onFavoriteRemoved}
-                variant='scroll'
-                tags={dorm?.tags || []}
-              />
-            ))
-          ) : (
-            <Typography level="body-md">No favorites found. Start exploring dorms to add some!</Typography>
-          )}
-        </Box>
+          <Typography level="h3" sx={{ mb: 2 }}>Your Favorites</Typography>
+          <Box sx={{ display: 'flex', overflowX: 'auto', pb: 2 }}>
+            {favorites.length > 0 ? (
+              favorites.map((dorm) => (
+                <DormCard
+                  key={dorm.id}
+                  name={dorm.name}
+                  isFavorited={true}
+                  housingId={dorm.id}
+                  rating={calculateAverageRating(dorm.average_ratings)}
+                  reviews={dorm.reviews?.length || 0}
+                  onClick={() => handleDormClick(dorm.id)}
+                  onFavoriteRemoved={onFavoriteRemoved}
+                  variant='scroll'
+                  tags={dorm?.tags || []}
+                />
+              ))
+            ) : (
+              <Typography level="body-md">No favorites found. Start exploring dorms to add some!</Typography>
+            )}
+          </Box>
         </Grid>
         <Grid xs={12} md={3}>
           <Typography level="h3" sx={{ mb: 2 }}>Your Profile</Typography>
           <UserCard
             user_id={session.user.id}
             isEditable={true}
-            onTagSave={() => {fetchRecommendations();}}
+            onTagSave={() => { fetchRecommendations(); }}
           />
         </Grid>
       </Grid>
@@ -196,27 +197,23 @@ const Dashboard = () => {
             <CardContent>
               <Typography level="h4" sx={{ mb: 2 }}>Your Recent Reviews</Typography>
               {recentReviews.length > 0 ? (
-                recentReviews.map((review) => (
-                  <Box key={review.id} sx={{ mb: 2 }}>
-                    <Typography level="title-sm">{review.housing.name}</Typography>
-                    <Typography level="body-sm">{review.content.substring(0, 100)}{review.content.length > 100 ? '...' : ''}</Typography>
-                    <Chip size="sm" variant="outlined" sx={{ mt: 1 }}>{review.ratings[0].category.name}: {review.ratings[0].value}/5</Chip>
-                    <Chip size="sm" variant="outlined" sx={{ mt: 1 }}>{review.ratings[1].category.name}: {review.ratings[1].value}/5</Chip>
-                    <Chip size="sm" variant="outlined" sx={{ mt: 1 }}>{review.ratings[2].category.name}: {review.ratings[2].value}/5</Chip>
-                    <Chip size="sm" variant="outlined" sx={{ mt: 1 }}>{review.ratings[3].category.name}: {review.ratings[3].value}/5</Chip>
-                    {review.tags.length > 0 && (
-                    <>
-                      <Typography level="body-sm" sx={{ mt: 1 }}>Tags:</Typography>
-                      <TagList size="sm" sx={{ mt: 1 }} tags={review.tags} />
-                    </>
-                    )}
-                  </Box>
-                ))
+                <Stack spacing={2}>
+                  {recentReviews.map((review) => (
+                    <ReviewMini key={review.id} review={review} />
+                  ))}
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    sx={{ mt: 2 }}
+                    onClick={() => navigate('/reviews')}
+                  >
+                    View All Your Reviews
+                  </Button>
+                </Stack>
               ) : (
-                <Typography level="body-md">No recent reviews. Share your experiences by writing a review!</Typography>
-              )}
-              {recentReviews.length > 0 && (
-                <Button fullWidth variant="outlined" sx={{ mt: 2 }}>View All Your Reviews</Button>
+                <Typography level="body-md">
+                  No recent reviews. Share your experiences by writing a review!
+                </Typography>
               )}
             </CardContent>
           </Card>

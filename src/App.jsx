@@ -16,6 +16,7 @@ import About from "./pages/About";
 import Search from "./pages/Search";
 import Admin from "./pages/Admin";
 import Settings from "./pages/Settings";
+import UserReviews from "./pages/UserReviews";
 
 import { getUser } from "./functions/userQueries";
 import { theme } from "./constants/Constants";
@@ -82,6 +83,10 @@ const App = () => {
 								<Route
 									path="/dashboard"
 									element={session && publicUser ? <Dashboard /> : <Navigate to="/signin" />}
+								/>
+								<Route
+									path="/reviews"
+									element={session && publicUser ? <UserReviews /> : <Navigate to="/signin" />}
 								/>
 								<Route
 									path="/admin"
