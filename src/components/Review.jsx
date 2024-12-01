@@ -1,3 +1,8 @@
+/**
+ * Standard component for displaying user reviews - takes in review object and follows standard table structure from Supabase to display
+ * Accepts "ownedByCurrentUser" prop for custom styling when the current user wrote the review
+ * Accepts "handleClickFlag" and "flagLoading" props for reporting/loading while reporting reviews
+ */
 import { Card, Stack, Typography, Box, Button, CircularProgress } from "@mui/joy";
 import { Grid2 } from "@mui/material";
 import { useTheme } from "@mui/joy/styles";

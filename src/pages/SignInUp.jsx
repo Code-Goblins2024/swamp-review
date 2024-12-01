@@ -1,3 +1,6 @@
+/**
+ * Page for users to sign in/sign up
+ */
 import { Typography, Box, Stack, Button, Divider, FormLabel } from "@mui/joy";
 import { useState } from "react";
 import { years } from "../constants/Enums";

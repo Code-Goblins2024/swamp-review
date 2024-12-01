@@ -1,3 +1,6 @@
+/**
+ * Standard form component for select input types
+ */
 import { FormControl, FormLabel, Select, Typography, Option } from "@mui/joy";
 import PropTypes from "prop-types";
 

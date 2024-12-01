@@ -1,3 +1,7 @@
+/**
+ * Displays 5 stars that will pass the name of the "category" prop and the index of the clicked star to the onChange
+ * Can be used in contexts like review forms to allow the user to rate a specific category out of 5 stars
+ */
 import { Star, StarOutline } from "@mui/icons-material";
 import { Box, Stack } from "@mui/joy";
 import PropTypes from "prop-types";

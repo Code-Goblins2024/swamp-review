@@ -1,3 +1,7 @@
+/**
+ * Page for displaying individual housing options
+ * Contains housing name, average ratings, room types/pricing, features, interest points (through GMaps), and reviews
+ */
 import { Box, Button, Typography, Stack, Card, CircularProgress } from "@mui/joy";
 import { Grid2 } from "@mui/material";
 import { useState, useEffect, useCallback } from "react";

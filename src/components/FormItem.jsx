@@ -1,3 +1,6 @@
+/**
+ * Standard form component for text input tyeps
+ */
 import { FormControl, FormLabel, Input, Typography } from "@mui/joy";
 import PropTypes from "prop-types";
 
