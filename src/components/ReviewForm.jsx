@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { addReview, checkUserHasReviewForRoomType } from "../functions/reviewQueries";
 import { getHousing } from "../functions/housingQueries";
+import { years } from "../constants/Enums";
 import useAuth from "../store/authStore";
 import FormSelect from "./FormSelect";
 import PropTypes from "prop-types";
@@ -19,6 +20,8 @@ const ReviewForm = ({ setReviewFormOpen, housingData, setHousingData, categories
     const { session } = useAuth();
     const [roomType, setRoomType] = useState("");
     const [roomTypeError, setRoomTypeError] = useState("");
+    const [yearLived, setYearLived] = useState("");
+    const [yearLivedError, setYearLivedError] = useState("");
     const [ratings, setRatings] = useState({});
     const [ratingsErrors, setRatingsErrors] = useState({});
     const [selectedTags, setSelectedTags] = useState([]);
@@ -78,6 +81,13 @@ const ReviewForm = ({ setReviewFormOpen, housingData, setHousingData, categories
         setRoomType(e.target.value);
     };
 
+    const handleYearLivedChange = (e) => {
+        if (submitting || loading || !session) return;
+
+        setYearLivedError("");
+        setYearLived(e.target.value);
+    };
+
     const handleContentChange = (e) => {
         if (submitting || loading || !session) return;
 
@@ -123,6 +133,12 @@ const ReviewForm = ({ setReviewFormOpen, housingData, setHousingData, categories
             setRoomTypeError("Please choose a room type");
         }
 
+        // Check that a year lived has been selected
+        if (!yearLived) {
+            errors = true;
+            setYearLivedError("Please choose a year you lived in the dorm");
+        }
+
         // Check that a rating has been selected for all categories
         let newRatingsErrors = { ...ratingsErrors };
         categories.forEach((category) => {
@@ -160,7 +176,7 @@ const ReviewForm = ({ setReviewFormOpen, housingData, setHousingData, categories
 
         try {
             if (!filter.isProfane(content)) {
-                await addReview(content, housingData.id, roomId, session.user.id, selectedTags, formattedRatings);
+                await addReview(content, housingData.id, roomId, session.user.id, selectedTags, formattedRatings, yearLived);
             } else {
                 setGeneralError("Sorry, your review contains inappropriate language and we cannot process your request.");
                 setSubmitting(false);
@@ -268,6 +284,23 @@ const ReviewForm = ({ setReviewFormOpen, housingData, setHousingData, categories
                                     error={roomTypeError}
                                     onChange={handleRoomTypeChange}
                                     options={housingData.roomTypes.map((roomType) => roomType.name)}
+                                />
+                            </Box>
+                        </Box>
+                        <Box>
+                            <Typography level="body-md" fontWeight="xl">
+                                Year Lived
+                            </Typography>
+                            <Typography level="body-sm" sx={{ marginBottom: "0.25rem" }}>
+                                Select the year that you live/lived in this dorm:
+                            </Typography>
+                            <Box sx={{ width: "40%" }}>
+                                <FormSelect
+                                    name={"yearLived"}
+                                    value={yearLived}
+                                    error={yearLivedError}
+                                    onChange={handleYearLivedChange}
+                                    options={years.slice(0, 6)}
                                 />
                             </Box>
                         </Box>

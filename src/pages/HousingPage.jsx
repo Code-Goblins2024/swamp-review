@@ -300,8 +300,8 @@ const HousingPage = () => {
 														activePricingSemester === "Fall/Spring"
 															? room_type.fall_spring_price
 															: activePricingSemester === "Summer A/B"
-															? room_type.summer_AB_price
-															: room_type.summer_C_price
+																? room_type.summer_AB_price
+																: room_type.summer_C_price
 													)}
 												</Typography>
 											))}

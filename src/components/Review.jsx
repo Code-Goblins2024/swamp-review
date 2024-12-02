@@ -67,8 +67,8 @@ const Review = ({ review, ownedByCurrentUser, handleDeleteReview, deleteLoading,
 								<Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
 									<Typography>&bull;</Typography>
 									<Typography level="body-sm" fontWeight="lg">
-										{review.user.year}
-										{["First", "Second", "Third", "Fourth", "Fifth"].includes(review.user.year) &&
+										{review.year_lived}
+										{["First", "Second", "Third", "Fourth", "Fifth"].includes(review.year_lived) &&
 											"-year"}
 									</Typography>
 								</Stack>
@@ -120,7 +120,7 @@ const Review = ({ review, ownedByCurrentUser, handleDeleteReview, deleteLoading,
 									{!ownedByCurrentUser && (
 										<>
 											{review.flags.filter((flag) => flag.user_id === session.user.id).length >
-											0 ? (
+												0 ? (
 												<FlagIcon sx={{ color: "red.main", fontSize: "24px" }} />
 											) : (
 												<OutlinedFlagIcon sx={{ fontSize: "24px" }} />
