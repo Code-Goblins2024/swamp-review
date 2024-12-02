@@ -35,12 +35,6 @@ const Dashboard = () => {
     }
   }, [session]);
 
-  useEffect(() => {
-    if (session) {
-      fetchRecentReviews();
-    }
-  }, [recentReviews]);
-
   const handleDormClick = (dormId) => {
     navigate(`/housing/${dormId}`);
   };
@@ -181,12 +175,10 @@ const Dashboard = () => {
                   <DormCardMini
                     key={dorm.id}
                     name={dorm.name}
-                    isFavorited={true}
                     housingId={dorm.id}
                     rating={calculateAverageRating(dorm.average_ratings)}
                     reviews={dorm.reviews?.length || 0}
                     onClick={() => handleDormClick(dorm.id)}
-                    onFavoriteRemoved={onFavoriteRemoved}
                     variant='scroll'
                     tags={dorm?.tags || []}
                   />
