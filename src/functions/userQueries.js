@@ -26,7 +26,6 @@ export const createPublicUser = async (user) => {
  * @param {string} uuid - User id
  * @returns {any[]} data - Favorite housing
  */
-
 export const getUserFavorites = async (uuid) => {
 	let { data, error } = await supabase
 		.from("favorites")
@@ -108,7 +107,6 @@ export const getUserFavorites = async (uuid) => {
  * @param {number} housing_id - Housing selected
  * @param {string} uuid - User id
  */
-
 export const addUserFavorite = async (housing_id, uuid) => {
 	const { error } = await supabase.from("favorites").insert({ housing_id, user_id: uuid });
 	if (error) {
@@ -122,7 +120,6 @@ export const addUserFavorite = async (housing_id, uuid) => {
  * @param {number} housing_id - Housing selected
  * @param {string} uuid - User id
  */
-
 export const removeUserFavorite = async (housing_id, uuid) => {
 	const { error } = await supabase.from("favorites").delete().eq("housing_id", housing_id).eq("user_id", uuid);
 	if (error) {
@@ -136,7 +133,6 @@ export const removeUserFavorite = async (housing_id, uuid) => {
  * @param {string} uuid - User id
  * @param {string} new_username - New username
  */
-
 export const updateUsername = async (uuid, new_username) => {
 	// TODO: check if username is unique and valid
 
@@ -152,7 +148,6 @@ export const updateUsername = async (uuid, new_username) => {
  * @param {string} uuid - User id
  * @returns {any[]} data - User data
  */
-
 export const getUser = async (uuid) => {
 	const { data, error } = await supabase
 		.from("users")

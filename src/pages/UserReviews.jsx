@@ -1,3 +1,10 @@
+/**
+ * User Reviews Page
+ * 
+ * This page displays all reviews written by the logged-in user.
+ * 
+ * This page uses the ReviewMini component.
+ */
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, CircularProgress, Stack, Card } from '@mui/joy';
 import useAuth from '../store/authStore';

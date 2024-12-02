@@ -1,3 +1,14 @@
+/** 
+ * Search Page
+ * 
+ * This page allows users to search for housing by name, sort by name, rating, or number of reviews, and filter by tags.
+ * It displays a grid of dorm cards with basic information about each dorm.
+ * Users can click on a dorm card to view more details about that dorm and leave a review.
+ * 
+ * This page uses the following components:
+ * - DormCard
+ * - FilterSidebar
+ */
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Input, Grid, Select, Option, CircularProgress, Chip } from '@mui/joy';
