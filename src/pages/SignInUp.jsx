@@ -211,14 +211,11 @@ const SignInUp = () => {
     return (
         <Box
             sx={{
-                position: "absolute",
-                top: 64,
-                bottom: 0,
-                left: 0,
-                right: 0,
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
+                padding: "2rem",
+                flexGrow: 1,
             }}
         >
             {/* Sign In/Up Form Container */}

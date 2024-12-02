@@ -68,9 +68,16 @@ const App = () => {
 				<CssBaseline />
 				<ColorSchemeSetting user={publicUser} />
 				<Router>
-					<div className="app-container">
+					<div 
+            className="app-container"
+            style={{
+              minHeight: "100vh",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
 						<Navbar />
-						<main>
+						<main style={{ display: "flex", flexDirection: "column", flexGrow: 1}}>
 							<Routes>
 								<Route
 									path="/"
