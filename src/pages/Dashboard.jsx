@@ -1,7 +1,17 @@
+/**
+ * Dashboard Page
+ * 
+ * This page displays the user's favorited dorms, generated dorm recommendations, and recent reviews.
+ * It also provides a user profile card with the option to edit user information.
+ * 
+ * This page uses the following components:
+ * - DormCard / DormCardMini
+ * - ReviewMini
+ * - UserCard
+ */
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Typography, Card, CardContent, Grid, Button, Chip, CircularProgress, Stack } from '@mui/joy';
-import { Apartment as ApartmentIcon, Tag } from '@mui/icons-material';
+import { Box, Typography, Card, CardContent, Grid, Button, CircularProgress, Stack } from '@mui/joy';
 import supabase from '../config/supabaseClient';
 import useAuth from '../store/authStore';
 import { getUserFavorites, getUserRecommendations } from "../functions/userQueries";
@@ -9,7 +19,6 @@ import DormCard from '../components/DormCard.jsx';
 import DormCardMini from '../components/DormCardMini.jsx';
 import UserCard from '../components/UserCard.jsx';
 import { calculateAverageRating } from '../functions/util';
-import TagList from '../components/TagList.jsx';
 import ReviewMini from '../components/ReviewMini.jsx';
 
 const Dashboard = () => {

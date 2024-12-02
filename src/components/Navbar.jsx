@@ -1,3 +1,15 @@
+/**
+ * Navbar component
+ * 
+ * A responsive navigation bar that displays the site's logo, navigation items, and user menu.
+ * 
+ * The navigation items are displayed as buttons that navigate to different pages.
+ * The user menu displays the user's name and a dropdown menu with links to the user's reviews, settings, and logout.
+ * 
+ * The user menu also displays an "Admin" link if the user is an admin.
+ * 
+ * The navbar is responsive and will display a hamburger icon on mobile screens.
+ */
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import useAuth from "../store/authStore";

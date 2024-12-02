@@ -1,4 +1,12 @@
-import { Box, Typography, Card, CardContent, IconButton, Chip } from '@mui/joy';
+/**
+ * DormCard component
+ * 
+ * A card component that displays information about a dorm.
+ * 
+ * Allows the user to favorite the dorm and can be clicked 
+ * to navigate to the dorm's page.
+ */
+import { Box, Typography, Card, CardContent, IconButton } from '@mui/joy';
 import { Favorite as FavoriteIcon, FavoriteBorder as FavoriteBorderIcon, StarRateRounded as RatingIcon, CommentRounded as ReviewIcon } from '@mui/icons-material';
 import { addUserFavorite, removeUserFavorite } from '../functions/userQueries';
 import useAuth from '../store/authStore';

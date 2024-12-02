@@ -1,3 +1,9 @@
+/**
+ * Landing Page
+ * 
+ * This page is the main landing page for the SwampReview website.
+ * It provides a brief overview of the website's features and statistics.
+ */
 import { Box, Typography, Button, Card, CardContent, Grid, Sheet } from '@mui/joy';
 import { Search as SearchIcon } from '@mui/icons-material';
 import PersonIcon from '@mui/icons-material/Person';

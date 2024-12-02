@@ -1,5 +1,11 @@
 /**
- * Page for users to sign in/sign up
+ * Sign In/Up Page
+ * 
+ * This page allows users to sign in or sign up for an account.
+ * 
+ * This page uses the following components:
+ * - FormItem
+ * - UserInfoForm
  */
 import { Typography, Box, Stack, Button, Divider, FormLabel } from "@mui/joy";
 import { useState } from "react";

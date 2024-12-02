@@ -102,6 +102,11 @@ export const addReview = async (content, housing_id, room_id, uuid, tag_ids, rat
     return data;
 };
 
+/**
+ * Gets all flagged reviews
+ * @returns {Promise<Array>} Array of flagged reviews with related data
+ * @throws {Error} Error fetching data
+ */
 export const getFlaggedReviews = async () => {
     const { data: flaggedReviews, error: flagError } = await supabase.from("flagged_reviews").select(`
 		id,
@@ -138,6 +143,12 @@ export const getFlaggedReviews = async () => {
     return uniqueFlaggedReviews;
 };
 
+/**
+ * Checks if a review is flagged by the provided user
+ * @param {string} uuid - Unique user identifier
+ * @param {int} review_id - Id of review to be checked
+ * @returns {Promise<boolean>} True if review is flagged, false otherwise
+ */
 export const isFlagged = async (uuid, review_id) => {
     const { data, error } = await supabase.from("flagged_reviews").select().eq("user_id", uuid).eq("review_id", review_id);
     if (error) throw error;
@@ -149,7 +160,6 @@ export const isFlagged = async (uuid, review_id) => {
  * @param{string} uuid - Unique user identifier
  * @param{int} review_id - Id of review to be flagged
  */
-
 export const flagReview = async (uuid, review_id) => {
     try {
         if (await isFlagged(uuid, review_id)) {
@@ -207,7 +217,6 @@ export const flagReview = async (uuid, review_id) => {
  * @param{int} review_id - Id of review
  * @param{string} status - New status (enum from Supabase)
  */
-
 export const updateReviewStatus = async (review_id, status) => {
     const { error: statusError } = await supabase.from("reviews").update({ status }).eq("id", review_id);
     if (statusError) throw statusError;

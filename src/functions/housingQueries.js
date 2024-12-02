@@ -2,6 +2,11 @@ import supabase from "../config/supabaseClient";
 import { computeTagsForHousing } from "./util";
 import { getTagCountsForAllHousing, getTagCountsForHousing } from "./tagQueries";
 
+/**
+ * Gets all housing with related data
+ * @returns {Promise<Array>} Array of housing with related data
+ * @throws {Error} Error fetching data
+ */
 export const getAllHousing = async () => {
 	let { data, error } = await supabase
 		.from("housing")
@@ -93,6 +98,12 @@ export const getAllHousing = async () => {
 	return data;
 };
 
+/**
+ * Gets housing data for a specific housing id
+ * @param {number} id Housing id
+ * @returns {Promise<Object>} Housing data
+ * @throws {Error} Error fetching data
+ */
 export const getHousing = async (id) => {
 	const { data, error } = await supabase
 		.from("housing")
@@ -176,6 +187,12 @@ export const getHousing = async (id) => {
 	return housing;
 };
 
+/**
+ * Gets interest points for a specific housing id
+ * @param {number} id Housing id
+ * @returns {Promise<Object>} Interest points
+ * @throws {Error} Error fetching data
+ */
 export const getInterestPoints = async (id) => {
 	const { data, error } = await supabase
 		.from("housing")
@@ -198,6 +215,12 @@ export const getInterestPoints = async (id) => {
 	return data;
 };
 
+/**
+ * Gets reviews for a specific housing id
+ * @param {number} id Housing id
+ * @returns {Promise<Object>} Reviews
+ * @throws {Error} Error fetching data
+ */
 export const getHousingReviews = async (id) => {
 	const { data, error } = await supabase
 		.from("housing")
@@ -224,6 +247,11 @@ export const getHousingReviews = async (id) => {
 	return data;
 };
 
+/**
+ * Gets average rating by category for all housing
+ * @returns {Promise<Object>} Average ratings by category
+ * @throws {Error} Error fetching data
+ */
 export const getAvgRatingByCategoryForAllHousing = async () => {
 	const { data, error } = await supabase.rpc("get_avg_ratings_for_all_housing");
 
@@ -242,6 +270,12 @@ export const getAvgRatingByCategoryForAllHousing = async () => {
 	return groupedAverageRatings;
 };
 
+/**
+ * Gets average rating by category for a specific housing id
+ * @param {number} id Housing id
+ * @returns {Promise<Object>} Average ratings by category
+ * @throws {Error} Error fetching data
+ */
 export const getAvgRatingByCategoryForHousing = async (id) => {
 	const { data, error } = await supabase.rpc("get_avg_ratings_for_single_housing", { target_housing_id: id });
 
@@ -253,6 +287,11 @@ export const getAvgRatingByCategoryForHousing = async (id) => {
 	return data;
 };
 
+/**
+ * Gets review counts for all housing
+ * @returns {Promise<Object>} Review counts
+ * @throws {Error} Error fetching data
+ */
 export const getReviewCountsForAllHousing = async () => {
   let { data, error } = await supabase
   .from('housing')

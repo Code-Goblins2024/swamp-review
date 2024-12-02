@@ -1,3 +1,8 @@
+/**
+ * About Page
+ * 
+ * This page provides information about the SwampReview website and its development team.
+ */
 import React from 'react';
 import { Card, CardContent, Typography, Box, List, ListItem } from '@mui/joy';
 import { useTheme } from '@mui/joy/styles';
