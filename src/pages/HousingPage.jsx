@@ -1,7 +1,7 @@
 /**
  * Page for displaying individual housing options
  * Contains housing name, average ratings, room types/pricing, features, interest points (through GMaps), and reviews
- * 
+ *
  * This page uses the following components:
  * - Rating
  * - CustomChip
@@ -18,7 +18,7 @@ import { getHousing } from "../functions/housingQueries";
 import { getAllCategories } from "../functions/categoryQueries";
 import { getAllTags } from "../functions/tagQueries";
 import { useNavigate, useLocation } from "react-router-dom";
-import { flagReview } from "../functions/reviewQueries";
+import { deleteReview, flagReview } from "../functions/reviewQueries";
 import useAuth from "../store/authStore";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import Rating from "../components/Rating";
@@ -41,6 +41,7 @@ const HousingPage = () => {
 	const [loading, setLoading] = useState(true);
 	const [activePricingSemester, setActivePricingSemester] = useState("Fall/Spring");
 	const [flagLoading, setFlagLoading] = useState(null);
+	const [deleteLoading, setDeleteLoading] = useState(null);
 
 	useEffect(() => {
 		const loadHousingData = async () => {
@@ -91,13 +92,28 @@ const HousingPage = () => {
 	};
 
 	const handleClickFlag = async (review_id) => {
-		if (flagLoading) return;
+		if (flagLoading || loading || deleteLoading) return;
 		setFlagLoading(review_id);
 
 		await flagReview(session.user.id, review_id);
 		const newHousingData = await getHousing(housingId);
 		setHousingData(newHousingData);
 		setFlagLoading(null);
+	};
+
+	const handleDeleteReview = async (review_id) => {
+		if (flagLoading || loading || deleteLoading) return;
+		setDeleteLoading(review_id);
+
+		try {
+			await deleteReview(review_id);
+			const newHousingData = await getHousing(housingId);
+			setHousingData(newHousingData);
+		} catch {
+			alert("Could not delete your review. Please try again later.");
+		} finally {
+			setDeleteLoading(null);
+		}
 	};
 
 	if (!housingData || !categories || !tags || !pois) {
@@ -341,8 +357,8 @@ const HousingPage = () => {
 											review={review}
 											ownedByCurrentUser={true}
 											session={session}
-											handleClickFlag={handleClickFlag}
-											flagLoading={flagLoading}
+											handleDeleteReview={handleDeleteReview}
+											deleteLoading={deleteLoading}
 										/>
 									))}
 								{housingData.reviews
