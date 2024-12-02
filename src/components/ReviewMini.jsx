@@ -1,8 +1,14 @@
-import React from 'react';
-import { Box, Stack, Typography, Card } from '@mui/joy';
-import { StarRateRounded as RatingIcon } from '@mui/icons-material';
+/**
+ * Minified component for displaying user reviews - takes in review object and follows standard table structure from Supabase to display
+ * Accepts "ownedByCurrentUser" prop for custom styling when the current user wrote the review
+ */
+import React, { useState } from 'react';
+import { Box, Stack, Typography, Card, Button, CircularProgress } from '@mui/joy';
+import { StarRateRounded as RatingIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import UserIcon from './UserIcon';
 import TagList from './TagList';
+import useAuth from '../store/authStore';
+import { deleteReview } from "../functions/reviewQueries";
 
 const ReviewHeader = ({ review }) => (
   <Stack direction="row" spacing={1} sx={{ alignItems: "center", minWidth: 0 }}>
@@ -100,16 +106,28 @@ const MobileView = ({ review }) => (
   </Stack>
 );
 
-const ReviewMini = ({ review }) => {
+const ReviewMini = ({ review, ownedByCurrentUser }) => {
+  const { session } = useAuth();
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const handleDeleteReview = async (reviewId) => {
+    try {
+      setDeleteLoading(true);
+      await deleteReview(reviewId);
+    } catch (error) {
+      console.error('Error deleting review:', error);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
   return (
     <Card
       variant="outlined"
       sx={{
         mb: 1.5,
         p: 1.5,
-        '&:last-child': {
-          mb: 0
-        }
+        '&:last-child': { mb: 0 }
       }}
     >
       <Stack spacing={1}>
@@ -134,36 +152,64 @@ const ReviewMini = ({ review }) => {
           </Typography>
         )}
 
-        {review.tags.length > 0 && (
-          <Box
-            sx={{
-              display: 'flex',
-              gap: 0.5,
-              overflow: 'auto',
-              pb: 0.5,
-              '::-webkit-scrollbar': {
-                height: '4px'
-              },
-              '::-webkit-scrollbar-track': {
-                background: 'transparent'
-              },
-              '::-webkit-scrollbar-thumb': {
-                background: 'neutral.300',
-                borderRadius: '4px'
-              }
-            }}
-          >
-            <TagList
-              tags={review.tags}
-              maxVisibleTags={5}
+        <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'flex-end' }}>
+          {review.tags.length > 0 ? (
+            <Box
               sx={{
                 display: 'flex',
-                flexWrap: 'nowrap',
-                gap: 0.5
+                gap: 0.5,
+                overflow: 'auto',
+                pb: 0.5,
+                flex: 1,
+                '::-webkit-scrollbar': { height: '4px' },
+                '::-webkit-scrollbar-track': { background: 'transparent' },
+                '::-webkit-scrollbar-thumb': {
+                  background: 'neutral.300',
+                  borderRadius: '4px'
+                }
               }}
-            />
-          </Box>
-        )}
+            >
+              <TagList
+                tags={review.tags}
+                maxVisibleTags={5}
+                sx={{
+                  display: 'flex',
+                  flexWrap: 'nowrap',
+                  gap: 0.5
+                }}
+              />
+            </Box>
+          ) : <Box sx={{ flex: 1 }} />}
+
+          {ownedByCurrentUser && session?.user?.id && (
+            <Button
+              color="neutral"
+              variant="soft"
+              size="sm"
+              sx={{ position: "relative", ml: 1 }}
+              onClick={() => handleDeleteReview(review.id)}
+            >
+              {deleteLoading && (
+                <CircularProgress
+                  sx={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                  }}
+                />
+              )}
+              <Box
+                sx={{
+                  display: "flex",
+                  opacity: deleteLoading ? 0 : 1,
+                }}
+              >
+                <DeleteIcon sx={{ fontSize: "24px" }} />
+              </Box>
+            </Button>
+          )}
+        </Stack>
       </Stack>
     </Card>
   );

@@ -35,6 +35,12 @@ const Dashboard = () => {
     }
   }, [session]);
 
+  useEffect(() => {
+    if (session) {
+      fetchRecentReviews();
+    }
+  }, [recentReviews]);
+
   const handleDormClick = (dormId) => {
     navigate(`/housing/${dormId}`);
   };
@@ -208,7 +214,7 @@ const Dashboard = () => {
               {recentReviews.length > 0 ? (
                 <Stack spacing={2}>
                   {recentReviews.map((review) => (
-                    <ReviewMini key={review.id} review={review} />
+                    <ReviewMini key={review.id} review={review} ownedByCurrentUser={true} />
                   ))}
                   <Button
                     fullWidth

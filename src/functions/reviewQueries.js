@@ -226,3 +226,8 @@ export const updateReviewStatus = async (review_id, status) => {
     //    console.log("Error deleting data");
     //}
 };
+
+export const deleteReview = async (review_id) => {
+  const { error } = await supabase.from("reviews").delete().eq("id", review_id);
+  if (error) throw error;
+}

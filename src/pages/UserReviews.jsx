@@ -20,7 +20,7 @@ const UserReviews = () => {
     if (session) {
       fetchReviews();
     }
-  }, [session]);
+  }, [session, reviews]);
 
   const fetchReviews = async () => {
     try {
@@ -68,7 +68,7 @@ const UserReviews = () => {
           <Card>
             <Stack spacing={2} sx={{ p: 2 }}>
               {reviews.map((review) => (
-                <ReviewMini key={review.id} review={review} />
+                <ReviewMini key={review.id} review={review} ownedByCurrentUser={true} />
               ))}
             </Stack>
           </Card>
