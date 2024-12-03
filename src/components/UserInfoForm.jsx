@@ -20,7 +20,7 @@ const UserInfoForm = ({
       </Box>
 
       <FormItem
-        label="Firstname"
+        label="First Name"
         name="firstname"
         type="text"
         value={formData.firstname}
@@ -29,7 +29,7 @@ const UserInfoForm = ({
       />
 
       <FormItem
-        label="Lastname"
+        label="Last Name"
         name="lastname"
         type="text"
         value={formData.lastname}
