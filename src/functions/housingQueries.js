@@ -131,6 +131,7 @@ export const getHousing = async (id) => {
         id,
         name
       ),
+      year_lived,
       ratings: reviews_to_categories (
         value: rating_value,
         category: categories (
@@ -293,17 +294,17 @@ export const getAvgRatingByCategoryForHousing = async (id) => {
  * @throws {Error} Error fetching data
  */
 export const getReviewCountsForAllHousing = async () => {
-  let { data, error } = await supabase
-  .from('housing')
-  .select('id, reviews(count)')
-  .eq('reviews.status', 'approved');
-  if (error) {
-    console.log(`Error retrieving review counts`);
-    throw error;
-  }
-  const reviewCounts = {};
-  data.forEach((review) => {
-    reviewCounts[review.id] = review.reviews[0].count;
-  });
-  return reviewCounts;
+	let { data, error } = await supabase
+		.from('housing')
+		.select('id, reviews(count)')
+		.eq('reviews.status', 'approved');
+	if (error) {
+		console.log(`Error retrieving review counts`);
+		throw error;
+	}
+	const reviewCounts = {};
+	data.forEach((review) => {
+		reviewCounts[review.id] = review.reviews[0].count;
+	});
+	return reviewCounts;
 }

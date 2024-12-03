@@ -68,14 +68,14 @@ export const checkUserHasReviewForRoomType = async (uuid, housing_id, room_id) =
  * @param {CategoryRating[]} ratings - Rating values for each category of a review
  * @returns {any[]} data - Review created
  */
-export const addReview = async (content, housing_id, room_id, uuid, tag_ids, ratings) => {
+export const addReview = async (content, housing_id, room_id, uuid, tag_ids, ratings, year_lived) => {
     if (ratings.length == 0) {
         throw new Error("Ratings should not be empty");
     }
 
     const { data, error: reviewError } = await supabase
         .from("reviews")
-        .insert({ content, housing_id, room_id, user_id: uuid })
+        .insert({ content, housing_id, room_id, user_id: uuid, year_lived })
         .select();
     if (reviewError) throw reviewError;
 
@@ -228,6 +228,6 @@ export const updateReviewStatus = async (review_id, status) => {
 };
 
 export const deleteReview = async (review_id) => {
-  const { error } = await supabase.from("reviews").delete().eq("id", review_id);
-  if (error) throw error;
+    const { error } = await supabase.from("reviews").delete().eq("id", review_id);
+    if (error) throw error;
 }

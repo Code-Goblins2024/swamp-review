@@ -63,13 +63,13 @@ const Review = ({ review, ownedByCurrentUser, handleDeleteReview, deleteLoading,
 										.replaceAll(",", "")}
 								</Typography>
 							</Box>
-							{review?.user?.year && (
+							{review?.year_lived && (
 								<Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
 									<Typography>&bull;</Typography>
 									<Typography level="body-sm" fontWeight="lg">
-										{review.user.year}
-										{["First", "Second", "Third", "Fourth", "Fifth"].includes(review.user.year) &&
-											"-year"}
+										Resident during {review.year_lived.toLowerCase()}
+										{["First", "Second", "Third", "Fourth", "Fifth"].includes(review.year_lived) &&
+											" year"}
 									</Typography>
 								</Stack>
 							)}
