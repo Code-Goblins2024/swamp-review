@@ -38,7 +38,6 @@ const DormCardMini = ({
       }}
       onClick={onClick}
     >
-
       <Box sx={{ flex: 1, minWidth: 0 }}>
         <Typography
           level="title-sm"
@@ -61,6 +60,7 @@ const DormCardMini = ({
             color: 'text.secondary',
           }}
         >
+          {/* Rating */}
           <Box
             sx={{
               display: 'flex',
@@ -77,6 +77,7 @@ const DormCardMini = ({
               {reviews && reviews > 0 ? rating.toFixed(1) : '---'}
             </Typography>
           </Box>
+          {/* Reviews */}
           <Box
             sx={{
               display: 'flex',
@@ -95,6 +96,7 @@ const DormCardMini = ({
           </Box>
         </Box>
       </Box>
+      {/* Tags */}
       <Box sx={{ flex: 1, minWidth: 0 }}>
       {tags.length > 0 && (
         <TagList tags={tags} maxVisibleTags={2} />

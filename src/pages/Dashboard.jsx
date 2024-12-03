@@ -12,6 +12,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Card, CardContent, Grid, Button, CircularProgress, Stack } from '@mui/joy';
+import { Apartment as ApartmentIcon, Tag } from '@mui/icons-material';
 import supabase from '../config/supabaseClient';
 import useAuth from '../store/authStore';
 import { getUserFavorites, getUserRecommendations } from "../functions/userQueries";
@@ -20,6 +21,7 @@ import DormCardMini from '../components/DormCardMini.jsx';
 import UserCard from '../components/UserCard.jsx';
 import { calculateAverageRating } from '../functions/util';
 import ReviewMini from '../components/ReviewMini.jsx';
+import TagList from '../components/TagList.jsx';
 
 const Dashboard = () => {
   const navigate = useNavigate();

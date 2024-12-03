@@ -134,7 +134,6 @@ const Review = ({ review, ownedByCurrentUser, handleDeleteReview, deleteLoading,
 						</Grid2>
 					)}
 				</Grid2>
-				{/* </Stack> */}
 			</Stack>
 		</Card>
 	);
