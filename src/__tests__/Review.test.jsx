@@ -27,7 +27,7 @@ describe("Review tests", () => {
 		render(<Review review={mockReview} />);
 		const firstname = screen.getByText((content, firstname) => content.includes(mockReview.user.first_name));
 		const lastname = screen.getByText((content, lastname) => content.includes(mockReview.user.last_name));
-		const year = screen.getByText((content, year) => content.includes(mockReview.year_lived));
+		const year = screen.getByText((content, year) => content.includes(mockReview.year_lived.toLowerCase()));
 		expect(firstname).toBeInTheDocument();
 		expect(lastname).toBeInTheDocument();
 		expect(year).toBeInTheDocument();
