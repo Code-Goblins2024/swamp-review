@@ -1,12 +1,15 @@
-import { Box, Typography, Chip } from '@mui/joy';
+/**
+ * DormCardMini component
+ * 
+ * A compact card component that displays information about a dorm.
+ * Allows the user to click on the card to navigate to the dorm's page.
+ */
+import { Box, Typography } from '@mui/joy';
 import { 
   StarRateRounded as RatingIcon, 
   CommentRounded as ReviewIcon, 
-  Apartment as ApartmentIcon 
 } from '@mui/icons-material';
 import TagList from './TagList';
-import useAuth from '../store/authStore';
-import { useState } from 'react';
 
 const DormCardMini = ({
   name,
@@ -23,24 +26,18 @@ const DormCardMini = ({
       sx={{
         display: 'flex',
         alignItems: 'center',
-        mb: 2,
-        p: 1,
-        borderRadius: 1,
+        mb: 0.5,
+        p: 1.5,
+        borderRadius: "0.3rem",
         cursor: 'pointer',
         transition: 'all 0.3s',
         bgcolor: 'background.paper',
         '&:hover': {
-          bgcolor: '#DDDDDD',
+          bgcolor: '#efefef',
         },
       }}
       onClick={onClick}
     >
-      {/* Icon Section */}
-      <Box sx={{ mr: 2 }}>
-        <ApartmentIcon sx={{ color: 'primary.main' }} />
-      </Box>
-
-      {/* Content Section */}
       <Box sx={{ flex: 1, minWidth: 0 }}>
         <Typography
           level="title-sm"

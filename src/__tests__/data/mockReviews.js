@@ -26,6 +26,7 @@ export const mockReviews = [
 		},
 		created_at: "2000-01-02 02:15:00+00",
 		tags: [],
+		year_lived: "Second",
 	},
 	{
 		ratings: [
@@ -54,5 +55,6 @@ export const mockReviews = [
 		},
 		created_at: "2001-01-02 02:15:00+00",
 		tags: [],
+		year_lived: "Masters/Grad",
 	},
 ];

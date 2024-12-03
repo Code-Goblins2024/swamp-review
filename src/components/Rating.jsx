@@ -1,3 +1,8 @@
+/**
+ * Standard component for displaying ratings
+ * Accepts a "type" prop with two options - "average" for categorical ratings displayed at the top of dorm pages,
+ * and "review" for categorical ratings that are displayed on each individual review
+ */
 import { Typography, Box, Stack, Chip } from "@mui/joy";
 import { StarHalf, Star, StarOutline } from "@mui/icons-material";
 import { useMemo, useState, useLayoutEffect } from "react";

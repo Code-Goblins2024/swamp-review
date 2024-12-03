@@ -1,3 +1,14 @@
+/** 
+ * Search Page
+ * 
+ * This page allows users to search for housing by name, sort by name, rating, or number of reviews, and filter by tags.
+ * It displays a grid of dorm cards with basic information about each dorm.
+ * Users can click on a dorm card to view more details about that dorm and leave a review.
+ * 
+ * This page uses the following components:
+ * - DormCard
+ * - FilterSidebar
+ */
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Input, Grid, Select, Option, CircularProgress, Chip } from '@mui/joy';
@@ -125,20 +136,41 @@ const Search = () => {
     }
 
     if (selectedTags.length > 0) {
-      filtered = filtered.filter(dorm =>
-        dorm.tags.some(dormTag => selectedTags.includes(dormTag.tag_name)));
+      filtered = filtered.map(dorm => {
+        const matchCount = dorm.tags.reduce((count, dormTag) =>
+          selectedTags.includes(dormTag.tag_name) ? count + 1 : count, 0);
+        return { ...dorm, matchCount };
+      })
+        .filter(dorm => dorm.matchCount > 0)
+        .sort((a, b) => b.matchCount - a.matchCount);
     }
 
-    if (sortBy === 'name') {
-      filtered.sort((a, b) => a.name.localeCompare(b.name));
-    } else if (sortBy === 'rating') {
-      filtered.sort((a, b) => {
-        const aRating = calculateAverageRating(a.average_ratings);
-        const bRating = calculateAverageRating(b.average_ratings);
-        return bRating - aRating;
+    if (sortBy) {
+      const sortedResults = filtered.reduce((acc, dorm) => {
+        const matchCount = dorm.matchCount || 0;
+        if (!acc[matchCount]) acc[matchCount] = [];
+        acc[matchCount].push(dorm);
+        return acc;
+      }, {});
+
+      Object.keys(sortedResults).forEach(count => {
+        const group = sortedResults[count];
+        if (sortBy === 'name') {
+          group.sort((a, b) => a.name.localeCompare(b.name));
+        } else if (sortBy === 'rating') {
+          group.sort((a, b) => {
+            const aRating = calculateAverageRating(a.average_ratings);
+            const bRating = calculateAverageRating(b.average_ratings);
+            return bRating - aRating;
+          });
+        } else if (sortBy === 'reviews') {
+          group.sort((a, b) => (b.reviews?.length || 0) - (a.reviews?.length || 0));
+        }
       });
-    } else if (sortBy === 'reviews') {
-      filtered.sort((a, b) => (b.reviews?.length || 0) - (a.reviews?.length || 0));
+
+      filtered = Object.keys(sortedResults)
+        .sort((a, b) => b - a)
+        .reduce((acc, count) => [...acc, ...sortedResults[count]], []);
     }
 
     setFilteredHousing(filtered);

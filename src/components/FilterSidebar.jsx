@@ -1,3 +1,11 @@
+/**
+ * FilterSidebar component
+ * 
+ * This component displays a sidebar that allows the user to filter the dorms by tags.
+ * It displays a list of tags that can be toggled on and off.
+ * 
+ * The component is responsive and will display a floating action button on mobile.
+ */
 import React from 'react';
 import {
   Box, Typography, Sheet, Checkbox, List, ListItem, ListItemDecorator,

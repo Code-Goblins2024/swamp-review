@@ -42,7 +42,6 @@ const AdminTable = () => {
 
     async function handleApprove(review_id) {
         try {
-            console.log("approving review");
             await updateReviewStatus(review_id, "approved");
             await fetchFlaggedReviews();
         } catch (error) {
@@ -52,7 +51,6 @@ const AdminTable = () => {
 
     async function handleReject(review_id) {
         try {
-            console.log("rejecting review");
             await updateReviewStatus(review_id, "rejected");
             await fetchFlaggedReviews();
         } catch (error) {

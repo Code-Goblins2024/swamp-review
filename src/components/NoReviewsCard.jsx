@@ -1,3 +1,6 @@
+/**
+ * Placeholder card for when a housing page has no reviews
+ */
 import PropTypes from "prop-types";
 import { Card, Typography, Button } from "@mui/joy";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";

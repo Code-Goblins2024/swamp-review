@@ -1,6 +1,38 @@
 import supabase from "../config/supabaseClient";
 
 /**
+ * Gets all reviews for a specific user
+ * @param {string} uuid - Supabase UUID of the desired user
+ * @returns {Promise<Array>} Array of user's reviews with related data
+ */
+export const getUserReviews = async (uuid) => {
+    const { data, error } = await supabase
+        .from('reviews')
+        .select(`
+          id,
+          content,
+          created_at,
+          tags (
+            id,
+            name
+          ),
+          ratings: reviews_to_categories (
+            value: rating_value,
+            category: categories (
+              id,
+              name
+            )
+          ),
+          housing(name)
+        `)
+        .eq('user_id', uuid)
+        .order('created_at', { ascending: false })
+
+    if (error) throw error;
+    return data || [];
+};
+
+/**
  * Returns whether the user has a review for the specified room type
  * @param {string} uuid - Supabase UUID of the desired user
  * @param {int} housing_id - ID of the housing
@@ -8,16 +40,16 @@ import supabase from "../config/supabaseClient";
  * @returns {bool}
  */
 export const checkUserHasReviewForRoomType = async (uuid, housing_id, room_id) => {
-	const { count, error } = await supabase
-		.from("reviews")
-		.select("*", { count: "exact" })
-		.eq("user_id", uuid)
-		.eq("housing_id", housing_id)
-		.eq("room_id", room_id);
+    const { count, error } = await supabase
+        .from("reviews")
+        .select("*", { count: "exact" })
+        .eq("user_id", uuid)
+        .eq("housing_id", housing_id)
+        .eq("room_id", room_id);
 
-	if (error) throw Error;
+    if (error) throw Error;
 
-	return count > 0;
+    return count > 0;
 };
 
 /**
@@ -36,14 +68,14 @@ export const checkUserHasReviewForRoomType = async (uuid, housing_id, room_id) =
  * @param {CategoryRating[]} ratings - Rating values for each category of a review
  * @returns {any[]} data - Review created
  */
-export const addReview = async (content, housing_id, room_id, uuid, tag_ids, ratings) => {
+export const addReview = async (content, housing_id, room_id, uuid, tag_ids, ratings, year_lived) => {
     if (ratings.length == 0) {
         throw new Error("Ratings should not be empty");
     }
 
     const { data, error: reviewError } = await supabase
         .from("reviews")
-        .insert({ content, housing_id, room_id, user_id: uuid })
+        .insert({ content, housing_id, room_id, user_id: uuid, year_lived })
         .select();
     if (reviewError) throw reviewError;
 
@@ -70,6 +102,11 @@ export const addReview = async (content, housing_id, room_id, uuid, tag_ids, rat
     return data;
 };
 
+/**
+ * Gets all flagged reviews
+ * @returns {Promise<Array>} Array of flagged reviews with related data
+ * @throws {Error} Error fetching data
+ */
 export const getFlaggedReviews = async () => {
     const { data: flaggedReviews, error: flagError } = await supabase.from("flagged_reviews").select(`
 		id,
@@ -106,6 +143,12 @@ export const getFlaggedReviews = async () => {
     return uniqueFlaggedReviews;
 };
 
+/**
+ * Checks if a review is flagged by the provided user
+ * @param {string} uuid - Unique user identifier
+ * @param {int} review_id - Id of review to be checked
+ * @returns {Promise<boolean>} True if review is flagged, false otherwise
+ */
 export const isFlagged = async (uuid, review_id) => {
     const { data, error } = await supabase.from("flagged_reviews").select().eq("user_id", uuid).eq("review_id", review_id);
     if (error) throw error;
@@ -117,11 +160,9 @@ export const isFlagged = async (uuid, review_id) => {
  * @param{string} uuid - Unique user identifier
  * @param{int} review_id - Id of review to be flagged
  */
-
 export const flagReview = async (uuid, review_id) => {
     try {
         if (await isFlagged(uuid, review_id)) {
-            console.log(`Unflagging review ID ${review_id}`);
             const response = await supabase.from("flagged_reviews").delete().eq("user_id", uuid).eq("review_id", review_id);
             if (response.status != 204) {
                 console.log("Error removing flag");
@@ -163,10 +204,6 @@ export const flagReview = async (uuid, review_id) => {
                     .eq("id", review_id);
 
                 if (updateError) throw updateError;
-
-                console.log(`Review ID ${review_id} status updated to "in_review"`);
-            } else {
-                console.log(`Review ID ${review_id} flagged successfully, but no status update needed.`);
             }
         }
     } catch (error) {
@@ -180,7 +217,6 @@ export const flagReview = async (uuid, review_id) => {
  * @param{int} review_id - Id of review
  * @param{string} status - New status (enum from Supabase)
  */
-
 export const updateReviewStatus = async (review_id, status) => {
     const { error: statusError } = await supabase.from("reviews").update({ status }).eq("id", review_id);
     if (statusError) throw statusError;
@@ -190,3 +226,8 @@ export const updateReviewStatus = async (review_id, status) => {
     //    console.log("Error deleting data");
     //}
 };
+
+export const deleteReview = async (review_id) => {
+    const { error } = await supabase.from("reviews").delete().eq("id", review_id);
+    if (error) throw error;
+}

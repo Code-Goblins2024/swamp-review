@@ -1,3 +1,7 @@
+/**
+ * Standard chip component - style is reflected based on truthiness of "active" prop
+ * Can be made clickable by providing an onClick function, otherwise will be static
+ */
 import { Chip, Typography } from "@mui/joy";
 import PropTypes from "prop-types";
 

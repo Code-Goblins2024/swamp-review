@@ -1,3 +1,6 @@
+/**
+ * Interactable Google Maps widget for displaying dorm locations and nearby interest points
+ */
 import { AdvancedMarker, useAdvancedMarkerRef, Pin } from "@vis.gl/react-google-maps";
 import { Map, InfoWindow } from "@vis.gl/react-google-maps";
 import { useState, useCallback } from "react";
